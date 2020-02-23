@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{fragments/layout}">
+
+<head>
+    <title></title>
+</head>
+<body>
+<div layout:fragment="content" th:remove="tag">
+
+    <script type="application/javascript">
+        $(document).ready($(function () {
+            $("#calcButton").click(function (e) {
+                var params = {
+                    e: e,
+                    text: "#calcData",
+                    button: "#calcButton",
+                    message: "#calcResult"
+                };
+                calc(params);
+            });
+            $( "#calcResult" ).contextmenu(function(e) {
+                $(this).text("");
+                e.preventDefault();
+            });
+        }));
+    </script>
+
+  <h3>Расчет</h3>
+
+  <div>
+        <div class="row form-group">
+            <label for="calcData">XML данные</label>
+            <textarea id="calcData" class="form-control" rows="5" style="height: 26vh; font-size: 0.9em; font-family: monospace">
+<gbas.tvk.otpravka.object.VagonOtprTransit>
+  <n__otpr>07058832</n__otpr>
+  <reservedNumOtpr></reservedNumOtpr>
+  <numDocReforwarding></numDocReforwarding>
+  <k__v__otpr>1</k__v__otpr>
+  <vidKOforRR>0</vidKOforRR>
+  <mnemKVOtpr>ВО</mnemKVOtpr>
+  <skor>2</skor>
+  <v__ssob>5</v__ssob>
+  <date__o>2020-01-18 18:55:20.381 UTC</date__o>
+  <date__p>2020-01-18 12:34:00.0 UTC</date__p>
+  <date__dostav>2020-01-24 18:55:20.381 UTC</date__dostav>
+  <k__st__otpr>163602</k__st__otpr>
+  <kodStanSortKont></kodStanSortKont>
+  <n__st__otpr>Вилейка</n__st__otpr>
+  <k__str__otpr>112</k__str__otpr>
+  <kod__otpr>2896</kod__otpr>
+  <nam__otpr>ЗАО &quot;Холдинговая компания &quot;Пинскдрев&quot;</nam__otpr>
+  <adr__otpr>225710 БЕЛАРУСЬ Брестская обл. г. Пинск ул. Чуклая 1</adr__otpr>
+  <unnOtpr>200250960</unnOtpr>
+  <okpoOtpr>00276274</okpoOtpr>
+  <rs__otpr>BY21PJCB30125200701000000933</rs__otpr>
+  <mfo__otpr>PJCBBY2X</mfo__otpr>
+  <nameBank__otpr>ПPИOPБAHK ОАО</nameBank__otpr>
+  <numNodOtpr>1</numNodOtpr>
+  <k__st__nazn>154800</k__st__nazn>
+  <n__st__nazn>Речица</n__st__nazn>
+  <k__str__nazn>112</k__str__nazn>
+  <kod__pol>6488</kod__pol>
+  <nam__pol>ОАО &quot;Гомельдрев&quot;(6488)</nam__pol>
+  <adr__pol>Гомель Достоевского 3 246042</adr__pol>
+  <unnPol></unnPol>
+  <okpoPol></okpoPol>
+  <rs__pol></rs__pol>
+  <mfo__pol></mfo__pol>
+  <nameBank__pol></nameBank__pol>
+  <numNodPol>4</numNodPol>
+  <o__mas>18</o__mas>
+  <pogr>0</pogr>
+  <plata>634.93</plata>
+  <plataOtpr>0.0</plataOtpr>
+  <plAllAndTransit>634.93</plAllAndTransit>
+  <rast>456</rast>
+  <rastOtpr>0</rastOtpr>
+  <raschRast>0</raschRast>
+  <kod__resderj></kod__resderj>
+  <kPlatAlt></kPlatAlt>
+  <namePlatAlt></namePlatAlt>
+  <adrPlatAlt></adrPlatAlt>
+  <numNodPlatAlt>0</numNodPlatAlt>
+  <mfoPlatAlt></mfoPlatAlt>
+  <rasSchPlatAlt></rasSchPlatAlt>
+  <unnPlatAlt></unnPlatAlt>
+  <okpoPlatAlt></okpoPlatAlt>
+  <nameBankplatAlt></nameBankplatAlt>
+  <k__plat>2896</k__plat>
+  <name__plat>ЗАО &quot;Холдинговая компания &quot;Пинскдрев&quot;</name__plat>
+  <adr__plat>225710 БЕЛАРУСЬ  Брестская обл.    г. Пинск   ул. Чуклая 1</adr__plat>
+  <numNodPlat>1</numNodPlat>
+  <mfoPlat>PJCBBY2X   </mfoPlat>
+  <rasSchPlat>BY21PJCB30125200701000000933</rasSchPlat>
+  <unnPlat>200250960</unnPlat>
+  <okpoPlat>00276274</okpoPlat>
+  <nameBank__plat>ПPИOPБAHK ОАО</nameBank__plat>
+  <type__doc>1</type__doc>
+  <mnemoTypeDoc>po_mest</mnemoTypeDoc>
+  <ves__ras>44000</ves__ras>
+  <vid__rab>1</vid__rab>
+  <vid__ras>0</vid__ras>
+  <n__ot__dos></n__ot__dos>
+  <skidka>0</skidka>
+  <kofSkidk>0.0</kofSkidk>
+  <n__poruch>0</n__poruch>
+  <date__rasc>2020-01-17 21:00:00.0 UTC</date__rasc>
+  <pr__sost>0</pr__sost>
+  <skid__shema>0.0</skid__shema>
+  <cena>0.0</cena>
+  <fioRespLoad></fioRespLoad>
+  <fioRespSved>Д. П. Шунько</fioRespSved>
+  <paragr>МТУ № МО-01/2003 от 20.01.2003г.</paragr>
+  <glava></glava>
+  <g4>спецификация на бумажном носителе</g4>
+  <g6></g6>
+  <g8></g8>
+  <g8__1></g8__1>
+  <g8__stik__o></g8__stik__o>
+  <g11></g11>
+  <g11Opr>0</g11Opr>
+  <g16>Шунько Д.П.</g16>
+  <g18></g18>
+  <g19></g19>
+  <g20>НЕТ</g20>
+  <g26></g26>
+  <g91></g91>
+  <g93></g93>
+  <remIsklTarif></remIsklTarif>
+  <kodTarif>15</kodTarif>
+  <tipTarif>МАРТ №51</tipTarif>
+  <planForming>0</planForming>
+  <containerTrain>0</containerTrain>
+  <kolUslVag>0</kolUslVag>
+  <prExternalWork>0</prExternalWork>
+  <prIndexTP>false</prIndexTP>
+  <prChangeTarif>0</prChangeTarif>
+  <vesOnePlaces>0.0</vesOnePlaces>
+  <vesOnePlacesBrutto>0.0</vesOnePlacesBrutto>
+  <extractPassport>false</extractPassport>
+  <saveDispatcherInG20>false</saveDispatcherInG20>
+  <pogr__ves>0.0</pogr__ves>
+  <rateDivideScales>0</rateDivideScales>
+  <remVidRas></remVidRas>
+  <remSkidki></remSkidki>
+  <gu57Pref></gu57Pref>
+  <gu57Num></gu57Num>
+  <codObjReportDep>2</codObjReportDep>
+  <codObjReportDepGU4>0</codObjReportDepGU4>
+  <codObjReportArr>0</codObjReportArr>
+  <codStanMaster>163602</codStanMaster>
+  <nameStanMaster>Вилейка</nameStanMaster>
+  <telegramRet></telegramRet>
+  <telegramStanO></telegramStanO>
+  <gaugeRw>1</gaugeRw>
+  <peredat>0</peredat>
+  <prDobTarif>0</prDobTarif>
+  <plataDobTarif>0.0</plataDobTarif>
+  <gruzDopinfo></gruzDopinfo>
+  <infoPrimGruz></infoPrimGruz>
+  <stan__o__refor></stan__o__refor>
+  <stan__n__refor></stan__n__refor>
+  <kpol__refor></kpol__refor>
+  <npol__refor></npol__refor>
+  <stan__o__refor__name></stan__o__refor__name>
+  <stan__n__refor__name></stan__n__refor__name>
+  <fio__kvit></fio__kvit>
+  <rascNdogp></rascNdogp>
+  <rascNdocp></rascNdocp>
+  <rascPpass></rascPpass>
+  <rascPdpass></rascPdpass>
+  <rascNflp></rascNflp>
+  <rascDom></rascDom>
+  <rascStreet></rascStreet>
+  <rascGorod></rascGorod>
+  <rascGruzpolDolj></rascGruzpolDolj>
+  <rascGruzpol></rascGruzpol>
+  <prDanger>false</prDanger>
+  <stanIzlom/>
+  <pereadr/>
+  <shtempel/>
+  <st__pereh/>
+  <doc/>
+  <expeditor/>
+  <gruz>
+    <gbas.tvk.otpravka.object.Gruz>
+      <n__vag>61591962</n__vag>
+      <n__kont></n__kont>
+      <id__etsng>323</id__etsng>
+      <kod__etsng>081101</kod__etsng>
+      <id__gng>0</id__gng>
+      <kod__gng></kod__gng>
+      <nameEtsng>Лесоматериалы всяких пород длиной св</nameEtsng>
+      <nameGng></nameGng>
+      <k__mest>3</k__mest>
+      <k__mest__temp>0</k__mest__temp>
+      <upak>0</upak>
+      <znaki__marki></znaki__marki>
+      <massa>35000</massa>
+      <tara>0</tara>
+      <klmtt>0</klmtt>
+      <klett>0</klett>
+      <klass>1</klass>
+      <lenBodyRemovable>0.0</lenBodyRemovable>
+      <calcRate>0.0</calcRate>
+      <numOON>0</numOON>
+      <numDanKart>0</numDanKart>
+      <classDan></classDan>
+      <dangSign></dangSign>
+      <codDanger></codDanger>
+      <nameDangerGruz></nameDangerGruz>
+      <groupPack></groupPack>
+      <numberAdditionalDangerSign></numberAdditionalDangerSign>
+      <k__mest__trp>0</k__mest__trp>
+      <ekGngEtsng>false</ekGngEtsng>
+      <id>0</id>
+      <nakl>0</nakl>
+      <packings></packings>
+      <packingn></packingn>
+      <packingcp></packingcp>
+      <packingnp></packingnp>
+      <placest></placest>
+      <note></note>
+      <main>0</main>
+    </gbas.tvk.otpravka.object.Gruz>
+  </gruz>
+  <tv__gruz reference="../gruz/gbas.tvk.otpravka.object.Gruz"/>
+  <sCal>
+    <codRate>0</codRate>
+    <plProvoz>529.11</plProvoz>
+    <ndsPlProvoz>105.82</ndsPlProvoz>
+    <plProv>0.0</plProv>
+    <ndsPlProv>0.0</ndsPlProv>
+    <plDsb>0.0</plDsb>
+    <ndsPlDsb>0.0</ndsPlDsb>
+    <plAll>634.93</plAll>
+    <plPrOt>0.0</plPrOt>
+    <plProvOt>0.0</plProvOt>
+    <plPribTranzit>0.0</plPribTranzit>
+    <plOtTran>0.0</plOtTran>
+    <prNdsPlProvoz>20</prNdsPlProvoz>
+    <prNdsDsb>0</prNdsDsb>
+    <k__UsRB>0.0</k__UsRB>
+    <k__RuRb>0.0</k__RuRb>
+    <tpStavka>0.0</tpStavka>
+    <kofTp>0.0</kofTp>
+    <ndsTp>0.0</ndsTp>
+    <returnEmptyVag>0.0</returnEmptyVag>
+    <ndsReturnEmptyVag>0.0</ndsReturnEmptyVag>
+    <pribReturnEmptyVag>0.0</pribReturnEmptyVag>
+    <ndsPribReturnEmptyVag>0.0</ndsPribReturnEmptyVag>
+    <ndsPlPrOt>0.0</ndsPlPrOt>
+    <ndsPlProvOt>0.0</ndsPlProvOt>
+    <plDobor>0.0</plDobor>
+    <plNach>529.11</plNach>
+    <ndsPlNach>105.82</ndsPlNach>
+    <plPrNach>0.0</plPrNach>
+    <ndsPlPrNach>0.0</ndsPlPrNach>
+    <nachReturnEmptyVag>0.0</nachReturnEmptyVag>
+    <ndsNachReturnEmptyVag>0.0</ndsNachReturnEmptyVag>
+  </sCal>
+  <sCalcInod/>
+  <perevoz>
+    <gbas.tvk.otpravka.object.Perevoz>
+      <perevozc>0021</perevozc>
+      <perevozs>БЧ</perevozs>
+      <perevozn>Белорусская железная дорога</perevozn>
+      <admbc>21</admbc>
+      <stationbc>163602</stationbc>
+      <stationbn>Вилейка</stationbn>
+      <admec>21</admec>
+      <stationec>154800</stationec>
+      <stationen>Речица</stationen>
+      <priority>1</priority>
+    </gbas.tvk.otpravka.object.Perevoz>
+  </perevoz>
+  <idClOtpr>9906</idClOtpr>
+  <idClPol>3190</idClPol>
+  <idClPlat>9906</idClPlat>
+  <idClPlatAlt>0</idClPlatAlt>
+  <stan__oper>1636</stan__oper>
+  <oper>1</oper>
+  <date__oper>2020-01-18 12:10:10.369 UTC</date__oper>
+  <fio__tk>Клочко С.А.</fio__tk>
+  <fioDs>Кавецкая О.А.</fioDs>
+  <positionTk>Агент коммерческий</positionTk>
+  <klientDolj></klientDolj>
+  <doljNakl>мастер</doljNakl>
+  <doljSvedOtp>мастер</doljSvedOtp>
+  <dogovor>2896/1 НОДМ</dogovor>
+  <dogovorKlKl></dogovorKlKl>
+  <vag>
+    <gbas.tvk.otpravka.object.Vagon>
+      <id>206608</id>
+      <id__o__v>11306638</id__o__v>
+      <id__s__02k>0</id__s__02k>
+      <n__vag>61591962</n__vag>
+      <n__vag__peregruz>            </n__vag__peregruz>
+      <sobs>21</sobs>
+      <p__v>1</p__v>
+      <mnemPrV>ЖДА</mnemPrV>
+      <id__pr__v__k>0</id__pr__v__k>
+      <num__sec></num__sec>
+      <count__sec>0</count__sec>
+      <prov>0</prov>
+      <massa>35000</massa>
+      <ves__n__ob>0</ves__n__ob>
+      <equiptype>NONE</equiptype>
+      <prim></prim>
+      <npp>1</npp>
+      <shema>0</shema>
+      <volume>0</volume>
+      <dlina__rama>0</dlina__rama>
+      <texn>0</texn>
+      <c__type>6___</c__type>
+      <idType>0</idType>
+      <c__rod>60</c__rod>
+      <idRodV>0</idRodV>
+      <gruzopod>70.0</gruzopod>
+      <gruzopodK>70.0</gruzopodK>
+      <ves__tara__centner>23.3</ves__tara__centner>
+      <taraK>23.3</taraK>
+      <kol__osi>4</kol__osi>
+      <vidot>1</vidot>
+      <kadm>0</kadm>
+      <idSobst>0</idSobst>
+      <pr__zam>0</pr__zam>
+      <dl>0</dl>
+      <kalibr>0</kalibr>
+      <kalibr__char></kalibr__char>
+      <ves__kontr__rama>0</ves__kontr__rama>
+      <kod__negab></kod__negab>
+      <poluchatel>6488</poluchatel>
+      <checking>true</checking>
+      <nomScheme1>И1 </nomScheme1>
+      <nomScheme2>Л1 </nomScheme2>
+      <nObInTara>false</nObInTara>
+      <kodStanNazn>154800</kodStanNazn>
+      <proverenTara>23.3</proverenTara>
+      <kolVagMetan>0</kolVagMetan>
+      <isSkid>true</isSkid>
+      <pr270>false</pr270>
+      <prS__02k>0</prS__02k>
+      <codSobstEnterprise>0</codSobstEnterprise>
+      <hLoading>0</hLoading>
+      <massa__sum>0</massa__sum>
+      <raz__tarif>0.0</raz__tarif>
+      <dateSobst1367>2020-01-19 15:05:44.87 UTC</dateSobst1367>
+      <own__no></own__no>
+      <danger__old>0</danger__old>
+      <numOONOld>0</numOONOld>
+      <numDanKartOld>0</numDanKartOld>
+      <classDanOld></classDanOld>
+      <dangSignOld></dangSignOld>
+      <codDangerOld></codDangerOld>
+      <nameDangerOldGruz></nameDangerOldGruz>
+      <os__otm/>
+      <shtempel/>
+      <pl__vag/>
+      <sCal>
+        <codRate>0</codRate>
+        <plV>529.11</plV>
+        <ndsPlV>0.0</ndsPlV>
+        <plProv>0.0</plProv>
+        <ndsPlProv>0.0</ndsPlProv>
+        <plPereadrPrib>0.0</plPereadrPrib>
+        <plPereadrProvPrib>0.0</plPereadrProvPrib>
+        <ndsplPereadrPrib>0.0</ndsplPereadrPrib>
+        <ndsplPereadrProvPrib>0.0</ndsplPereadrProvPrib>
+        <plOtpr>0.0</plOtpr>
+        <plProvOtpr>0.0</plProvOtpr>
+        <ndsPlOtpr>0.0</ndsPlOtpr>
+        <ndsPlProvOtpr>0.0</ndsPlProvOtpr>
+        <plPereadr>0.0</plPereadr>
+        <plPereadrProv>0.0</plPereadrProv>
+        <ndsplPereadr>0.0</ndsplPereadr>
+        <ndsplPereadrProv>0.0</ndsplPereadrProv>
+        <ponizKofTP>0.0</ponizKofTP>
+        <prSkid>0</prSkid>
+        <kofSkid>0.0</kofSkid>
+        <returnEmptyVag>0.0</returnEmptyVag>
+        <ndsReturnEmptyVag>0.0</ndsReturnEmptyVag>
+        <kofSkid__ret>0.0</kofSkid__ret>
+        <pribReturnEmptyVag>0.0</pribReturnEmptyVag>
+        <ndsPribReturnEmptyVag>0.0</ndsPribReturnEmptyVag>
+        <plDobor>0.0</plDobor>
+      </sCal>
+      <density>0.0</density>
+      <temperature>0.0</temperature>
+      <k__mest>0</k__mest>
+      <tara>0</tara>
+      <idCarriageEds>0</idCarriageEds>
+    </gbas.tvk.otpravka.object.Vagon>
+  </vag>
+  <kont/>
+  <idBranchDoc>0</idBranchDoc>
+  <id__contract>14829499</id__contract>
+  <id__con__parent>1200217</id__con__parent>
+  <id__otpr>4300505</id__otpr>
+  <id__temp__otpr>0</id__temp__otpr>
+  <idOtprObmen>0</idOtprObmen>
+  <idConTeoPlat>1200217</idConTeoPlat>
+  <pr__btlc>0</pr__btlc>
+  <numZag></numZag>
+  <typeTO>0</typeTO>
+  <stateFlag>1677721971</stateFlag>
+  <currencyBankKod>933</currencyBankKod>
+  <n__ppv>0</n__ppv>
+  <admin__o>21</admin__o>
+  <admin__n>21</admin__n>
+  <adminSName__o>БЧ   </adminSName__o>
+  <adminSName__n>БЧ   </adminSName__n>
+  <dorSName__o>БЕЛ   </dorSName__o>
+  <dorSName__n>БЕЛ   </dorSName__n>
+  <dorName__o>БЕЛОРУССКАЯ</dorName__o>
+  <dorKod__o>13</dorKod__o>
+  <dorName__n>БЕЛОРУССКАЯ</dorName__n>
+  <dorKod__n>13</dorKod__n>
+  <n__visas>2095900</n__visas>
+  <rem></rem>
+  <vid__doc>0</vid__doc>
+  <id__vagon__list>14829483</id__vagon__list>
+  <asusState>0</asusState>
+  <id__pput>0</id__pput>
+  <name__pput></name__pput>
+  <dateCreate>2020-01-18 11:38:18.0 UTC</dateCreate>
+  <numTemplet></numTemplet>
+  <idTemplet>0</idTemplet>
+  <quantityTemplet>0</quantityTemplet>
+  <left__templet>0</left__templet>
+  <numKartT>T604</numKartT>
+  <numKartS></numKartS>
+  <simpleVL>false</simpleVL>
+  <mpRequestNumber>1301133160</mpRequestNumber>
+  <mpRequestRow>1</mpRequestRow>
+  <mpPrimary>true</mpPrimary>
+  <id__tvk__mes__plan>2161052</id__tvk__mes__plan>
+  <eid>8789186</eid>
+  <eidDos>0</eidDos>
+  <eidZag>8788816</eidZag>
+  <eidRejected>0</eidRejected>
+  <statusEds>1</statusEds>
+  <idUdpEpd>65665839</idUdpEpd>
+  <prmsd></prmsd>
+  <nakl__pogr>2020-01-18 18:55:20.381 UTC</nakl__pogr>
+  <peregruz>0</peregruz>
+  <candidateSign>false</candidateSign>
+  <shtemp></shtemp>
+  <shtemp2></shtemp2>
+  <is1367>true</is1367>
+  <isCalcStanNazn>false</isCalcStanNazn>
+  <typeZag>0</typeZag>
+</gbas.tvk.otpravka.object.VagonOtprTransit>
+            </textarea>
+        </div>
+
+        <div class="form-actions row">
+            <button id="calcButton" class="row col-sm-offset-10 col-sm-2 btn btn-primary" type="button" data-loading-text="<i class='fa fa-spinner fa-spin '></i> Расчет">
+                Расчет
+            </button>
+        </div>
+
+        <div class="row form-group">
+            <label for="calcResult">Результат</label>
+            <textarea id="calcResult" class="form-control" rows="5" style="height: 40vh; font-size: 0.9em; font-family: monospace" readonly></textarea>
+        </div>
+    </div>
+
+
+    <!--
+        <p class="text-left"><a href="javascript:javascript:history.go(-1)" >Вернуться</a></p>
+    -->
+</div>
+
+</body>
+
+</html>

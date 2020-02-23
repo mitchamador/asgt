@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{fragments/layout}">
+
+<head>
+    <title></title>
+</head>
+<body>
+<div layout:fragment="content" th:remove="tag">
+
+    <script type="application/javascript">
+        $(document).ready($(function () {
+
+            $("#startNbrb").click(function (e) {
+                var pollParams = {
+                    // alias для серверной задачи
+                    job: "nbrbdownloader",
+                    // текстовый компонент для обновления лога
+                    text: "#logNbrb",
+                    // кнопка для закрытия
+                    button: "#startNbrb"
+                };
+                start(pollParams);
+            });
+
+            var pollParams = {
+                // alias для серверной задачи
+                job: "nbrbdownloader",
+                // текстовый компонент для обновления лога
+                text: "#logNbrb",
+                // кнопка для закрытия
+                button: "#startNbrb"
+            };
+            poll(pollParams);
+
+        }));
+    </script>
+
+  <h3>Прием курсов валют НБ РБ</h3>
+
+  <div>
+        <div class="row form-group">
+            <label for="logNbrb">Обновление курсов валют</label>
+            <textarea id="logNbrb" class="form-control" rows="5" style="height: 50vh; font-size: 0.9em; font-family: monospace" readonly></textarea>
+        </div>
+    </div>
+
+  <div class="form-actions row btn-toolbar pull-right">
+    <button id="startNbrb" class="btn btn-primary" type="button">Обновить курсы валют</button>
+  </div>
+
+
+
+  <!--
+      <p class="text-left"><a href="javascript:javascript:history.go(-1)" >Вернуться</a></p>
+  -->
+</div>
+
+</body>
+
+</html>

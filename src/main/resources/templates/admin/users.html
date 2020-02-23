@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{fragments/layout}">
+<head>
+    <title></title>
+</head>
+<body>
+
+<div layout:fragment="content" th:remove="tag">
+
+    <link rel="stylesheet" type="text/css" th:href="@{/webjars/datatables/css/dataTables.bootstrap.min.css}"/>
+    <script type="text/javascript" th:src="@{/webjars/datatables/js/jquery.dataTables.min.js}"></script>
+    <script type="text/javascript" th:src="@{/webjars/datatables/js/dataTables.bootstrap.min.js}"></script>
+
+    <script type="application/javascript">
+        $(document).ready($(function () {
+            // сохранение выбранной вкладки
+            $('a[data-toggle="tab"]').on('show.bs.tab', function(e) {
+                localStorage.setItem('activeUsersTab', $(e.target).attr('href'));
+            });
+
+            // показ сохраненной вкладки
+            var activeTab = localStorage.getItem('activeUsersTab');
+            if(activeTab){
+                $('#usersTab a[href="' + activeTab + '"]').tab('show');
+            }
+
+            $('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+                var currentTab = $(e.target).attr("id");
+                if (currentTab === "allTab") {
+                    $('#allUsersTable').DataTable().columns.adjust().draw();
+                } else if (currentTab === "activeTab") {
+                    $('#activeUsersTable').DataTable().columns.adjust().draw();
+                }
+            });
+
+            $(".clickable-row").click(function(){
+                if($(this).hasClass("success"))
+                    $(this).removeClass('success');
+                else
+                    $(this).addClass('success').siblings().removeClass('success');
+            });
+
+            $('#allUsersTable').DataTable({
+                "order": [
+                    [2, "asc"]
+                ],
+                "paging": false,
+                "info": false,
+                "searching": false,
+                "scrollY": "50vh",
+                "scrollCollapse": true,
+                "language": {
+                    "emptyTable": "",
+                    "zeroRecords": ""
+                }
+            });
+
+            $('#activeUsersTable').DataTable({
+                "order": [
+                    [ 3, "desc" ]
+                ],
+                "paging":   false,
+                "info": false,
+                "searching": false,
+                "scrollY": "50vh",
+                "scrollCollapse": true,
+                "language": {
+                    "emptyTable": "",
+                    "zeroRecords": ""
+                }
+            });
+
+            //$('.dataTables_length').addClass('bs-select');
+
+        }));
+    </script>
+
+    <h3>Пользователи</h3>
+
+    <ul id="usersTab" class="row nav nav-tabs">
+        <li class="active">
+            <a id="activeTab" data-toggle="tab" href="#active">Активные</a>
+        </li>
+        <li>
+            <a id="allTab" data-toggle="tab" href="#all">Все</a>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <div id="active" class="tab-pane active">
+            <table id="activeUsersTable" class="table text-nowrap">
+                <thead>
+                <tr>
+                    <th class="text-left" scope="col">Логин</th>
+                    <th class="text-left" scope="col">Должность</th>
+                    <th class="text-left" scope="col">ФИО</th>
+                    <th class="text-left" scope="col">Дата входа в систему</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <th:block th:each="user : ${activeUsers}">
+                    <tr>
+                        <td th:text="${user.getUsername()}"></td>
+                        <td th:text="${user.getPosition()}"></td>
+                        <td th:text="${user.getFio()}"></td>
+                        <td th:text="${#dates.format(user.getLoggedInDate(), 'dd.MM.yyyy HH:mm:ss')}"></td>
+                    </tr>
+                </th:block>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="all" class="tab-pane">
+            <table id="allUsersTable" class="table text-nowrap">
+                <thead>
+                <tr>
+                    <th class="text-left" scope="col">Логин</th>
+                    <th class="text-left" scope="col">Должность</th>
+                    <th class="text-left" scope="col">ФИО</th>
+                    <th class="text-left" scope="col">Роль</th>
+                    <th class="text-left" scope="col">Дата последнего входа в систему</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <th:block th:each="user : ${allUsers}">
+                    <tr th:class="clickable-row">
+                        <td th:text="${user.getUsername()}"></td>
+                        <td th:text="${user.getPosition()}"></td>
+                        <td th:text="${user.getFio()}"></td>
+                        <td th:text="${user.getAuthoritiesString()}"></td>
+                        <td th:text="${#dates.format(user.getLoggedInDate(), 'dd.MM.yyyy HH:mm:ss')}"></td>
+                    </tr>
+                </th:block>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+</body>
+
+</html>

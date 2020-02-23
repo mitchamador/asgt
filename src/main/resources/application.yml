@@ -1,0 +1,69 @@
+server:
+  port: 8080
+
+spring:
+  profiles:
+    active: "production"
+  main:
+    banner-mode: "off"
+  thymeleaf:
+    cache: false
+    check-template: true
+    check-template-location: true
+    enabled: true
+    encoding: UTF-8
+    mode: HTML
+    prefix: classpath:/templates/
+    suffix: .html
+    # excluded-view-names:
+    # template-resolver-order:
+    # view-names:
+  servlet:
+    multipart:
+      max-file-size: -1
+
+#  pre spring boot 2
+#  http:
+#    multipart:
+#      max-request-size: 32MB
+#      max-file-size: 16MB
+
+
+logging:
+  level:
+    root: INFO
+    by.mitchamador: INFO
+    org.springframework.web: INFO
+    org.springframework.security: INFO
+
+app:
+  defferedtimeout: 60
+  jobs:
+    nbrb-downloader:
+      cron: "0 45 1,4,7,10,13,16,19,22 * * *"
+    pensi-mailer:
+      cron: "0 15,45 * * * *"
+    pensi-downloader:
+      cron: "0 0,30 * * * *"
+    pensi-syncronizer:
+      cron: "0 15 2 * * *"
+    pensi-updater:
+      cron: "0 55 0 * * *"
+    syncronizer:
+      #use full insert merge
+      fullmerge: false
+      #use cache for getsomething(...)
+      cacheable: true
+      #sql insert behavior (normal, multiple_values, batch)
+      insertmode: batch
+    pensimanager:
+      fullmergepensi: true
+      fullmergesapod: true
+  sapod:
+    jpa:
+      database: default
+      show-sql: false
+  pensi:
+    jpa:
+      database: default
+      show-sql: false

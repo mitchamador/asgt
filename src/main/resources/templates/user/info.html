@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{fragments/layout}">
+<head>
+    <title></title>
+</head>
+<body>
+
+<div layout:fragment="content" th:remove="tag">
+
+    <h3>Информация о системе</h3>
+
+    <table class="table text-nowrap">
+
+        <thead>
+        <tr>
+            <th class="text-left" scope="col">Параметр</th>
+            <th class="text-left" scope="col">Значение</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <th:block th:each="keyValue : ${info}">
+            <tr>
+                <td th:text="${keyValue.getKey()}"></td>
+                <td th:text="${keyValue.getValue()}"></td>
+            </tr>
+        </th:block>
+        </tbody>
+    </table>
+
+</div>
+
+</body>
+
+</html>

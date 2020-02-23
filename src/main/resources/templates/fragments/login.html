@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<th:block th:fragment="login">
+
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <h1>Вход в систему</h1>
+            <form th:action="@{/login}" method="post">
+                <div th:if="${param.error}">
+                    <div class="alert alert-danger">
+                        Неправильный логин или пароль.
+                    </div>
+                </div>
+                <div th:if="${param.logout}">
+                    <div class="alert alert-info">
+                        Вы вышли из системы.
+                    </div>
+                </div>
+                <div th:if="${param.expired}">
+                    <div class="alert alert-info">
+                        Сессия завершена.
+                    </div>
+                </div>
+                <div class="input-group input-sm row">
+                    <label class="input-group-addon" for="username"><i class="fa fa-user"></i></label>
+                    <input type="text"
+                           class="form-control"
+                           id="username"
+                           name="username"
+                           autofocus="autofocus"
+                           placeholder="Введите логин" required>
+                </div>
+                <div class="input-group input-sm row">
+                    <label class="input-group-addon" for="password"><i class="fa fa-lock"></i></label>
+                    <input type="password"
+                           class="form-control"
+                           id="password"
+                           name="password"
+                           placeholder="Введите пароль" required>
+                </div>
+
+                <div class="form-actions row">
+                    <div class="col-sm-6 col-sm-offset-3">
+                        <input type="submit"
+                               name="login-submit"
+                               id="login-submit"
+                               class="form-control btn btn-success"
+                               value="Вход">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</th:block>
+</body>
+</html>

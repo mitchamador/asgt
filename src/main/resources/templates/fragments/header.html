@@ -1,0 +1,44 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<body>
+<th:block th:fragment="header">
+
+    <script th:inline="javascript"> var contextRoot = /*[[@{/}]]*/ ''; </script>
+
+    <nav class="navbar navbar-light" style="background-color: #e3f2fd;">
+        <div class="container">
+
+            <div class="navbar-header">
+                <a class="navbar-brand" th:href="@{/}">
+                    <img th:src="@{/img/logo.png}" width="24" height="24"/>
+<!--                    АС ГТ-->
+                </a>
+            </div>
+
+            <div id="navbar" class="navbar-collapse collapse">
+
+                <div sec:authorize="isAuthenticated() && hasRole('ROLE_ADMIN')"
+                     th:replace="fragments/navbar :: admin"></div>
+
+                <div sec:authorize="isAuthenticated() && !hasRole('ROLE_ADMIN')"
+                     th:replace="fragments/navbar :: user"></div>
+
+
+                <ul class="nav navbar-nav navbar-right">
+
+                    <li class="nav-link text-white" sec:authorize="isAuthenticated()">
+                        <a th:text="${#authentication.getPrincipal().getPosition() + ' ' + #authentication.getPrincipal().getFio()}"></a>
+                    </li>
+
+                    <li class="nav-link text-white" sec:authorize="isAuthenticated()">
+                        <a th:href="@{/logout}">Выход</a>
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+    </nav>
+</th:block>
+</body>
+</html>

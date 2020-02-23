@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{fragments/layout}">
+<head>
+    <title></title>
+</head>
+<body>
+
+<div layout:fragment="content" th:remove="tag">
+
+    <link rel="stylesheet" th:href="@{/css/jquery.treegrid.css}">
+
+    <script type="text/javascript" th:src="@{/js/jquery.treegrid.js}"></script>
+    <script type="text/javascript" th:src="@{/js/jquery.treegrid.bootstrap3.js}"></script>
+
+    <script type="text/javascript" th:src="@{/js/contextmenu.js}"></script>
+
+    <script type="application/javascript">
+        $(document).ready($(function () {
+
+            var pollParams = {
+                // alias для серверной задачи
+                job: "pensimain",
+                // текстовый компонент для обновления лога
+                text: "#logPensi",
+                // время последнего обновления
+                jobStep: null
+            };
+            poll(pollParams);
+
+            function pensiRequest(type, button) {
+                $(button).prop("disabled", true);
+                var list = new Set();
+                $('#sprTable').find('tr').each(function () {
+                    var row = $(this);
+                    var check = row.find('input[type="checkbox"]');
+                    if (check.is(':checked')) {
+                        list.add(row.attr("id"));
+                        check.prop("checked", false);
+                    }
+                });
+                if (list.size > 0) {
+/*
+                    console.log(JSON.stringify({
+                        type: type,
+                        list: Array.from(list)
+                    }));
+*/
+                    $.ajax({
+                        url: contextRoot + "api/pensi/update",
+                        data: JSON.stringify({
+                            type: type,
+                            list: Array.from(list)
+                        }),
+                        type: "post",
+                        cache: false,
+                        success: function(message){
+                            //console.log(message);
+                        },
+                        dataType: "json",
+                        contentType: 'application/json'
+                    });
+
+                    $('.nav-tabs a[href="#log"]').tab('show')
+                }
+                $(button).prop("disabled", false);
+            }
+
+            $('#updateTablesButton').click(function () {
+                pensiRequest("tables", this);
+            });
+
+            $('#syncSprsButton').click(function () {
+                pensiRequest("sprs", this);
+            });
+
+            function loadConfigTable() {
+                $.ajax({url: contextRoot + "api/pensi/config", method: 'get', success: function(result){
+                        /* заполнение таблицы из List<PensiSpr> */
+                        for (var i = 0; i < result.length; i++) {
+                            var spr = result[i];
+
+                            var tdUpdate = $('#' + spr.sprName + ' td.update-param');
+                            tdUpdate.text(spr.updateParamsString);
+                            tdUpdate.attr("update-param", spr.updateParams);
+
+                            var tdSync = $('#' + spr.sprName + ' td.sync-param');
+                            tdSync.text(spr.syncParamsString);
+                            tdSync.attr("sync-param", spr.syncParams);
+
+                            $('#' + spr.sprName + ' td.last-sync-date').text(spr.lastSyncDateString);
+
+                            var tables = spr.tables;
+                            for (var j = 0 ; j < tables.length; j++) {
+                                var table = spr.tables[j];
+
+                                $('#' + table.name + ' td.table-update-param').text(table.updateString);
+                                $('#' + table.name + ' td.table-last-op').text(table.lastOpString);
+                            }
+                        }
+                    }});
+            }
+
+            // значок перезагрузки
+            $('#reloadSprTable').click(function () {
+                loadConfigTable();
+            });
+
+            // дерево для таблицы sprTable
+            $('#sprTable').treegrid({
+                initialState: "collapsed",
+                treeColumn: 1
+            });
+
+            // обновление pensi config
+            function updateConfig(key, value) {
+                var config = new Set();
+                config.add({
+                    key: key,
+                    value: value
+                });
+
+                $.ajax({
+                    url: contextRoot + "api/pensi/config",
+                    data: JSON.stringify(
+                        Array.from(config)
+                    ),
+                    type: "post",
+                    cache: false,
+                    success: function(message){
+                        loadConfigTable();
+                    },
+                    //dataType: "json",
+                    contentType: 'application/json'
+                });
+            }
+
+            // запрет контекстного меню для заголовка таблицы
+            $("#sprTable thead tr").contextMenu({
+                disabled: true,
+            });
+
+            // запрет конте
+            // запрет контекстного меню для строк таблицы, далее для отдельных столбцов контекстное меню переопределяется
+            $("#sprTable tbody tr").contextMenu({
+                disabled: true,
+            });
+
+
+            // контекстное меню параметров обновление таблиц
+            $("#sprTable tbody td.update-param").contextMenu({
+                menuSelector: "#updateParamMenu",
+                menuSelected: function($invokedOn, $selectedMenu) {
+                    var key = "updatemethod_" + $invokedOn.parent().attr("id").toLowerCase();
+                    var value = getResultedParam($invokedOn.attr("update-param"), $selectedMenu);
+
+                    updateConfig(key, value);
+                },
+                prepareMenu: function(menu, $invokedOn) {
+                    prepareParam($invokedOn.attr("update-param"), menu);
+                },
+                onMenuShow: function($invokedOn) {
+                    $invokedOn.addClass("success");
+                },
+                onMenuHide: function($invokedOn) {
+                    $invokedOn.removeClass("success");
+                }
+            });
+
+            // контекстное меню параметров синхронизации
+            $("#sprTable tbody td.sync-param").contextMenu({
+                menuSelector: "#syncParamMenu",
+                menuSelected: function($invokedOn, $selectedMenu) {
+                    var key = "syncmethod_" + $invokedOn.parent().attr("id").toLowerCase();
+                    var value = getResultedParam($invokedOn.attr("sync-param"), $selectedMenu);
+
+                    updateConfig(key, value);
+                },
+                prepareMenu: function(menu, $invokedOn) {
+                    prepareParam($invokedOn.attr("sync-param"), menu);
+                },
+                onMenuShow: function($invokedOn) {
+                    $invokedOn.addClass("success");
+                },
+                onMenuHide: function($invokedOn) {
+                    $invokedOn.removeClass("success");
+                }
+
+            });
+
+            // установка checked item перед открытием контекстного меню
+            function prepareParam(param, menu) {
+                $(menu.$menu.children()).each(function( index ) {
+                    var menuItem = $(this).find("a");
+                    menuItem.removeClass("dropdown-item-checked");
+
+                    var index = menuItem.attr("data-index");
+                    if (index == 0) {
+                        if (param == 0) menuItem.addClass("dropdown-item-checked");
+                    } else if (index == 1) {
+                        if ((param & 1) != 0) menuItem.addClass("dropdown-item-checked");
+                    } else if (index == 2) {
+                        if ((param & 2) != 0 && (param & 0x80000000) == 0) menuItem.addClass("dropdown-item-checked");
+                    } else if (index == 3) {
+                        if ((param & 2) != 0 && (param & 0x80000000) != 0) menuItem.addClass("dropdown-item-checked");
+                    }
+                });
+            }
+
+            // получение значение параметра обновления по выбранному контекстному меню (PensiCommon.*)
+            function getResultedParam(param, $selectedMenu) {
+                var index = $selectedMenu.attr("data-index");
+
+                if (index == 0) {
+                    param = 0;
+                } else if (index == 1) {
+                    // через e-mail / после загрузки (бит 1)
+                    param ^= 0x01;
+                } else if (index == 2) {
+                    // ежедневное (бит 2)
+                    if ((param & 0x80000000) != 0) {
+                        param &= ~0x80000002;
+                    }
+                    param ^= 0x00000002;
+                } else if (index == 3) {
+                    // еженедельное (бит 2 + старший бит int)
+                    if ((param & 0x80000000) == 0) {
+                        param |= 0x80000002;
+                    } else {
+                        param ^= 0x80000002;
+                    }
+                }
+                return param;
+            }
+
+            // вкладка "Справочники"
+            $('#sprTab').click(function () {
+                loadConfigTable();
+            });
+
+            // вкладка "Лог работы" (show.bs.tab - до показа содержимого вкладки, shown.bs.tab - после показа)
+            $("a[href='#log']").on('shown.bs.tab', function(e) {
+                $('#logPensi').scrollTop($('#logPensi')[0].scrollHeight)
+            });
+
+            // сохранение выбранной вкладки
+            $('a[data-toggle="tab"]').on('show.bs.tab', function(e) {
+                localStorage.setItem('activePensiTab', $(e.target).attr('href'));
+            });
+
+            // показ сохраненной вкладки
+            var activeTab = localStorage.getItem('activePensiTab');
+            if(activeTab){
+                $('#pensiTab a[href="' + activeTab + '"]').tab('show');
+            }
+
+            $('#mailerSettings').on('submit',function (e) {
+                $.ajax({
+                    type: 'post',
+                    url: contextRoot + "api/pensi/mailerconfig",
+                    data: $('#mailerSettings').serialize(),
+                });
+                e.preventDefault();
+            });
+        }));
+    </script>
+
+    <h3>Взаимодействие с ПЭ НСИ</h3>
+
+    <ul id="pensiTab" class="row nav nav-tabs">
+        <li class="active">
+            <a id="sprTab" data-toggle="tab" href="#spr">Справочники</a>
+        </li>
+        <li>
+            <a id="logTab" data-toggle="tab" href="#log">Лог работы</a>
+        </li>
+        <li>
+            <a id="settingsTab" data-toggle="tab" href="#settings">Настройки</a>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <div id="spr" class="tab-pane active">
+
+            <table id="sprTable" class="tree table table-hover">
+                <thead>
+                <tr>
+                    <th scope="col">
+                        <span id="reloadSprTable" class="glyphicon glyphicon-refresh"></span>
+                    </th>
+                    <th id="testColumn" scope="col">Справочник</th>
+                    <th class="text-center" scope="col">Параметры обновления</th>
+                    <th class="text-center" scope="col">Параметры синхронизации</th>
+                    <th class="text-center" scope="col">Последняя синхронизация</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <th:block th:each="spr, iS : ${pensiSprs}">
+                    <tr th:id="${spr.getSprName()}" th:class="${'treegrid-' + iS.index}">
+                        <td>
+                            <input class="form-check-input" type="checkbox" id="checkbox">
+                            <label class="form-check-label mr-2 label-table" for="checkbox"></label>
+                        </td>
+                        <td th:text="${spr.getName()}"></td>
+                        <td class="text-center update-param" data-th-update-param="${spr.getUpdateParams()}"
+                            th:text="${spr.getUpdateParamsString()}"></td>
+                        <td class="text-center sync-param" data-th-sync-param="${spr.getSyncParams()}"
+                            th:text="${spr.getSyncParamsString()}"></td>
+                        <td class="text-center last-sync-date" th:text="${spr.getLastSyncDateString()}"></td>
+                    </tr>
+                    <tr th:id="${t.getName()}" th:each="t, iT : ${spr.getTables()}"
+                        th:classappend="${'treegrid-' + ((iS.index + 1) * 100 + iT.index)} + ' ' + ${'treegrid-parent-' + iS.index}">
+                        <td></td>
+                        <td class="text-left" th:text="${t.getName()}"></td>
+                        <td class="text-center table-update-param" th:text="${t.getUpdateString()}"></td>
+                        <td class="text-center table-last-op" th:text="${t.getLastOpString()}"></td>
+                        <td></td>
+                    </tr>
+                </th:block>
+                </tbody>
+            </table>
+
+            <ul id="updateParamMenu" class="dropdown-menu" role="menu" style="display:none" >
+                <li><a tabindex="-1" href="#" data-index="0" class="checked">Без автообновлений</a></li>
+                <li><a tabindex="-1" href="#" data-index="1" class="checked">Обновление через e-mail</a></li>
+                <li><a tabindex="-1" href="#" data-index="2" class="checked">Обновление ежесуточное</a></li>
+                <li><a tabindex="-1" href="#" data-index="3" class="checked">Обновление еженедельное</a></li>
+            </ul>
+            <ul id="syncParamMenu" class="dropdown-menu" role="menu" style="display:none" >
+                <li><a tabindex="-1" href="#" data-index="0" class="checked">Без автосинхронизации</a></li>
+                <li><a tabindex="-1" href="#" data-index="1" class="checked">Синхронизация после загрузки</a></li>
+                <li><a tabindex="-1" href="#" data-index="2" class="checked">Синхронизация ежесуточная</a></li>
+                <li><a tabindex="-1" href="#" data-index="3" class="checked">Синхронизация  еженедельная</a></li>
+            </ul>
+
+            <div class="form-actions row btn-toolbar pull-right">
+                <button id="updateTablesButton" class="btn btn-primary" type="button">Обновить таблицы</button>
+                <button id="syncSprsButton" class="btn btn-primary" type="button">Синхронизировать справочники</button>
+            </div>
+
+        </div>
+
+        <div id="log" class="tab-pane">
+            <div class="row form-group row-margins">
+<!--                <label for="logMailer">downloader log</label>-->
+                <textarea id="logPensi" class="form-control" style="height: 50vh; font-size: 0.9em; font-family: monospace" readonly></textarea>
+            </div>
+            <div class="row progress">
+                <div id="progressBarPensi" class="progress-bar progress-bar-success" role="progressbar"
+                     aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <div id="settings" class="tab-pane">
+            <form id="mailerSettings" class="form-horizontal row" style="margin-top: 20px">
+                <div class="form-group row">
+                    <label class="col-sm-2 control-label">Адрес POP3 сервера:</label>
+                    <div class="col-sm-10">
+                        <input id="pop3_hostname" type="text" th:value="${pop3_hostname}" class="form-control" name="pop3_hostname">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 control-label">Имя пользователя:</label>
+                    <div class="col-sm-10">
+                        <input id="pop3_username" type="text" th:value="${pop3_username}" class="form-control" name="pop3_username">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 control-label">Пароль:</label>
+                    <div class="col-sm-10">
+                        <input id="pop3_password" type="password" th:value="${pop3_password}" class="form-control" name="pop3_password">
+                    </div>
+                </div>
+                <div class="form-actions btn-toolbar pull-right">
+                    <input type="submit"
+                           class="form-control btn btn-primary"
+                           value="Сохранить">
+                </div>
+            </form>
+<!--
+            <div class="form-actions row btn-toolbar pull-right">
+                <button id="saveMailerSettingsButton" class="btn btn-primary" type="button">Сохранить</button>
+            </div>
+-->
+
+        </div>
+    </div>
+</div>
+
+</body>
+
+</html>

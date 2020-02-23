@@ -1,0 +1,81 @@
+h1 {
+    color: #78ab46;
+}
+body {
+    /* Margin bottom by footer height */
+    margin-bottom: 50px;
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+footer {
+    position: fixed;
+    height: 50px;
+    bottom: 0;
+    width: 100%;
+    background-color: #ccc
+}
+
+footer p {
+    padding: 15px;
+}
+
+.row.row-gutter {
+    margin-bottom: -15px;
+    overflow: hidden;
+}
+.row.row-gutter > *[class^="col"] {
+    margin-bottom: 15px;
+}
+
+.row.row-margins {
+    padding-top: 7px; /* or margin-top: 7px; */
+    padding-bottom: 7px; /* or margin-bottom: 7px; */
+}
+.row.row-margins > *[class^="col"] {
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+
+/*
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex-grow: 1;
+}
+
+footer {
+    flex-grow: 0;
+    padding: 15px 0;
+    display: block;
+    background-color: #ccc
+}
+*/
+
+.dropdown-item-checked::before {
+  position: absolute;
+  left: .4rem;
+  content: '✓';
+  font-weight: 600;
+}
+
+a.disabled, 
+a.disabled:visited ,
+a.disabled:active,
+a.disabled:hover {  
+  color: #999 ;
+  cursor: default;
+}
+

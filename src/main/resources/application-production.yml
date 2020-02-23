@@ -1,0 +1,22 @@
+# production configuration
+app:
+  sapod:
+    datasource:
+      jndi-name: "jdbc/SAPOD"
+  pensi:
+    datasource:
+      jndi-name: "jdbc/PENSI"
+  mq:
+    queue-manager:
+      jndi-name: "jms/GT.QCF"
+    inbound:
+      jndi-name: "jms/GT.IN.Q"
+    outbound:
+      jndi-name: "jms/GT.OUT.Q"
+
+logging:
+  level:
+    root: INFO
+    by.mitchamador: INFO
+    org.springframework.web: INFO
+    org.springframework.security: INFO
