@@ -30,7 +30,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.TemporalAccessor;
 
 @Configuration
 @EnableScheduling
