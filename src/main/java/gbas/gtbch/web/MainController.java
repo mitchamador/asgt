@@ -4,8 +4,9 @@ import gbas.gtbch.web.request.KeyValue;
 import gbas.tvk.util.UtilDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -29,7 +30,7 @@ public class MainController {
     private final List<KeyValue> systemPropertiesList;
 
     /**
-     * {@link ApplicationContext}
+     * {@link BeanFactory}
      */
     private final ApplicationContext context;
 
@@ -94,14 +95,19 @@ public class MainController {
     public ModelAndView info() {
         List<KeyValue> systemProperties = new ArrayList<>(systemPropertiesList);
 
-        Instant startTime = (Instant) context.getBean("startTime");
-        Duration upTime = Duration.between(startTime, Instant.now());
+        try {
+            Instant startTime = context.getBean("startTime", Instant.class);
 
-        systemProperties.add(new KeyValue("Время",
-                String.format("start time: %s, startup duration: %s, uptime: %s",
-                        getStringTime(startTime),
-                        getStringTime(context.getBean("startupDuration")),
-                        getStringTime(upTime))));
+            Duration upTime = Duration.between(startTime, Instant.now());
+
+            systemProperties.add(new KeyValue("Время",
+                    String.format("start time: %s, startup duration: %s, uptime: %s",
+                            getStringTime(startTime),
+                            getStringTime(context.getBean("startupDuration", Duration.class)),
+                            getStringTime(upTime))));
+        } catch (BeansException e) {
+            e.printStackTrace();
+        }
 
         return new ModelAndView("user/info", "info", systemProperties);
     }

@@ -13,10 +13,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -24,6 +28,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.TemporalAccessor;
 
 @Configuration
 @EnableScheduling
@@ -155,5 +162,33 @@ public class WebConfig implements WebMvcConfigurer {
 
         return pm;
     }
+
+    private Instant startTime, endTime;
+
+    @EventListener(ApplicationReadyEvent.class)
+    public void startApp() {
+        endTime = Instant.now();
+    }
+
+    @Autowired
+    ApplicationContext context;
+
+    @Bean
+    @Lazy
+    public Instant startTime() {
+        return startTime = Instant.ofEpochMilli(context.getStartupDate());
+    }
+
+    /**
+     * Продолжительность запуска приложения
+     * @return
+     */
+    @Bean
+    @Lazy
+    public Duration startupDuration() {
+        return startTime != null && endTime != null ? Duration.between(startTime, endTime) : null;
+    }
+
+
 
 }
