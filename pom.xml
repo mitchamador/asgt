@@ -30,11 +30,14 @@
         <profile>
             <id>dev</id>
             <properties>
-                <final.name>${project.artifactId}-${project.version}</final.name>
                 <packaging.type>jar</packaging.type>
+                <final.name>${project.artifactId}-${project.version}-develop</final.name>
                 <package.scope>compile</package.scope>
                 <spring-boot.profile>embedded</spring-boot.profile>
             </properties>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
         </profile>
         <profile>
             <id>war</id>
@@ -44,9 +47,6 @@
                 <package.scope>provided</package.scope>
                 <spring-boot.profile>production</spring-boot.profile>
             </properties>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
         </profile>
     </profiles>
 
@@ -114,7 +114,7 @@
         <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat-jdbc</artifactId>
-            <version>9.0.29</version>
+            <version>9.0.30</version>
             <scope>${package.scope}</scope>
         </dependency>
 
