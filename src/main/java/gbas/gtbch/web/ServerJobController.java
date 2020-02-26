@@ -94,7 +94,7 @@ public class ServerJobController {
         return serverJob;
     }
 
-    @RequestMapping(value = "api/jobstart", method = RequestMethod.GET)
+    @RequestMapping(value = "/api/jobstart", method = RequestMethod.GET)
     public ServerJobResponse syncStart(@RequestParam("job") String job) {
 
         ServerJob serverJob = getServerJob(job);
@@ -122,7 +122,7 @@ public class ServerJobController {
     @Value("${app.defferedtimeout:60}")
     int defferedTimeout;
 
-    @RequestMapping(value = "api/jobstatus", method = RequestMethod.GET)
+    @RequestMapping(value = "/api/jobstatus", method = RequestMethod.GET)
     public DeferredResult<ServerJobResponse> syncStatus(@RequestParam("job") String job, @RequestParam("jobStep") Long timeUpdate) {
 
         DeferredResult<ServerJobResponse> deferredResult = new DeferredResult<>(defferedTimeout * 1000L);

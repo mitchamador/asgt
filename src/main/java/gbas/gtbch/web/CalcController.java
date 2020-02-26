@@ -22,7 +22,7 @@ public class CalcController {
         return calcHandlerObjectFactory.getObject();
     }
 
-    @RequestMapping(value = "api/calc", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/calc", method = RequestMethod.POST)
     public ServerResponse calc(@RequestParam("data") String data) {
 
         ServerResponse response = new ServerResponse();

@@ -69,7 +69,7 @@ public class PensiController {
      * @param body
      * @return
      */
-    @RequestMapping(value = "api/pensi/update", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/pensi/update", method = RequestMethod.POST)
     public ServerResponse pensiUpdate(@RequestBody PensiUpdate body) {
 
         ServerResponse response = new ServerResponse();
@@ -120,7 +120,7 @@ public class PensiController {
      * чтение конфигурации справочников и таблиц
      * @return
      */
-    @RequestMapping(value = "api/pensi/config", method = RequestMethod.GET)
+    @RequestMapping(value = "/api/pensi/config", method = RequestMethod.GET)
     public ResponseEntity<List<PensiSpr>> pensiConfigGet() {
 
         List<PensiSpr> config = null;
@@ -138,7 +138,7 @@ public class PensiController {
      * @param config
      * @return
      */
-    @RequestMapping(value = "api/pensi/config", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/pensi/config", method = RequestMethod.POST)
     public ResponseEntity pensiConfigSet(@RequestBody List<KeyValue> config) {
 
         if (config != null) {
@@ -156,7 +156,7 @@ public class PensiController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @RequestMapping(value = "api/pensi/mailerconfig", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/pensi/mailerconfig", method = RequestMethod.POST)
     public ResponseEntity pensiMailerConfigSet(@RequestParam(name = PensiMailer.POP3_HOSTNAME) String hostname,
                                                @RequestParam(name = PensiMailer.POP3_USERNAME) String username,
                                                @RequestParam(name = PensiMailer.POP3_PASSWORD) String password) {

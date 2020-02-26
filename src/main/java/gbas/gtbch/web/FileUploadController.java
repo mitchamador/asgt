@@ -17,11 +17,14 @@ import static gbas.gtbch.util.Syncronizer.SYNCRONIZER_UPLOAD_PARAM;
 @Controller
 public class FileUploadController {
 
-    @Autowired
-    private Syncronizer syncronizer;
+    private final Syncronizer syncronizer;
+
+    public FileUploadController(Syncronizer syncronizer) {
+        this.syncronizer = syncronizer;
+    }
 
     // Handling file upload request
-    @RequestMapping(value = "api/upload", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/upload", method = RequestMethod.POST)
     public ResponseEntity<?> fileUpload(@RequestParam("file") MultipartFile file, @RequestParam("type") String type)
             throws IOException {
 
