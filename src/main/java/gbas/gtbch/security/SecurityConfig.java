@@ -93,10 +93,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new HttpSessionEventPublisher();
     }
 
+/*
     @Override
     public void configure(WebSecurity web) throws Exception {
         web
                 .ignoring()
                 .antMatchers("/webjars/**", "/css/**", "/js/**", "/img/**", "/api/**");
     }
+*/
 }
