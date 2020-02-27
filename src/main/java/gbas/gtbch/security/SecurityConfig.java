@@ -3,7 +3,6 @@ package gbas.gtbch.security;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.session.SessionRegistry;
@@ -11,6 +10,8 @@ import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+
+import java.util.concurrent.TimeUnit;
 
 
 @EnableWebSecurity
@@ -67,11 +68,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .exceptionHandling()
                     .accessDeniedHandler(loginHandler)
+                // remember me
+                .and()
+                .rememberMe().tokenValiditySeconds((int) TimeUnit.HOURS.toSeconds(72))
                 .and()
                 .csrf().disable()
-        ;
-
-        http
                 .sessionManagement()
                 .maximumSessions(1)
                 .expiredUrl("/login?expired")
