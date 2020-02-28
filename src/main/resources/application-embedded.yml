@@ -1,5 +1,10 @@
 # embedded profile configuration
 
+server:
+  compression:
+    enabled: true
+  port: 8080
+
 app:
   sapod:
     datasource:

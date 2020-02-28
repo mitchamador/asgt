@@ -1,5 +1,4 @@
-server:
-  port: 8080
+# main configuration
 
 spring:
   profiles:
