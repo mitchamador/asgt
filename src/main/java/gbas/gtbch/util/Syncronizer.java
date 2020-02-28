@@ -12,6 +12,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
 
 @Component
 public class Syncronizer extends ServerJob {
@@ -40,15 +41,27 @@ public class Syncronizer extends ServerJob {
         return new Syncronizer();
     }
 
+    @Override
+    public String getJobName() {
+        return "Syncronizer";
+    }
+
+    @Override
+    public void log(String s) {
+        super.log(s);
+        logger.info(s);
+    }
+
     @Async
     public void run() {
         if (isRunning()) return;
 
         clearJob();
-        try {
+
+        try (Connection con = sapodDataSource.getConnection()) {
             setRunning(true);
 
-            Syncronizator s = new Syncronizator(sapodDataSource.getConnection(), bytes) {
+            Syncronizator s = new Syncronizator(con, bytes) {
                 @Override
                 public void process(String[] logs) {
                     super.process(logs);
