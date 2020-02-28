@@ -20,9 +20,10 @@ public class NbrbCurrencyDownloaderJob extends ServerJob {
 
     private final CurrencyDownloader cd;
 
-    @Override
-    public void log(String s) {
-        super.log("" + UtilDate.getStringFullDate(new Date()) + " - " + s);
+    private void log(String s, boolean addJobLog) {
+        if (addJobLog) {
+            super.log("" + UtilDate.getStringFullDate(new Date()) + " - " + s);
+        }
         logger.info(s);
     }
 
@@ -53,7 +54,7 @@ public class NbrbCurrencyDownloaderJob extends ServerJob {
 
             @Override
             public void logger(String s) {
-                log(s);
+                log(s, true);
             }
         };
     }
@@ -61,23 +62,14 @@ public class NbrbCurrencyDownloaderJob extends ServerJob {
     @Value("${app.jobs.nbrb-downloader.cron:-}")
     protected String cronString;
 
+    @Override
+    public String getJobName() {
+        return "NBRB currency rate downloader";
+    }
+
     @Scheduled(cron = "${app.jobs.nbrb-downloader.cron:-}")
     public void run() {
-        if (!isRunning()) {
-            try {
-                setRunning(true);
-                log("NBRB currency rate downloader task started");
-
-                cd.download(false);
-
-            } catch (Error | Exception e) {
-                log(e.getMessage());
-                //e.printStackTrace();
-            } finally {
-                log("NBRB currency rate downloader task finished");
-                setRunning(false);
-            }
-        }
+        run(() -> cd.download(false));
     }
 
     @PostConstruct

@@ -188,6 +188,4 @@ public class WebConfig implements WebMvcConfigurer {
         return startTime != null && endTime != null ? Duration.between(startTime, endTime) : null;
     }
 
-
-
 }

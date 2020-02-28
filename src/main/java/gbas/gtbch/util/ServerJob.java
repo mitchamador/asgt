@@ -18,8 +18,11 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * Класс, описывающий асинхронную задачу на стороне сервера
  */
-@Component
 public abstract class ServerJob {
+
+    public interface Runnable {
+        void run() throws Exception;
+    }
 
     protected Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -42,6 +45,12 @@ public abstract class ServerJob {
      *
      */
     private AtomicLong jobStep = new AtomicLong();
+
+    /**
+     *
+     * @return
+     */
+    public abstract String getJobName();
 
     /**
      * @param s
@@ -120,6 +129,24 @@ public abstract class ServerJob {
      */
     @Async
     public abstract void run();
+
+    protected void run(Runnable task) {
+        if (!isRunning()) {
+            try {
+                setRunning(true);
+                logger.info(getJobName() + " task started", false);
+
+                task.run();
+
+            } catch (Error | Exception e) {
+                log(e.getMessage());
+                //e.printStackTrace();
+            } finally {
+                logger.info(getJobName() + " task finished", false);
+                setRunning(false);
+            }
+        }
+    }
 
     /**
      * @param cronString

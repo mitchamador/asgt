@@ -86,7 +86,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     /**
-     * note, doesn't expire spring security session without defining this bean
+     * note, spring security session doesn't expires without defining this bean
      * @return
      */
     @Bean

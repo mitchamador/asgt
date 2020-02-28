@@ -13,6 +13,11 @@ public class MQJob extends ServerJob {
     private final static Logger logger = LoggerFactory.getLogger(MQJob.class.getName());
 
     @Override
+    public String getJobName() {
+        return "MQ";
+    }
+
+    @Override
     public void log(String s) {
         super.log(UtilDate.getStringFullDate(new Date()) + " " + s);
     }
