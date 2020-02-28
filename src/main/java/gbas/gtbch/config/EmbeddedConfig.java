@@ -82,6 +82,9 @@ public class EmbeddedConfig {
         resource.setProperty("url", dataSourceProperties.getUrl());
         resource.setProperty("username", dataSourceProperties.getUsername());
         resource.setProperty("password", dataSourceProperties.getPassword());
+        resource.setProperty("testOnBorrow", "true");
+        resource.setProperty("removeAbandoned", "true");
+        resource.setProperty("validationQuery", dataSourceProperties.getUrl().startsWith("jdbc:db2") ? "SELECT 1 FROM SYSIBM.SYSDUMMY1" : "SELECT 1");
 
         return resource;
     }
