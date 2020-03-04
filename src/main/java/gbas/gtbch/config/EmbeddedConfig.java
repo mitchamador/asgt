@@ -18,6 +18,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 import javax.sql.DataSource;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -82,8 +83,9 @@ public class EmbeddedConfig {
         resource.setProperty("url", dataSourceProperties.getUrl());
         resource.setProperty("username", dataSourceProperties.getUsername());
         resource.setProperty("password", dataSourceProperties.getPassword());
-        resource.setProperty("testOnBorrow", "true");
+        resource.setProperty("testOnIdle", "true");
         resource.setProperty("removeAbandoned", "true");
+        resource.setProperty("removeAbandonedTimeout", String.valueOf(TimeUnit.MINUTES.toSeconds(30)));
         resource.setProperty("validationQuery", dataSourceProperties.getUrl().startsWith("jdbc:db2") ? "SELECT 1 FROM SYSIBM.SYSDUMMY1" : "SELECT 1");
 
         return resource;
