@@ -1,8 +1,8 @@
 package gbas.gtbch.util;
 
 import gbas.tvk.otpravka.object.VagonOtprTransit;
-import gbas.tvk.paymentng.CalcPlataData;
-import gbas.tvk.paymentng.PayTransportation;
+import gbas.tvk.payment.CalcPlataData;
+import gbas.tvk.payment.PayTransportation;
 import gbas.tvk.util.GZipUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

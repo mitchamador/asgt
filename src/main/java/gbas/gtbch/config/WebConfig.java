@@ -2,7 +2,7 @@ package gbas.gtbch.config;
 
 import gbas.tvk.interaction.pensi.ConnectionManager;
 import gbas.tvk.interaction.pensi.PensiManager;
-import gbas.tvk.paymentng.PayTransportation;
+import gbas.tvk.payment.PayTransportation;
 import gbas.tvk.rwmap.dist.DistCalc;
 import gbas.tvk.rwmap.dist.db.DistCalcDbSapod;
 import gbas.tvk.service.db.DbHelper;

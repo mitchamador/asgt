@@ -185,7 +185,7 @@
         <dependency>
             <groupId>gbas</groupId>
             <artifactId>sapod-core</artifactId>
-            <version>4.2.63-SNAPSHOT</version>
+            <version>4.2.65-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.thoughtworks.xstream</groupId>
