@@ -21,6 +21,9 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.event.EventListener;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.EnableRetry;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -28,59 +31,37 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.Duration;
 import java.time.Instant;
 
 @Configuration
 @EnableScheduling
 @EnableAsync
+@EnableRetry
 public class WebConfig implements WebMvcConfigurer {
 
     private static Logger logger = LoggerFactory.getLogger(WebConfig.class);
 
-//    /**
-//     * класс для работы с Db2
-//     * @return
-//     */
-//    @Bean
-//    @Lazy
-//    Db2Worker db2Worker() {
-//        return new Db2Worker();
-//    }
-//
-//    /**
-//     * класс для работы с SqlServer
-//     * @return
-//     */
-//    @Bean
-//    @Lazy
-//    SqlServerWorker sqlServerWorker() {
-//        return new SqlServerWorker();
-//    }
-//
-//    /**
-//     * имя бина DbWorker
-//     */
-//    @Value("${app.dbworker}")
-//    String dbWorkerName;
-//
-//    /**
-//     * Инициализация {@link DbHelper}
-//     * @return
-//     */
-//    @Bean
-//    @Autowired
-//    public DbHelper dbHelper(ApplicationContext context) {
-//
-//        DbWorker worker = (DbWorker) context.getBean(dbWorkerName);
-//
-//        DbHelper dbHelper = DbHelper.INSTANCE;
-//        dbHelper.init(worker);
-//
-//        logger.info("DbHelper initialized with {}", worker.getClass().getSimpleName());
-//
-//        return dbHelper;
-//    }
+    /**
+     * Waiting for datasource
+     * @param sapodDataSource
+     * @return
+     * @throws SQLException
+     */
+    @Bean
+    @Autowired
+    @Retryable(maxAttempts=30, backoff=@Backoff(multiplier=2, maxDelay=10000))
+    public boolean checkSapodDataSource(@Qualifier("sapodDataSource") DataSource sapodDataSource) throws SQLException {
+
+        try (Connection cSapod = sapodDataSource.getConnection();
+             Statement stSapod = cSapod.createStatement()) {
+            stSapod.executeQuery(cSapod.getMetaData().getURL().startsWith("jdbc:db2") ? "SELECT 1 FROM SYSIBM.SYSDUMMY1" : "SELECT 1");
+            logger.info("connection with sapodDataSource establised");
+        }
+
+        return true;
+    }
 
     /**
      * Инициализация {@link DbHelper}
@@ -88,6 +69,7 @@ public class WebConfig implements WebMvcConfigurer {
      */
     @Bean
     @Autowired
+    @Lazy
     public DbHelper dbHelper(@Qualifier("sapodDataSource") DataSource sapodDataSource) throws SQLException {
         DbHelper dbHelper = DbHelper.INSTANCE;
         try (Connection c = sapodDataSource.getConnection()) {
@@ -124,7 +106,6 @@ public class WebConfig implements WebMvcConfigurer {
         return new PayTransportation(sapodDataSource.getConnection());
     }
 
-
     @Value("${app.jobs.pensimanager.fullmergepensi:true}")
     private boolean fullInsertMergePensi;
 
@@ -136,7 +117,7 @@ public class WebConfig implements WebMvcConfigurer {
      * @return
      */
     @Bean
-    //@Lazy
+//    @Lazy
     @Autowired
     @DependsOn("dbHelper")
     public PensiManager pensiManager(

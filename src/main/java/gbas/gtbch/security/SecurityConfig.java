@@ -1,6 +1,7 @@
 package gbas.gtbch.security;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -15,6 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 
 @EnableWebSecurity
+@DependsOn("checkSapodDataSource")
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     /**

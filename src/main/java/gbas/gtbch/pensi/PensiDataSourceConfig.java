@@ -61,7 +61,7 @@ public class PensiDataSourceConfig {
     @ConditionalOnExpression("!'${app.pensi.datasource.jndi-name:}'.isEmpty()")
     @Qualifier("pensiDataSource")
     public DataSource jndiPensiDataSource() {
-        return (DataSource) new JndiDataSourceLookup().getDataSource(jndiName);
+        return new JndiDataSourceLookup().getDataSource(jndiName);
     }
 
     /**
@@ -87,32 +87,6 @@ public class PensiDataSourceConfig {
                 .persistenceUnit("pensiDs")
                 .build();
     }
-
-/*
-    @Autowired
-    private Environment env;
-
-    @Bean
-    public LocalContainerEntityManagerFactoryBean pensiEntityManager() {
-        LocalContainerEntityManagerFactoryBean em
-                = new LocalContainerEntityManagerFactoryBean();
-        em.setDataSource(pensiDataSource());
-        em.setPackagesToScan(
-                new String[] {this.getClass().getPackage().getName()});
-        em.setPersistenceUnitName("pensiDs");
-
-        HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-        em.setJpaVendorAdapter(vendorAdapter);
-        HashMap<String, Object> properties = new HashMap<>();
-        properties.put("hibernate.hbm2ddl.auto",
-                env.getProperty("app.pensi.hibernate.hbm2ddl.auto"));
-        properties.put("hibernate.dialect",
-                env.getProperty("app.pensi.hibernate.dialect"));
-        em.setJpaPropertyMap(properties);
-
-        return em;
-    }
-*/
 
     @Bean
     public JpaTransactionManager pensiTransactionManager(
