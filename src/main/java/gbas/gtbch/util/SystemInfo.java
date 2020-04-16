@@ -5,6 +5,7 @@ import com.ibm.msg.client.wmq.WMQConstants;
 import gbas.gtbch.mq.properties.JndiMQConfigurationProperties;
 import gbas.gtbch.mq.properties.QueueConfigurationProperties;
 import gbas.gtbch.web.request.KeyValue;
+import gbas.tvk.desktop.Version;
 import gbas.tvk.util.UtilDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +51,10 @@ public class SystemInfo {
 
         info.addAll(getMqInfo(connectionFactory, jndiMQConfigurationProperties, inboundConfigurationProperties, outboundConfigurationProperties, inboundQueueName, outboundQueueName));
 
-        info.add(new KeyValue("Сборка", buildProperties == null ? "local" : ("версия: " + buildProperties.getVersion() + "; время сборки: " + UtilDate.getStringDateTime(new java.util.Date(buildProperties.getTime().toEpochMilli())))));
+        String[] version = new Version().getVersion();
+
+        info.add(new KeyValue("Сборка", (buildProperties == null ? "local" : ("версия: " + buildProperties.getVersion() + "; время сборки: " + UtilDate.getStringDateTime(new java.util.Date(buildProperties.getTime().toEpochMilli())))
+                + "; core: " + version[0] + " от " + version[1])));
 
         return info;
     }
