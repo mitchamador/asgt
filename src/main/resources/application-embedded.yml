@@ -25,7 +25,7 @@ app:
       jndi-name: "jms/GT.QCF"
       queueManager: TEST_QUEUE_MANAGER
       channel: MQ.CLIENT.CHANNEL
-      connName: localhost(1414)
+      connName: 10.4.253.43(1414)
       user: mqclient
       password: 123qwe
     inbound:
