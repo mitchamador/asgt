@@ -102,7 +102,7 @@ public class MainController {
             systemProperties.add(new KeyValue("Время",
                     String.format("start time: %s, startup duration: %s, uptime: %s",
                             getStringTime(startTime),
-                            getStringTime(context.getBean("startupDuration", Duration.class)),
+                            getStringTime(context.getBean("startupDuration", Duration.class), 180),
                             getStringTime(upTime))));
         } catch (BeansException e) {
             e.printStackTrace();
@@ -112,11 +112,15 @@ public class MainController {
     }
 
     private String getStringTime(Object time) {
+        return getStringTime(time, 10);
+    }
+
+    private String getStringTime(Object time, int diff) {
         if (time instanceof Instant) {
             return UtilDate.getStringDate(new java.util.Date(((Instant) time).toEpochMilli()), "dd.MM.yyyy HH:mm:ss");
         } else if (time instanceof Duration) {
             Duration duration = (Duration) time;
-            if (duration.getSeconds() > 10) {
+            if (duration.getSeconds() > diff) {
                 return String.format("%s days %s hours %s minutes", duration.toDays(), duration.toHours() % 24, duration.toMinutes() % 60);
             } else {
                 return  (double) duration.toMillis() / TimeUnit.SECONDS.toMillis(1) + " s.";
