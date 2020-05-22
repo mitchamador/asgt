@@ -9,28 +9,28 @@ app:
   sapod:
     datasource:
       jndi-name: "jdbc/SAPOD"
-      url: jdbc:db2://10.4.253.43:50000/TESTDB1
-      username: sapod
-      password: 123qwedsacxz
+      url: jdbc:db2://10.4.253.161:50000/GTBCH
+      username: u352gtdb
+      password: 165#z15fa3&
       driverClassName: com.ibm.db2.jcc.DB2Driver
   pensi:
     datasource:
       jndi-name: "jdbc/PENSI"
-      url: jdbc:db2://10.4.253.43:50000/TESTDB1
-      username: pensi
-      password: 123qwedsacxz
+      url: jdbc:db2://10.4.253.161:50000/GTBCH
+      username: u563pensidb
+      password: a873*#faa
       driverClassName: com.ibm.db2.jcc.DB2Driver
   mq:
     queue-manager:
       jndi-name: "jms/GT.QCF"
-      queueManager: TEST_QUEUE_MANAGER
-      channel: MQ.CLIENT.CHANNEL
-      connName: 10.4.253.43(1414)
-      user: mqclient
-      password: 123qwe
+      queueManager: QM1
+      channel: TEST.CHANNEL
+      connName: 10.4.253.58(1414)
+      user: mqmuser01
+      password: Py33705
     inbound:
       jndi-name: "jms/GT.IN.Q"
-      name: "Q.IN"
+      name: "IN"
     outbound:
       jndi-name: "jms/GT.OUT.Q"
-      name: "Q.OUT"
+      name: "OUT"
