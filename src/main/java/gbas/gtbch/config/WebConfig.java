@@ -2,6 +2,7 @@ package gbas.gtbch.config;
 
 import gbas.tvk.interaction.pensi.ConnectionManager;
 import gbas.tvk.interaction.pensi.PensiManager;
+import gbas.tvk.interaction.pensi.sync.Sync;
 import gbas.tvk.payment.PayTransportation;
 import gbas.tvk.rwmap.dist.DistCalc;
 import gbas.tvk.rwmap.dist.db.DistCalcDbSapod;
@@ -136,6 +137,8 @@ public class WebConfig implements WebMvcConfigurer {
                 return pensiDataSource.getConnection();
             }
         });
+
+        pm.setMode(Sync.ASGT);
 
         pm.setFullMergePensi(fullInsertMergePensi);
         pm.setFullMergeSapod(fullInsertMergeSapod);
