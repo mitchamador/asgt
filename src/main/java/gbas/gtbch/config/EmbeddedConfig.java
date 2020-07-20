@@ -9,6 +9,7 @@ import gbas.gtbch.mq.properties.QueueConfigurationProperties;
 import org.apache.catalina.Context;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.tomcat.util.descriptor.web.ContextResource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
@@ -33,9 +34,9 @@ public class EmbeddedConfig {
     public TomcatServletWebServerFactory containerFactory(
             final DataSourceProperties sapodDataSourceProperties,
             final DataSourceProperties pensiDataSourceProperties,
-            final JndiMQConfigurationProperties jndiMqConfigurationProperties,
-            @Qualifier("inboundQueueProperties") final QueueConfigurationProperties inboundQueueConfigurationProperties,
-            @Qualifier("outboundQueueProperties") final QueueConfigurationProperties outboundQueueConfigurationProperties
+            @Autowired(required = false) final JndiMQConfigurationProperties jndiMqConfigurationProperties,
+            @Autowired(required = false) @Qualifier("inboundQueueProperties") final QueueConfigurationProperties inboundQueueConfigurationProperties,
+            @Autowired(required = false) @Qualifier("outboundQueueProperties") final QueueConfigurationProperties outboundQueueConfigurationProperties
             ) {
         return new TomcatServletWebServerFactory() {
 
@@ -57,15 +58,15 @@ public class EmbeddedConfig {
                     context.getNamingResources().addResource(createJndiDataSource(pensiDataSourceProperties));
                 }
                 // jndi ресурс для jms connectionfactory
-                if (jndiMqConfigurationProperties.getJndiName() != null) {
+                if (jndiMqConfigurationProperties != null && jndiMqConfigurationProperties.getJndiName() != null) {
                     context.getNamingResources().addResource(createJndiConnectionFactory(jndiMqConfigurationProperties));
                 }
                 // jndi ресурс для inbound queue
-                if (inboundQueueConfigurationProperties.getJndiName() != null) {
+                if (inboundQueueConfigurationProperties != null && inboundQueueConfigurationProperties.getJndiName() != null) {
                     context.getNamingResources().addResource(createJndiQueue(inboundQueueConfigurationProperties));
                 }
                 // jndi ресурс для outbound queue
-                if (outboundQueueConfigurationProperties.getJndiName() != null) {
+                if (outboundQueueConfigurationProperties != null && outboundQueueConfigurationProperties.getJndiName() != null) {
                     context.getNamingResources().addResource(createJndiQueue(outboundQueueConfigurationProperties));
                 }
             }

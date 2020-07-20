@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +16,7 @@ import javax.jms.MessageListener;
 import javax.jms.TextMessage;
 
 @Component
+@ConditionalOnExpression("'${app.mq.enable:}' == 'true'")
 public class MQListener implements MessageListener {
 
     private final static Logger logger = LoggerFactory.getLogger(MQListener.class);

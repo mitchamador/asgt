@@ -30,6 +30,7 @@ import javax.naming.NamingException;
 
 @Configuration
 @EnableJms
+@ConditionalOnExpression("'${app.mq.enable:}' == 'true'")
 public class MQConfig {
 
     private final static Logger logger = LoggerFactory.getLogger(MQConfig.class);
@@ -39,7 +40,6 @@ public class MQConfig {
     public JndiMQConfigurationProperties jndiMqConfigurationProperties() {
         return new JndiMQConfigurationProperties();
     }
-
 
     /**
      * set user credentials on {@link MQConnectionFactory} and use {@link CachingConnectionFactory} for embedded tomcat

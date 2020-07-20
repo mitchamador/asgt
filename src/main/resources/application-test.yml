@@ -1,4 +1,4 @@
-# embedded profile configuration
+# test profile configuration
 
 server:
   compression:
@@ -8,30 +8,25 @@ server:
 app:
   sapod:
     datasource:
-      jndi-name: "jdbc/SAPOD"
       url: jdbc:db2://10.4.253.43:50000/TESTDB1
       username: sapod
       password: 123qwedsacxz
       driverClassName: com.ibm.db2.jcc.DB2Driver
   pensi:
     datasource:
-      jndi-name: "jdbc/PENSI"
       url: jdbc:db2://10.4.253.43:50000/TESTDB1
       username: pensi
       password: 123qwedsacxz
       driverClassName: com.ibm.db2.jcc.DB2Driver
   mq:
-    enable: true
+    enable: false
     queue-manager:
-      jndi-name: "jms/GT.QCF"
       queueManager: TEST_QUEUE_MANAGER
       channel: MQ.CLIENT.CHANNEL
       connName: 10.4.253.43(1414)
       user: mqclient
       password: 123qwe
     inbound:
-      jndi-name: "jms/GT.IN.Q"
       name: "Q.IN"
     outbound:
-      jndi-name: "jms/GT.OUT.Q"
       name: "Q.OUT"

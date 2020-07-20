@@ -16,11 +16,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.*;
 import org.springframework.context.event.EventListener;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.EnableRetry;
@@ -29,6 +25,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import javax.servlet.ServletContext;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -53,6 +50,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Bean
     @Autowired
     @Retryable(maxAttempts=30, backoff=@Backoff(multiplier=2, maxDelay=10000))
+    @DependsOn("servletContext")
     public boolean checkSapodDataSource(@Qualifier("sapodDataSource") DataSource sapodDataSource) throws SQLException {
 
         try (Connection cSapod = sapodDataSource.getConnection();

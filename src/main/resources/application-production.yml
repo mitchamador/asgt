@@ -7,6 +7,7 @@ app:
     datasource:
       jndi-name: "jdbc/PENSI"
   mq:
+    enable: true
     queue-manager:
       jndi-name: "jms/GT.QCF"
     inbound:

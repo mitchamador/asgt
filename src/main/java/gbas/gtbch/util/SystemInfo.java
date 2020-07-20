@@ -2,6 +2,7 @@ package gbas.gtbch.util;
 
 import com.ibm.mq.jms.MQConnectionFactory;
 import com.ibm.msg.client.wmq.WMQConstants;
+import gbas.gtbch.mq.MQProperties;
 import gbas.gtbch.mq.properties.JndiMQConfigurationProperties;
 import gbas.gtbch.mq.properties.QueueConfigurationProperties;
 import gbas.gtbch.web.request.KeyValue;
@@ -11,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.jms.connection.CachingConnectionFactory;
@@ -35,12 +37,7 @@ public class SystemInfo {
             ServletContext servletContext,
             @Qualifier("sapodDataSource") DataSource sapodDataSource,
             @Qualifier("pensiDataSource") DataSource pensiDataSource,
-            ConnectionFactory connectionFactory,
-            JndiMQConfigurationProperties jndiMQConfigurationProperties,
-            @Qualifier("inboundQueueProperties") QueueConfigurationProperties inboundConfigurationProperties,
-            @Qualifier("outboundQueueProperties") QueueConfigurationProperties outboundConfigurationProperties,
-            @Qualifier("inboundQueueName") String inboundQueueName,
-            @Qualifier("outboundQueueName") String outboundQueueName,
+            MQProperties mqProperties,
             @Autowired(required = false) BuildProperties buildProperties) {
         List<KeyValue> info = new ArrayList<>();
 
@@ -49,7 +46,9 @@ public class SystemInfo {
         info.addAll(getDbInfo(sapodDataSource, ""));
         info.addAll(getDbInfo(pensiDataSource, " ПЭНСИ"));
 
-        info.addAll(getMqInfo(connectionFactory, jndiMQConfigurationProperties, inboundConfigurationProperties, outboundConfigurationProperties, inboundQueueName, outboundQueueName));
+        if (!mqProperties.isDummy()) {
+            info.addAll(getMqInfo(mqProperties));
+        }
 
         String[] version = new Version().getVersion();
 
@@ -59,21 +58,17 @@ public class SystemInfo {
         return info;
     }
 
-    private List<KeyValue> getMqInfo(
-            ConnectionFactory connectionFactory,
-            JndiMQConfigurationProperties jndiMQConfigurationProperties,
-            QueueConfigurationProperties inboundConfigurationProperties,
-            QueueConfigurationProperties outboundConfigurationProperties,
-            String inboundQueueName,
-            String outboundQueueName) {
+    private List<KeyValue> getMqInfo(MQProperties mqProperties) {
         List<KeyValue> info = new ArrayList<>();
+
+
 
         MQConnectionFactory mqConnectionFactory = null;
 
-        if (connectionFactory instanceof MQConnectionFactory) {
-            mqConnectionFactory = (MQConnectionFactory) connectionFactory;
-        } else if (connectionFactory instanceof CachingConnectionFactory) {
-            ConnectionFactory targetConnectionFactory = ((CachingConnectionFactory) connectionFactory).getTargetConnectionFactory();
+        if (mqProperties.getConnectionFactory() instanceof MQConnectionFactory) {
+            mqConnectionFactory = (MQConnectionFactory) mqProperties.getConnectionFactory();
+        } else if (mqProperties.getConnectionFactory() instanceof CachingConnectionFactory) {
+            ConnectionFactory targetConnectionFactory = ((CachingConnectionFactory) mqProperties.getConnectionFactory()).getTargetConnectionFactory();
             if (targetConnectionFactory instanceof MQConnectionFactory) {
                 mqConnectionFactory = (MQConnectionFactory) targetConnectionFactory;
             }
@@ -87,15 +82,15 @@ public class SystemInfo {
                     ", user: " + getInfoString(mqConnectionFactory.get(WMQConstants.USERID).toString())));
         } else {
             // websphere Connectionfactory - com.ibm.ejs.jms.JMSQueueConnectionFactoryHandle
-            info.add(new KeyValue("Соединение MQ", "connection factory jndi name: " + jndiMQConfigurationProperties.getJndiName() +
-                    ", class: " + connectionFactory.getClass().getName()));
+            info.add(new KeyValue("Соединение MQ", "connection factory jndi name: " + mqProperties.getJndiMQConfigurationProperties().getJndiName() +
+                    ", class: " + mqProperties.getConnectionFactory().getClass().getName()));
         }
 
         info.add(new KeyValue("Очереди MQ",
-                "inbound queue jndi name: " + getInfoString(inboundConfigurationProperties.getJndiName()) +
-                        ", name: " + getInfoString(inboundQueueName) + "; " +
-                        "outbound queue jndi name: " + getInfoString(outboundConfigurationProperties.getJndiName()) +
-                        ", name: " + getInfoString(outboundQueueName) + "; "));
+                "inbound queue jndi name: " + getInfoString(mqProperties.getInboundConfigurationProperties().getJndiName()) +
+                        ", name: " + getInfoString(mqProperties.getInboundQueueName()) + "; " +
+                        "outbound queue jndi name: " + getInfoString(mqProperties.getOutboundConfigurationProperties().getJndiName()) +
+                        ", name: " + getInfoString(mqProperties.getOutboundQueueName()) + "; "));
 
         return info;
     }
