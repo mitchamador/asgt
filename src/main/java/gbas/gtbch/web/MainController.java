@@ -1,11 +1,14 @@
 package gbas.gtbch.web;
 
+import gbas.gtbch.sapod.model.TpImportDate;
+import gbas.gtbch.sapod.service.TpImportDateService;
 import gbas.gtbch.web.request.KeyValue;
 import gbas.tvk.util.UtilDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -60,9 +63,15 @@ public class MainController {
         return new ModelAndView("admin/index");
     }
 
+    @Autowired
+    private TpImportDateService tpImportDateService;
+
     @GetMapping("/admin/sync")
     public ModelAndView adminSync() {
-        return new ModelAndView("admin/sync");
+
+        TpImportDate tpImportDate = tpImportDateService.getTpImportDate();
+
+        return new ModelAndView("admin/sync", "tpdate", tpImportDate != null ? tpImportDate.getTpDateString() : "");
     }
 
     @GetMapping("/admin/nbrb")

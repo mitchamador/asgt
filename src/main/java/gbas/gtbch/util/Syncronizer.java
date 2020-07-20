@@ -1,5 +1,8 @@
 package gbas.gtbch.util;
 
+import gbas.gtbch.sapod.model.TpImportDate;
+import gbas.gtbch.sapod.service.TpImportDateService;
+import gbas.tvk.util.UtilDate;
 import gbas.tvk.util.synchronizator.Syncronizator;
 import gbas.tvk.util.synchronizator.synchroObjects.NsiOperations;
 import org.slf4j.Logger;
@@ -13,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.util.Date;
 
 @Component
 public class Syncronizer extends ServerJob {
@@ -22,6 +26,11 @@ public class Syncronizer extends ServerJob {
     private Logger logger = LoggerFactory.getLogger(Syncronizer.class);
 
     private byte[] bytes;
+
+    private String filename;
+
+    @Autowired
+    private TpImportDateService tpImportDateService;
 
     @Autowired
     @Qualifier("sapodDataSource")
@@ -83,6 +92,18 @@ public class Syncronizer extends ServerJob {
                     super.finish();
 
                     setProgress(100);
+
+                    if (filename != null) {
+                        String dateStr = (filename.substring(12, 14) + "") + '.' + (filename.substring(9, 11) + "") + '.' +
+                                (filename.substring(4, 8) + "") + ' ' + (filename.substring(15, 17) + "") + ':' + (filename.substring(18, 20) + "");
+                        Date dateCreate = UtilDate.getDate(dateStr, "dd.MM.yyyy HH:mm");
+                        if (dateCreate != null) {
+                            TpImportDate tpImportDate = new TpImportDate();
+                            tpImportDate.setDateCreate(dateCreate);
+                            tpImportDate.setDateImport(new Date());
+                            tpImportDateService.save(tpImportDate);
+                        }
+                    }
                 }
             };
             s.setFullInsertMerge(fullInsertMerge);
@@ -100,8 +121,10 @@ public class Syncronizer extends ServerJob {
         }
     }
 
-    public void setBytes(byte[] bytes) {
+    public void setData(String filename, byte[] bytes) {
+        this.filename = filename;
         this.bytes = bytes;
     }
+
 
 }

@@ -35,7 +35,7 @@ public class FileUploadController {
         response.setMessage("Файл успешно загружен");
 
         if (SYNCRONIZER_UPLOAD_PARAM.equals(type)) {
-            syncronizer.setBytes(file.getBytes());
+            syncronizer.setData(file.getOriginalFilename(), file.getBytes());
         }
 
         return ResponseEntity.ok(response);

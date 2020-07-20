@@ -43,7 +43,7 @@ public class ApiController {
         TpImportDate tpImportDate = tpImportDateService.getTpImportDate();
 
         ServerResponse response = new ServerResponse();
-        response.setMessage(tpImportDate != null ? "ТП от " + UtilDate.getStringDate(tpImportDate.getDateCreate()) : "");
+        response.setMessage(tpImportDate != null ? tpImportDate.getTpDateString() : "");
 
         return response;
     }
