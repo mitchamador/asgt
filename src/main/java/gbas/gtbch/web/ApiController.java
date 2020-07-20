@@ -1,7 +1,10 @@
 package gbas.gtbch.web;
 
 import gbas.gtbch.model.ServerResponse;
+import gbas.gtbch.sapod.model.TpImportDate;
+import gbas.gtbch.sapod.service.TpImportDateService;
 import gbas.gtbch.util.CalcHandler;
+import gbas.tvk.util.UtilDate;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class CalcController {
+public class ApiController {
 
     /**
      * inject bean with prototype scope to singleton bean
@@ -31,5 +34,18 @@ public class CalcController {
         return response;
     }
 
+    @Autowired
+    private TpImportDateService tpImportDateService;
+
+    @RequestMapping(value = "/api/tpdate", method = RequestMethod.POST)
+    public ServerResponse getTpImportDate() {
+
+        TpImportDate tpImportDate = tpImportDateService.getTpImportDate();
+
+        ServerResponse response = new ServerResponse();
+        response.setMessage(tpImportDate != null ? "ТП от " + UtilDate.getStringDate(tpImportDate.getDateCreate()) : "");
+
+        return response;
+    }
 
 }
