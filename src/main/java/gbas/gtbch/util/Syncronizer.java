@@ -2,6 +2,7 @@ package gbas.gtbch.util;
 
 import gbas.gtbch.sapod.model.TpImportDate;
 import gbas.gtbch.sapod.service.TpImportDateService;
+import gbas.tvk.nsi.cash.Func;
 import gbas.tvk.util.UtilDate;
 import gbas.tvk.util.synchronizator.Syncronizator;
 import gbas.tvk.util.synchronizator.synchroObjects.NsiOperations;
@@ -113,6 +114,11 @@ public class Syncronizer extends ServerJob {
             } catch (IllegalArgumentException ignored) {
             }
             s.run(true);
+
+            String errors = s.getErr();
+            if (!Func.isEmpty(s.getErr())) {
+                System.err.println(errors);
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
