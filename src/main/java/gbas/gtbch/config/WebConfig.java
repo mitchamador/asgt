@@ -18,6 +18,9 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.*;
 import org.springframework.context.event.EventListener;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.retry.annotation.Retryable;
@@ -26,12 +29,16 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.zip.GZIPOutputStream;
 
 @Configuration
 @EnableScheduling
@@ -168,6 +175,54 @@ public class WebConfig implements WebMvcConfigurer {
     @Lazy
     public Duration startupDuration() {
         return startTime != null && endTime != null ? Duration.between(startTime, endTime) : null;
+    }
+
+
+    /**
+     * compress to gzip
+     * @param body
+     * @return
+     * @throws IOException
+     */
+    private static byte[] compress(byte[] body) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try (GZIPOutputStream gzipOutputStream = new GZIPOutputStream(baos)) {
+            gzipOutputStream.write(body);
+        }
+        return baos.toByteArray();
+    }
+
+    /**
+     * check HttpServletRequest for HttpHeaders.ACCEPT_ENCODING header
+     * @param httpRequest
+     * @return
+     */
+    private static boolean acceptsGZipEncoding(HttpServletRequest httpRequest) {
+        String acceptEncoding = httpRequest.getHeader(HttpHeaders.ACCEPT_ENCODING);
+        return acceptEncoding != null && acceptEncoding.contains("gzip");
+    }
+
+    /**
+     * gzip ResponseEntity
+     * @param request
+     * @param body
+     * @return
+     */
+    public static ResponseEntity getGzippedResponseEntity(HttpServletRequest request, String body) {
+
+        if (body != null && acceptsGZipEncoding(request)) {
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_ENCODING, "gzip");
+
+            try {
+                return new ResponseEntity<>(compress(body.getBytes()), headers, HttpStatus.OK);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return new ResponseEntity<>(body, HttpStatus.OK);
     }
 
 }

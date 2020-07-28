@@ -1,20 +1,28 @@
 package gbas.gtbch;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import gbas.gtbch.sapod.model.TpImportDate;
 import gbas.gtbch.sapod.service.TpImportDateService;
-import gbas.gtbch.util.SystemInfo;
 import gbas.gtbch.web.request.KeyValue;
+import gbas.gtbch.websapod.ServicesImpl;
+import gbas.sapod.bridge.controllers.Services;
+import gbas.sapod.bridge.utilities.JsonBuilder;
 import gbas.tvk.util.UtilDate;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.List;
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -65,6 +73,51 @@ public class GtBchTests {
 	public void systemInfoTest() {
 		for (KeyValue k : systemProperties) {
 			logger.info(k.getKey() + " " + k.getValue());
+		}
+	}
+
+	@Test
+	public void jsonBuilderTest() throws JsonProcessingException {
+		Map<String, Object> m = new LinkedHashMap<>();
+
+		m.put("test1", "test2_value");
+		m.put("test2", "test2_value");
+
+		List<Map<String, String>> mapList = new ArrayList<>();
+
+		Map<String, String> m2 = new LinkedHashMap<>();
+		m2.put("inner_map_test_param1", "value1");
+		m2.put("inner_map_test_param2", "value2");
+
+		mapList.add(m2);
+
+		m.put("inner_map", mapList);
+
+		logger.info(new ObjectMapper().writer().writeValueAsString(JsonBuilder.getJsonObject(m)));
+
+		Map<String, String> m3 = new LinkedHashMap<>();
+		m3.put("inner map test param1", "value1");
+		m3.put("inner map test param2", "value2");
+
+		logger.info(new ObjectMapper().writer().writeValueAsString(JsonBuilder.getJsonLabelValueArray(m3)));
+	}
+
+	@Autowired
+	@Qualifier("sapodDataSource")
+	private DataSource sapodDataSource;
+
+	@Test
+	public void servicesTest() {
+		try (Connection c = sapodDataSource.getConnection()) {
+			Services services = new ServicesImpl(c);
+
+			Vector v = services.getStikSng();
+			logger.info(String.valueOf(v.get(0)));
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 

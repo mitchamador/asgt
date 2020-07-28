@@ -4,7 +4,8 @@ import gbas.gtbch.model.ServerResponse;
 import gbas.gtbch.sapod.model.TpImportDate;
 import gbas.gtbch.sapod.service.TpImportDateService;
 import gbas.gtbch.util.CalcHandler;
-import gbas.tvk.util.UtilDate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class ApiController {
+
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     /**
      * inject bean with prototype scope to singleton bean
@@ -37,7 +40,7 @@ public class ApiController {
     @Autowired
     private TpImportDateService tpImportDateService;
 
-    @RequestMapping(value = "/api/tpdate", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/tpdate", method = RequestMethod.GET)
     public ServerResponse getTpImportDate() {
 
         TpImportDate tpImportDate = tpImportDateService.getTpImportDate();

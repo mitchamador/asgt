@@ -1,9 +1,12 @@
 package gbas.gtbch.security;
 
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.session.SessionRegistry;
@@ -11,8 +14,17 @@ import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.GZIPOutputStream;
 
 
 @EnableWebSecurity
@@ -36,6 +48,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.inMemoryAuthentication().withUser("guest").password("{noop}").roles("GUEST");
         auth.userDetailsService(userService).passwordEncoder(new SapodPasswordEncoder());
     }
 
@@ -50,10 +63,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                             "/img/**",
                             "/webjars/**",
                             "/favicon.ico",
-                            "/login")
+                            "/api/websapod/**",
+                            "/login**")
                             .permitAll()
                     .antMatchers("/admin/**", "/api/**").hasAnyRole("ADMIN")
                     .antMatchers("/user/**", "/api/**").hasAnyRole("ADMIN", "USER")
+                    //.antMatchers("/api/websapod/**", "/guest/**").hasAnyRole("GUEST")
                     .anyRequest().authenticated()
                 .and()
                 .formLogin()
@@ -96,12 +111,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new HttpSessionEventPublisher();
     }
 
-/*
+
     @Override
     public void configure(WebSecurity web) throws Exception {
-        web
-                .ignoring()
-                .antMatchers("/webjars/**", "/css/**", "/js/**", "/img/**", "/api/**");
+//        web
+//                .ignoring()
+//                .antMatchers("/webjars/**", "/css/**", "/js/**", "/img/**", "/api/**", "/login");
     }
-*/
+
+
+    @Bean
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
+    }
+
 }

@@ -4,6 +4,7 @@ import gbas.gtbch.model.ServerJobResponse;
 import gbas.gtbch.schedule.NbrbCurrencyDownloaderJob;
 import gbas.gtbch.schedule.PensiDownloaderJob;
 import gbas.gtbch.schedule.PensiMailerJob;
+import gbas.gtbch.schedule.PensiSyncronizerJob;
 import gbas.gtbch.util.MQJob;
 import gbas.gtbch.util.PensiMainJob;
 import gbas.gtbch.util.ServerJob;
@@ -58,6 +59,13 @@ public class ServerJobController {
         this.pensiMainJob = pensiMainJob;
     }
 
+    private PensiSyncronizerJob pensiSyncronizerJob;
+
+    @Autowired
+    public void setPensiSyncronizerJob(PensiSyncronizerJob pensiSyncronizerJob) {
+        this.pensiSyncronizerJob = pensiSyncronizerJob;
+    }
+
     private MQJob mqJob;
 
     @Autowired
@@ -82,7 +90,7 @@ public class ServerJobController {
                 serverJob = pensiMailerJob;
                 break;
             case "pensisyncronizer":
-                //serverJob = nbrbCurrencyDownloadJob;
+                serverJob = pensiSyncronizerJob;
                 break;
             case "pensimain":
                 serverJob = pensiMainJob;

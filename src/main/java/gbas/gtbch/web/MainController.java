@@ -48,6 +48,8 @@ public class MainController {
                 return new ModelAndView("admin/index");
             } else if (authentication.getAuthorities().stream().anyMatch(r -> r.getAuthority().equals("ROLE_USER"))) {
                 return new ModelAndView("user/index");
+            } else if (authentication.getAuthorities().stream().anyMatch(r -> r.getAuthority().equals("ROLE_GUEST"))) {
+                return new ModelAndView("guest/index");
             }
         }
         return new ModelAndView("index");
@@ -82,6 +84,11 @@ public class MainController {
     @GetMapping("/admin/mq")
     public ModelAndView adminMq() {
         return new ModelAndView("admin/mq");
+    }
+
+    @GetMapping("/index")
+    public String index() {
+        return "index";
     }
 
     @GetMapping("/login")

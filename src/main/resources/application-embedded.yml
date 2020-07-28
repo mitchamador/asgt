@@ -2,7 +2,7 @@
 
 server:
   compression:
-    enabled: true
+    enabled: false
   port: 8080
 
 app:
@@ -21,7 +21,7 @@ app:
       password: 123qwedsacxz
       driverClassName: com.ibm.db2.jcc.DB2Driver
   mq:
-    enable: true
+    #enable: true
     queue-manager:
       jndi-name: "jms/GT.QCF"
       queueManager: TEST_QUEUE_MANAGER
