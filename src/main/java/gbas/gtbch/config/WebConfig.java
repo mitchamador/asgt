@@ -28,11 +28,11 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -210,17 +210,19 @@ public class WebConfig implements WebMvcConfigurer {
      */
     public static ResponseEntity getGzippedResponseEntity(HttpServletRequest request, String body) {
 
+
         if (body != null && acceptsGZipEncoding(request)) {
 
             HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.CONTENT_ENCODING, "gzip");
 
             try {
-                return new ResponseEntity<>(compress(body.getBytes()), headers, HttpStatus.OK);
+                return new ResponseEntity<>(compress(body.getBytes(StandardCharsets.UTF_8)), headers, HttpStatus.OK);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
+
 
         return new ResponseEntity<>(body, HttpStatus.OK);
     }
