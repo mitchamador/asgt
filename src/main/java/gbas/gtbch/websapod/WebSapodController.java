@@ -3,6 +3,7 @@ package gbas.gtbch.websapod;
 import gbas.gtbch.sapod.model.TpImportDate;
 import gbas.gtbch.sapod.service.TpImportDateService;
 import gbas.sapod.bridge.constants.json.Key;
+import gbas.sapod.bridge.constants.json.KeyValue;
 import gbas.sapod.bridge.controllers.CalcService;
 import gbas.sapod.bridge.controllers.RouteException;
 import gbas.sapod.bridge.controllers.RouteService;
@@ -14,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,14 +28,14 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.*;
-import java.util.zip.GZIPOutputStream;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.UUID;
 
 import static gbas.gtbch.config.WebConfig.getGzippedResponseEntity;
+import static gbas.sapod.bridge.utilities.JsonBuilder.getJsonArray;
 
 // add Access-Control-Allow-Origin: * to response headers
 @CrossOrigin(maxAge = 3600)
@@ -142,7 +142,7 @@ public class WebSapodController {
         try (Connection c = sapodDataSource.getConnection()) {
             return new ResponseEntity<>(
                     JsonBuilder.getJsonLabelValueArray(
-                            new CalcService(request).calc(new ServicesImpl(c)).getLabelValueMap()
+                            new CalcService(request).calc(new ServicesImpl(c)).getLabelValueList()
                     ).toJSONString(),
                     HttpStatus.OK);
         } catch (Exception e) {
@@ -156,23 +156,7 @@ public class WebSapodController {
     public ResponseEntity nsi(HttpServletRequest request, @RequestParam(name = "method") String method) {
 
         try (Connection c = sapodDataSource.getConnection()) {
-
-            List<List<Object>> data = new ServicesImpl(c).getNsi(method);
-
-            String jsonString;
-            if (data != null && data.size() == 1) {
-                List<Object> item = data.get(0);
-                Map<String, Object> map = new LinkedHashMap<>();
-                for (int i = 0; i < item.size(); i += 2) {
-                    map.put(String.valueOf(item.get(i)), item.get(i + 1));
-                }
-                jsonString = JsonBuilder.getJsonObject(map).toJSONString();
-            } else {
-                jsonString = JsonBuilder.getJsonArray(data).toJSONString();
-            }
-
-            //return new ResponseEntity<>(jsonString, HttpStatus.OK);
-            return getGzippedResponseEntity(request, jsonString);
+            return getGzippedResponseEntity(request, getJsonArray(new ServicesImpl(c).getNsi(request.getParameter("method"))).toJSONString());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -188,13 +172,8 @@ public class WebSapodController {
     public ResponseEntity<String> route() {
         TpImportDate tpImportDate = tpImportDateService.getTpImportDate();
 
-        Map<String, Object> map = new LinkedHashMap<>();
-        map.put("computed", UtilDate.getStringDate(tpImportDate.getDateCreate(), "dd/MM/yy"));
-
         return new ResponseEntity<>(
-                JsonBuilder.getJsonObject(
-                        map
-                ).toJSONString(),
+                JsonBuilder.getJsonObject(Collections.singletonList(new KeyValue("computed", UtilDate.getStringDate(tpImportDate.getDateCreate(), "dd/MM/yy")))).toJSONString(),
                 HttpStatus.OK);
     }
 

@@ -1,7 +1,6 @@
 package gbas.gtbch;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import gbas.gtbch.sapod.model.TpImportDate;
 import gbas.gtbch.sapod.service.TpImportDateService;
 import gbas.gtbch.web.request.KeyValue;
@@ -22,7 +21,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -78,28 +79,28 @@ public class GtBchTests {
 
 	@Test
 	public void jsonBuilderTest() throws JsonProcessingException {
-		Map<String, Object> m = new LinkedHashMap<>();
+		List<gbas.sapod.bridge.constants.json.KeyValue> m = new ArrayList<>();
 
-		m.put("test1", "test2_value");
-		m.put("test2", "test2_value");
+		m.add(new gbas.sapod.bridge.constants.json.KeyValue("test1", "test2_value"));
+		m.add(new gbas.sapod.bridge.constants.json.KeyValue("test2", "test2_value"));
 
-		List<Map<String, String>> mapList = new ArrayList<>();
+		List<List<gbas.sapod.bridge.constants.json.KeyValue>> mapList = new ArrayList<>();
 
-		Map<String, String> m2 = new LinkedHashMap<>();
-		m2.put("inner_map_test_param1", "value1");
-		m2.put("inner_map_test_param2", "value2");
+		List<gbas.sapod.bridge.constants.json.KeyValue> m2 = new ArrayList<>();
+		m2.add(new gbas.sapod.bridge.constants.json.KeyValue("inner_map_test_param1", "value1"));
+		m2.add(new gbas.sapod.bridge.constants.json.KeyValue("inner_map_test_param2", "value2"));
 
 		mapList.add(m2);
 
-		m.put("inner_map", mapList);
+		m.add(new gbas.sapod.bridge.constants.json.KeyValue("inner_map", mapList));
 
-		logger.info(new ObjectMapper().writer().writeValueAsString(JsonBuilder.getJsonObject(m)));
+		logger.info(JsonBuilder.getJsonObject(m).toJSONString());
 
-		Map<String, String> m3 = new LinkedHashMap<>();
-		m3.put("inner map test param1", "value1");
-		m3.put("inner map test param2", "value2");
+		List<gbas.sapod.bridge.constants.json.KeyValue> m3 = new ArrayList<>();
+		m3.add(new gbas.sapod.bridge.constants.json.KeyValue("inner map test param1", "value1"));
+		m3.add(new gbas.sapod.bridge.constants.json.KeyValue("inner map test param2", "value2"));
 
-		logger.info(new ObjectMapper().writer().writeValueAsString(JsonBuilder.getJsonLabelValueArray(m3)));
+		logger.info(JsonBuilder.getJsonLabelValueArray(m3).toJSONString());
 	}
 
 	@Autowired

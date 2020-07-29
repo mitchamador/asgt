@@ -1,5 +1,6 @@
 package gbas.gtbch.websapod;
 
+import gbas.sapod.bridge.constants.json.KeyValue;
 import gbas.sapod.bridge.controllers.CountPlataResult;
 import gbas.sapod.bridge.controllers.NsiMethod;
 import gbas.sapod.bridge.controllers.Services;
@@ -14,7 +15,10 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Vector;
 
 public class ServicesImpl implements Services {
 
@@ -203,7 +207,7 @@ public class ServicesImpl implements Services {
     }
 
     @Override
-    public Map<String, Object> getImportTpDate() throws Exception {
+    public List<KeyValue> getImportTpDate() throws Exception {
         return null;
     }
 }
