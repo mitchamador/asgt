@@ -7,6 +7,8 @@ import gbas.sapod.bridge.controllers.Services;
 import gbas.tvk.nsi.cash.Func;
 import gbas.tvk.otpravka.object.VagonOtprTransit;
 import gbas.tvk.payment.db.DbPayment;
+import gbas.tvk.rwmap.dist.objects.DistanceData;
+import gbas.tvk.rwmap.rasst.Station;
 import gbas.tvk.service.SQLUtils;
 import gbas.tvk.tuner.service.RailwayMetadata;
 
@@ -209,5 +211,10 @@ public class ServicesImpl implements Services {
     @Override
     public List<KeyValue> getImportTpDate() throws Exception {
         return null;
+    }
+
+    @Override
+    public List<Station> calculateRoute(DistanceData distanceData) throws Exception {
+        return getPayServer().calculateRoute(distanceData);
     }
 }
