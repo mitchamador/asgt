@@ -2,8 +2,10 @@ package gbas.gtbch.websapod;
 
 import gbas.gtbch.sapod.model.TpImportDate;
 import gbas.gtbch.sapod.service.TpImportDateService;
+import gbas.sapod.bridge.constants.json.Errors;
 import gbas.sapod.bridge.constants.json.Key;
 import gbas.sapod.bridge.constants.json.KeyValue;
+import gbas.sapod.bridge.controllers.CalcException;
 import gbas.sapod.bridge.controllers.CalcService;
 import gbas.sapod.bridge.controllers.RouteException;
 import gbas.sapod.bridge.controllers.RouteService;
@@ -29,13 +31,12 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.UUID;
 
 import static gbas.gtbch.config.WebConfig.getGzippedResponseEntity;
-import static gbas.sapod.bridge.utilities.JsonBuilder.getJsonArray;
+import static gbas.sapod.bridge.utilities.JsonBuilder.*;
 
 // add Access-Control-Allow-Origin: * to response headers
 @CrossOrigin(maxAge = 3600)
@@ -126,14 +127,14 @@ public class WebSapodController {
                     ).toJSONString(),
                     HttpStatus.OK);
         } catch (RouteException e) {
-            e.printStackTrace();
-        } catch (SQLException e) {
-            e.printStackTrace();
+            return new ResponseEntity<>(
+                    getRouteError(e.getMessage()),
+                    HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            return new ResponseEntity<>(
+                    getRouteError("Error calculating route"),
+                    HttpStatus.OK);
         }
-
-        return null;
     }
 
     @RequestMapping(value = "/api/websapod/calc", method = RequestMethod.GET)
@@ -145,11 +146,20 @@ public class WebSapodController {
                             new CalcService(request).calc(new ServicesImpl(c)).getLabelValueList()
                     ).toJSONString(),
                     HttpStatus.OK);
+        } catch (CalcException e) {
+            return new ResponseEntity<>(
+                    getError(e.getCode()),
+                    HttpStatus.OK);
+        } catch (RouteException e) {
+            return new ResponseEntity<>(
+                    getError(e.getCode()),
+                    HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            return new ResponseEntity<>(
+                    getError(Errors.GENERAL),
+                    HttpStatus.OK);
         }
 
-        return null;
     }
 
     @RequestMapping(value = "/api/websapod/nsi", method = RequestMethod.GET)
@@ -158,10 +168,10 @@ public class WebSapodController {
         try (Connection c = sapodDataSource.getConnection()) {
             return getGzippedResponseEntity(request, getJsonArray(new ServicesImpl(c).getNsi(request.getParameter("method"))).toJSONString());
         } catch (Exception e) {
-            e.printStackTrace();
+            return new ResponseEntity<>(
+                    getError(Errors.GENERAL),
+                    HttpStatus.OK);
         }
-
-        return null;
     }
 
     @Autowired
