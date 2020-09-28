@@ -9,25 +9,31 @@ import gbas.tvk.payment.PayTransportation;
 import gbas.tvk.util.GZipUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import javax.sql.DataSource;
-
+/**
+ *
+ */
 @Component
 @Scope("prototype")
 public class CalcHandler {
 
     private final static Logger logger = LoggerFactory.getLogger(CalcHandler.class.getName());
 
+    /**
+     *
+     */
     private final PayTransportation payTransportation;
 
-    private final DataSource sapodDataSource;
+    /**
+     *
+     */
+    private final ConvertXmlToVagonOtprTransit convertXmlToVagonOtprTransit;
 
-    public CalcHandler(PayTransportation payTransportation, @Qualifier("sapodDataSource") DataSource sapodDataSource) {
+    public CalcHandler(PayTransportation payTransportation, ConvertXmlToVagonOtprTransit convertXmlToVagonOtprTransit) {
         this.payTransportation = payTransportation;
-        this.sapodDataSource = sapodDataSource;
+        this.convertXmlToVagonOtprTransit = convertXmlToVagonOtprTransit;
     }
 
     public String calc(String data) {
@@ -63,11 +69,10 @@ public class CalcHandler {
  */
 
             if (obj == null && checkTags(data, "<doc name=\"GT\"", "</doc>") || checkTags(data, "<doc name=\"nakl\"", "</doc>")) {
-                ConvertXmlToVagonOtprTransit docEC = new ConvertXmlToVagonOtprTransit();
-                String string = docEC.parse(data, ConstantsParameters.VERIFY,
+                String string = convertXmlToVagonOtprTransit.parse(data, ConstantsParameters.VERIFY,
                         ConstantsParameters.NO_SYSTEM, null);
                 if (string != null) {
-                    obj = docEC.getObject(VagonOtpr.OPER_DEPARTURE, sapodDataSource.getConnection());
+                    obj = convertXmlToVagonOtprTransit.getObject(VagonOtpr.OPER_DEPARTURE);
                 }
             }
 
@@ -113,6 +118,9 @@ public class CalcHandler {
         } finally {
             if (payTransportation != null) {
                 payTransportation.close();
+            }
+            if (convertXmlToVagonOtprTransit != null) {
+                convertXmlToVagonOtprTransit.close();
             }
         }
 

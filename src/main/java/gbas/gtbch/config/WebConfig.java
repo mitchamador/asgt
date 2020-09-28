@@ -1,5 +1,6 @@
 package gbas.gtbch.config;
 
+import gbas.eds.gtbch.ConvertXmlToVagonOtprTransit;
 import gbas.tvk.interaction.pensi.ConnectionManager;
 import gbas.tvk.interaction.pensi.PensiManager;
 import gbas.tvk.interaction.pensi.sync.Sync;
@@ -100,8 +101,8 @@ public class WebConfig implements WebMvcConfigurer {
 
     /**
      * класс расчета провозной платы
-     * * @Scope("prototype") - используются множественные экземпляры класса
-     * * connection должен закрываться в конце жизненного цикла бина public методом close()
+     * <p>@Scope("prototype") - используются множественные экземпляры класса
+     * <p>connection должен закрываться в конце жизненного цикла бина public методом close()
      * @return
      * @throws Exception
      */
@@ -110,6 +111,21 @@ public class WebConfig implements WebMvcConfigurer {
     @Autowired
     PayTransportation payTransportation(@Qualifier("sapodDataSource") DataSource sapodDataSource) throws Exception {
         return new PayTransportation(sapodDataSource.getConnection());
+    }
+
+    /**
+     * класс конвертирования входящего XML в {@link gbas.tvk.otpravka.object.VagonOtprTransit}
+     * <p>@Scope("prototype") - используются множественные экземпляры класса
+     * <p>connection должен закрываться в конце жизненного цикла бина public методом close()
+     * @param sapodDataSource
+     * @return
+     * @throws Exception
+     */
+    @Bean
+    @Scope("prototype")
+    @Autowired
+    ConvertXmlToVagonOtprTransit convertXmlToVagonOtprTransit(@Qualifier("sapodDataSource") DataSource sapodDataSource) throws Exception {
+        return new ConvertXmlToVagonOtprTransit(sapodDataSource.getConnection());
     }
 
     @Value("${app.jobs.pensimanager.fullmergepensi:true}")
