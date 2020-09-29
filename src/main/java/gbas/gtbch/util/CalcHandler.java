@@ -6,41 +6,39 @@ import gbas.tvk.otpravka.object.VagonOtpr;
 import gbas.tvk.otpravka.object.VagonOtprTransit;
 import gbas.tvk.payment.CalcPlataData;
 import gbas.tvk.payment.PayTransportation;
+import gbas.tvk.service.SQLUtils;
 import gbas.tvk.util.GZipUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  *
  */
-@Component
-@Scope("prototype")
 public class CalcHandler {
 
     private final static Logger logger = LoggerFactory.getLogger(CalcHandler.class.getName());
 
-    /**
-     *
-     */
-    private final PayTransportation payTransportation;
+    private Connection connection;
 
-    /**
-     *
-     */
-    private final ConvertXmlToVagonOtprTransit convertXmlToVagonOtprTransit;
-
-    public CalcHandler(PayTransportation payTransportation, ConvertXmlToVagonOtprTransit convertXmlToVagonOtprTransit) {
-        this.payTransportation = payTransportation;
-        this.convertXmlToVagonOtprTransit = convertXmlToVagonOtprTransit;
+    public CalcHandler(Connection connection) throws SQLException {
+        this.connection = connection;
     }
 
     public String calc(String data) {
 
         logger.debug("calchandler process started...");
 
-        String response = null;
+        String response;
+        PayTransportation payTransportation;
+        ConvertXmlToVagonOtprTransit convertXmlToVagonOtprTransit;
 
         try {
             CalcPlataData c = null;
@@ -69,6 +67,7 @@ public class CalcHandler {
  */
 
             if (obj == null && checkTags(data, "<doc name=\"GT\"", "</doc>") || checkTags(data, "<doc name=\"nakl\"", "</doc>")) {
+                convertXmlToVagonOtprTransit = new ConvertXmlToVagonOtprTransit(connection);
                 String string = convertXmlToVagonOtprTransit.parse(data, ConstantsParameters.VERIFY,
                         ConstantsParameters.NO_SYSTEM, null);
                 if (string != null) {
@@ -86,25 +85,31 @@ public class CalcHandler {
             }
 */
 
-            if (obj instanceof CalcPlataData) {
-                c = (CalcPlataData) obj;
+            if (obj instanceof CalcPlataData || obj instanceof VagonOtprTransit) {
 
-                switch (c.mode) {
-                    case 1:
-                        c = payTransportation.countPlata(c);
-                        break;
-                    case 2:
-                        c = payTransportation.countPlata(c, c.strIsklTar, c.ssCurs);
-                        break;
-                    case 3:
-                        c = payTransportation.countPlataMarshrut(c);
-                        break;
-                    case 4:
-                        c = payTransportation.countPlataMarshrut(c, c.strIsklTar);
-                        break;
+                payTransportation = new PayTransportation(connection);
+
+                if (obj instanceof CalcPlataData) {
+                    c = (CalcPlataData) obj;
+
+                    switch (c.mode) {
+                        case 1:
+                            c = payTransportation.countPlata(c);
+                            break;
+                        case 2:
+                            c = payTransportation.countPlata(c, c.strIsklTar, c.ssCurs);
+                            break;
+                        case 3:
+                            c = payTransportation.countPlataMarshrut(c);
+                            break;
+                        case 4:
+                            c = payTransportation.countPlataMarshrut(c, c.strIsklTar);
+                            break;
+                    }
+                } else {
+                    c = payTransportation.calcPlata((VagonOtprTransit) obj);
                 }
-            } else if (obj instanceof VagonOtprTransit) {
-                c = payTransportation.calcPlata((VagonOtprTransit) obj);
+
             } else {
                 c = new CalcPlataData();
                 c.s = String.format("Неверный объект расчета: \"%s\"", data);
@@ -116,12 +121,7 @@ public class CalcHandler {
             e.printStackTrace();
             response = e.getMessage();
         } finally {
-            if (payTransportation != null) {
-                payTransportation.close();
-            }
-            if (convertXmlToVagonOtprTransit != null) {
-                convertXmlToVagonOtprTransit.close();
-            }
+
         }
 
         logger.debug("calchandler process finished");
@@ -142,5 +142,13 @@ public class CalcHandler {
         }
 
         return false;
+    }
+
+    /**
+     * default destroy method
+     */
+    public void close() {
+        logger.debug("calchandler destroy");
+        SQLUtils.close(connection);
     }
 }
