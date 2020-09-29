@@ -54,6 +54,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                             "/webjars/**",
                             "/favicon.ico",
                             "/api/websapod/**",
+                            "/api/calc",
                             "/login**")
                             .permitAll()
                     .antMatchers("/admin/**", "/api/**").hasAnyRole("ADMIN")
