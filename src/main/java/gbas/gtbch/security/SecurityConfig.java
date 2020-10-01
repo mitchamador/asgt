@@ -54,11 +54,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                             "/webjars/**",
                             "/favicon.ico",
                             "/api/websapod/**",
-                            "/api/calc",
+                            "/api/**",
                             "/login**")
                             .permitAll()
-                    .antMatchers("/admin/**", "/api/**").hasAnyRole("ADMIN")
-                    .antMatchers("/user/**", "/api/**").hasAnyRole("ADMIN", "USER")
+                    .antMatchers("/admin/**"/*, "/api/**"*/).hasAnyRole("ADMIN")
+                    .antMatchers("/user/**"/*, "/api/**"*/).hasAnyRole("ADMIN", "USER")
                     //.antMatchers("/api/websapod/**", "/guest/**").hasAnyRole("GUEST")
                     .anyRequest().authenticated()
                 .and()
