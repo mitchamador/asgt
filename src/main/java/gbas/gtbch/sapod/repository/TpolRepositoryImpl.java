@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
@@ -15,6 +16,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Component
@@ -58,7 +60,23 @@ public class TpolRepositoryImpl implements TpolRepository {
         return jdbcTemplate.query(item.getItem().getSqlSelected(id_tpol), TpolRepositoryImpl::extractStringArrayList);
     }
 
-    public List<TpolDocument> getDocuments() {
+    public List<TpolDocument> getDocuments(Date dateBegin, Date dateEnd) {
+        List<Object> args = new ArrayList<>();
+
+        String datesSql = "";
+        if (dateBegin != null) {
+            datesSql += "date_begin > ?";
+            args.add(dateBegin);
+        }
+        if (dateEnd != null) {
+            datesSql += (datesSql.isEmpty() ? "" : " and ") + "date_end < ?";
+            args.add(dateEnd);
+        }
+        if (!datesSql.isEmpty()) {
+            datesSql = " (" + datesSql + ") AND\n";
+        }
+
+
         return jdbcTemplate.query(
                 "select id, " +
                         "rtrim(type_code), " +
@@ -70,33 +88,27 @@ public class TpolRepositoryImpl implements TpolRepository {
                         "cod_tip_tarif, " +  //8
                         "dobor" +  //9
                         " from tvk_tarif \n" +
-                        "WHERE /*(date_begin >= ? \n" +
-                        "  AND date_end <= ?) \n" +
-                        "  AND*/(type_code = 'base_tarif' \n" +
+                        "WHERE\n" +
+                        datesSql +
+                        "  (type_code = 'base_tarif' \n" +
                         "  OR type_code = 'down_tarif' \n" +
                         "  OR type_code = 'polnom' \n" +
                         "  OR type_code = 'russia_tarif' \n" +
                         "  OR type_code = 'iskl_tarif' \n" +
                         "  OR type_code = 'tr1_bch') \n" +
-                        "ORDER BY n_contract", rs -> {
-                    List<TpolDocument> list = new ArrayList<>();
-
-                    while (rs.next()) {
-                        final TpolDocument doc = new TpolDocument();
-                        doc.id = rs.getInt(1);
-                        doc.type_code = rs.getString(2);
-                        doc.n_contract = rs.getString(3);
-                        doc.date_begin = rs.getDate(4);
-                        doc.date_end = rs.getDate(5);
-                        doc.name = rs.getString(6);
-                        doc.n_pol = rs.getInt(7);
-                        doc.codTipTar = rs.getInt(8);
-                        doc.codDobor = rs.getShort(9);
-                        list.add(doc);
-                    }
-
-                    return list;
-                });
+                        "ORDER BY n_contract", (rs, i) -> {
+                    final TpolDocument doc = new TpolDocument();
+                    doc.id = rs.getInt(1);
+                    doc.type_code = rs.getString(2);
+                    doc.n_contract = rs.getString(3);
+                    doc.date_begin = rs.getDate(4);
+                    doc.date_end = rs.getDate(5);
+                    doc.name = rs.getString(6);
+                    doc.n_pol = rs.getInt(7);
+                    doc.codTipTar = rs.getInt(8);
+                    doc.codDobor = rs.getShort(9);
+                    return doc;
+                }, args.toArray(new Object[0]));
     }
 
     public List<TPRow> getRows(int id_tarif) {
@@ -107,30 +119,27 @@ public class TpolRepositoryImpl implements TpolRepository {
                 "left outer join tvk_group_t_kont c on a.id_ves_norm = c.id " +
                 "left outer join tvk_group_t_kof d on a.id_tab_kof = d.id " +
                 "left outer join tvk_group_t_kof e on a.id_tab_kofbs = e.id " +
-                "where a.id_tarif= " + id_tarif + " order by 2 ", rs -> {
-            List<TPRow> list = new ArrayList<>();
-            while (rs.next()) {
-                TPRow row = new TPRow();
-                row.id = rs.getInt(1);
-                row.nStr = rs.getInt(2);
-                row.prim = rs.getString(3);
-                row.tipTTar = rs.getDouble(4);
-                row.tVes = rs.getDouble(5);
-                row.vesNorm = rs.getDouble(6);
-                row.nTab = rs.getInt(7);
-                row.kof = rs.getDouble(8);
-                row.id_tab_ves = rs.getInt(9);
-                row.id_ves_norm = rs.getInt(10);
-                row.id_tab_kof = rs.getInt(11);
-                row.kof_sobst = rs.getDouble(12);
-                row.skid = rs.getInt(13);
-                row.id_tab_kofbs = rs.getInt(14);
-                row.bs_tab = rs.getInt(15);
-                row.koleya = rs.getInt(16);
-                list.add(row);
-            }
-
-            return list;
-        });
+                "where a.id_tarif=? order by 2 ",
+                new Object[] {id_tarif},
+                (rs, i) -> {
+                    TPRow row = new TPRow();
+                    row.id = rs.getInt(1);
+                    row.nStr = rs.getInt(2);
+                    row.prim = rs.getString(3);
+                    row.tipTTar = rs.getDouble(4);
+                    row.tVes = rs.getDouble(5);
+                    row.vesNorm = rs.getDouble(6);
+                    row.nTab = rs.getInt(7);
+                    row.kof = rs.getDouble(8);
+                    row.id_tab_ves = rs.getInt(9);
+                    row.id_ves_norm = rs.getInt(10);
+                    row.id_tab_kof = rs.getInt(11);
+                    row.kof_sobst = rs.getDouble(12);
+                    row.skid = rs.getInt(13);
+                    row.id_tab_kofbs = rs.getInt(14);
+                    row.bs_tab = rs.getInt(15);
+                    row.koleya = rs.getInt(16);
+                    return row;
+                });
     }
 }

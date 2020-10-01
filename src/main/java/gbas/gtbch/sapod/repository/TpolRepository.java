@@ -4,6 +4,7 @@ import gbas.gtbch.sapod.model.TpolItem;
 import gbas.tvk.tpol3.TpolDocument;
 import gbas.tvk.tpol3.service.TPRow;
 
+import java.util.Date;
 import java.util.List;
 
 public interface TpolRepository {
@@ -27,7 +28,7 @@ public interface TpolRepository {
      *
      * @return
      */
-    List<TpolDocument> getDocuments();
+    List<TpolDocument> getDocuments(Date dateBegin, Date dateEnd);
 
     /**
      * @param id_tarif

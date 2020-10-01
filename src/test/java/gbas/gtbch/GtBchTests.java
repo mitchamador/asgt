@@ -2,11 +2,13 @@ package gbas.gtbch;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import gbas.gtbch.sapod.model.TpImportDate;
+import gbas.gtbch.sapod.repository.TpolRepositoryImpl;
 import gbas.gtbch.sapod.service.TpImportDateService;
 import gbas.gtbch.web.request.KeyValue;
 import gbas.gtbch.websapod.ServicesImpl;
 import gbas.sapod.bridge.controllers.Services;
 import gbas.sapod.bridge.utilities.JsonBuilder;
+import gbas.tvk.tpol3.TpolDocument;
 import gbas.tvk.util.UtilDate;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,6 +23,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -120,6 +124,22 @@ public class GtBchTests {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Autowired
+	TpolRepositoryImpl tpolRepository;
+
+	@Test
+	public void tpolRepositoryTest() throws ParseException {
+		List<TpolDocument> list;
+		list = tpolRepository.getDocuments(null, null);
+		logger.info("getDocuments(null, null): " +  (list == null ? "null" : ("list size = " + list.size())));
+		list = tpolRepository.getDocuments(new SimpleDateFormat("dd.MM.yyyy").parse("01.01.2020"), null);
+		logger.info("getDocuments(date, null): " +  (list == null ? "null" : ("list size = " + list.size())));
+		list = tpolRepository.getDocuments(null, new SimpleDateFormat("dd.MM.yyyy").parse("01.01.2018"));
+		logger.info("getDocuments(null, date): " +  (list == null ? "null" : ("list size = " + list.size())));
+		list = tpolRepository.getDocuments(new SimpleDateFormat("dd.MM.yyyy").parse("01.01.2018"), new SimpleDateFormat("dd.MM.yyyy").parse("01.01.2020"));
+		logger.info("getDocuments(date, date): " +  (list == null ? "null" : ("list size = " + list.size())));
 	}
 
 }

@@ -10,11 +10,13 @@ import gbas.tvk.tpol3.service.TPRow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -94,10 +96,11 @@ public class TpolController {
     /**
      * get TpolDocument list
      */
-    // todo request parameters
     @RequestMapping(value = "/api/tpol/documents", method = RequestMethod.GET)
-    public ResponseEntity<List<TpolDocument>> getDocuments() {
-        return new ResponseEntity<>(tpolRepository.getDocuments(), HttpStatus.OK);
+    public ResponseEntity<List<TpolDocument>> getDocuments(
+            @RequestParam(value = "date_begin", required = false) @DateTimeFormat(pattern = "dd.MM.yyyy") Date dateBegin,
+            @RequestParam(value = "date_end", required = false) @DateTimeFormat(pattern = "dd.MM.yyyy") Date dateEnd) {
+        return new ResponseEntity<>(tpolRepository.getDocuments(dateBegin, dateEnd), HttpStatus.OK);
     }
 
     /**
