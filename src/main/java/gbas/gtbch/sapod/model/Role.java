@@ -1,5 +1,7 @@
 package gbas.gtbch.sapod.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import javax.persistence.*;
 import java.io.Serializable;
 
@@ -15,8 +17,10 @@ public class Role implements Serializable {
     @Column(name = "mnemo")
     private String mnemo;
 
-    @Column(name = "id_user")
-    private int userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="id_user", nullable=false)
+    @JsonBackReference
+    private User user;
 
     public int getId() {
         return id;
@@ -34,12 +38,11 @@ public class Role implements Serializable {
         this.mnemo = mnemo;
     }
 
-    public int getUserId() {
-        return userId;
+    public User getUser() {
+        return user;
     }
 
-    public void setUserId(int userId) {
-        this.userId = userId;
+    public void setUser(User user) {
+        this.user = user;
     }
-
 }
