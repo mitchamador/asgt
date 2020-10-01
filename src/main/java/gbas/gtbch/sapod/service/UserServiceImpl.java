@@ -72,4 +72,23 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return findUserByLogin(username);
     }
 
+
+    /**
+     * delete user by id
+     * @param id
+     */
+    @Override
+    public void deleteUserById(Integer id) {
+        userRepository.deleteById(id);
+    }
+
+    /**
+     * save user
+     * @param u
+     * @return
+     */
+    @Override
+    public User saveUser(User u) {
+        return userRepository.save(u);
+    }
 }

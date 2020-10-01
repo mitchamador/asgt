@@ -30,4 +30,17 @@ public interface UserService {
      * @param u
      */
     void updateLoggedInDate(User u);
+
+    /**
+     *
+     * @param id
+     */
+    void deleteUserById(Integer id);
+
+    /**
+     *
+     * @param r
+     * @return
+     */
+    User saveUser(User r);
 }
