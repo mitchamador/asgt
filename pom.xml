@@ -191,31 +191,11 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- sapod libs -->
+        <!-- sapod core -->
         <dependency>
             <groupId>gbas</groupId>
             <artifactId>sapod-core</artifactId>
             <version>LATEST</version>
-        </dependency>
-        <dependency>
-            <groupId>com.thoughtworks.xstream</groupId>
-            <artifactId>xstream</artifactId>
-            <version>1.4.11.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.mail</groupId>
-            <artifactId>javax.mail</artifactId>
-            <version>1.6.2</version>
-        </dependency>
-        <dependency>
-            <groupId>gbas</groupId>
-            <artifactId>sapod-web-core</artifactId>
-            <version>LATEST</version>
-        </dependency>
-        <dependency>
-            <groupId>com.googlecode.json-simple</groupId>
-            <artifactId>json-simple</artifactId>
-            <version>1.1.1</version>
         </dependency>
 
     </dependencies>
