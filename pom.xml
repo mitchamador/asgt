@@ -33,32 +33,12 @@
                 <packaging.type>jar</packaging.type>
                 <final.name>${project.artifactId}-${project.version}-develop</final.name>
                 <package.scope>compile</package.scope>
+                <package-shared.scope>compile</package-shared.scope>
                 <spring-boot.profile>embedded</spring-boot.profile>
             </properties>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.springframework.boot</groupId>
-                        <artifactId>spring-boot-maven-plugin</artifactId>
-                        <configuration>
-                            <profiles>
-                                <profile>${spring-boot.profile}</profile>
-                            </profiles>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>build-info</id>
-                                <goals>
-                                    <goal>build-info</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
         </profile>
         <profile>
             <id>war</id>
@@ -66,8 +46,50 @@
                 <packaging.type>war</packaging.type>
                 <final.name>${project.artifactId}</final.name>
                 <package.scope>provided</package.scope>
+                <package-shared.scope>compile</package-shared.scope>
                 <spring-boot.profile>production</spring-boot.profile>
             </properties>
+        </profile>
+        <profile>
+            <id>war-shared</id>
+            <properties>
+                <packaging.type>war</packaging.type>
+                <final.name>${project.artifactId}</final.name>
+                <package.scope>provided</package.scope>
+                <package-shared.scope>provided</package-shared.scope>
+                <spring-boot.profile>production</spring-boot.profile>
+                <spring-boot.repackage.skip>true</spring-boot.repackage.skip>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-clean-plugin</artifactId>
+                        <version>3.1.0</version>
+                        <executions>
+                            <execution>
+                                <id>auto-clean</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>clean</goal>
+                                </goals>
+                                <configuration>
+                                    <filesets>
+                                        <fileset>
+                                            <directory>${project.build.outputDirectory}</directory>
+                                            <includes>
+                                                <include>application.yml</include>
+                                                <include>application-embedded.yml</include>
+                                                <include>application-test.yml</include>
+                                            </includes>
+                                        </fileset>
+                                    </filesets>
+                                    <excludeDefaultDirectories>true</excludeDefaultDirectories>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 
@@ -75,52 +97,50 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-            <scope>${package.scope}</scope>
+            <scope>${package-shared.scope}</scope>
         </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
-            <scope>${package.scope}</scope>
+            <scope>${package-shared.scope}</scope>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
-            <scope>${package.scope}</scope>
+            <scope>${package-shared.scope}</scope>
         </dependency>
 
         <dependency>
             <groupId>org.thymeleaf.extras</groupId>
             <artifactId>thymeleaf-extras-springsecurity5</artifactId>
             <version>3.0.4.RELEASE</version>
-            <scope>${package.scope}</scope>
+            <scope>${package-shared.scope}</scope>
         </dependency>
 
         <dependency>
             <groupId>com.github.zhanhb</groupId>
             <artifactId>thymeleaf-layout-dialect</artifactId>
             <version>2.4.1</version>
-            <scope>${package.scope}</scope>
+            <scope>${package-shared.scope}</scope>
         </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
-            <scope>${package.scope}</scope>
+            <scope>${package-shared.scope}</scope>
         </dependency>
 
         <dependency>
             <groupId>org.springframework.retry</groupId>
             <artifactId>spring-retry</artifactId>
             <version>1.2.5.RELEASE</version>
-            <scope>${package.scope}</scope>
+            <scope>${package-shared.scope}</scope>
         </dependency>
-
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-aspects</artifactId>
-            <scope>${package.scope}</scope>
+            <scope>${package-shared.scope}</scope>
         </dependency>
 
         <!--
@@ -131,6 +151,19 @@
             <groupId>com.ibm.mq</groupId>
             <artifactId>mq-jms-spring-boot-starter</artifactId>
             <version>2.2.4</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.ibm.mq</groupId>
+                    <artifactId>com.ibm.mq.allclient</artifactId>
+                </exclusion>
+            </exclusions>
+            <scope>${package-shared.scope}</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.ibm.mq</groupId>
+            <artifactId>com.ibm.mq.allclient</artifactId>
+            <version>9.1.4.0</version>
             <scope>${package.scope}</scope>
         </dependency>
 
@@ -168,35 +201,32 @@
             <groupId>org.webjars</groupId>
             <artifactId>webjars-locator</artifactId>
             <version>0.38</version>
-            <scope>${package.scope}</scope>
+            <scope>${package-shared.scope}</scope>
         </dependency>
-
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>bootstrap</artifactId>
             <version>3.4.1</version>
-            <scope>${package.scope}</scope>
+            <scope>${package-shared.scope}</scope>
         </dependency>
-
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>datatables</artifactId>
             <version>1.10.12</version>
-            <scope>${package.scope}</scope>
+            <scope>${package-shared.scope}</scope>
         </dependency>
-
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>font-awesome</artifactId>
             <version>4.7.0</version>
-            <scope>${package.scope}</scope>
+            <scope>${package-shared.scope}</scope>
         </dependency>
 
         <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
             <version>1.4</version>
-            <scope>${package.scope}</scope>
+            <scope>${package-shared.scope}</scope>
         </dependency>
 
         <!-- devtools -->
@@ -204,7 +234,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
             <optional>true</optional>
-            <scope>${package.scope}</scope>
+            <scope>${package-shared.scope}</scope>
         </dependency>
 
         <!-- testing -->
@@ -213,7 +243,6 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
@@ -238,6 +267,23 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <profiles>
+                        <profile>${spring-boot.profile}</profile>
+                    </profiles>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>build-info</id>
+                        <goals>
+                            <goal>build-info</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <!-- display active profile in compile phase -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
