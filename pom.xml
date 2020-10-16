@@ -48,6 +48,7 @@
                 <package.scope>provided</package.scope>
                 <package-shared.scope>compile</package-shared.scope>
                 <spring-boot.profile>production</spring-boot.profile>
+                <spring-boot.repackage.skip>true</spring-boot.repackage.skip>
             </properties>
         </profile>
         <profile>
@@ -256,11 +257,11 @@
             <version>LATEST</version>
         </dependency>
 
+        <!-- websapod support -->
         <dependency>
             <groupId>com.googlecode.json-simple</groupId>
             <artifactId>json-simple</artifactId>
             <version>1.1.1</version>
-            <scope>${package.scope}</scope>
         </dependency>
 
     </dependencies>
@@ -299,6 +300,28 @@
                     </execution>
                 </executions>
             </plugin>
+<!--
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <version>4.0.2</version>
+                <executions>
+                    <execution>
+                        <id>get-the-git-infos</id>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <failOnNoGitDirectory>false</failOnNoGitDirectory>
+                    <includeOnlyProperties>
+                        <includeOnlyProperty>git.commit.id.abbrev</includeOnlyProperty>
+                        <includeOnlyProperty>git.commit.time</includeOnlyProperty>
+                    </includeOnlyProperties>
+                </configuration>
+            </plugin>
+-->
         </plugins>
         <finalName>${final.name}</finalName>
     </build>
