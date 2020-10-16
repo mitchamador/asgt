@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+// add Access-Control-Allow-Origin: * to response headers
+@CrossOrigin(maxAge = 3600)
 @RestController
 public class TpolController {
 
