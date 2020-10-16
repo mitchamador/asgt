@@ -25,7 +25,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -35,11 +38,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.UUID;
 
-import static gbas.gtbch.config.WebConfig.getGzippedResponseEntity;
+import static gbas.gtbch.web.GzippedResponseEntity.getGzippedResponseEntity;
 import static gbas.sapod.bridge.utilities.JsonBuilder.*;
 
-// add Access-Control-Allow-Origin: * to response headers
-@CrossOrigin(maxAge = 3600)
 @RestController
 public class WebSapodController {
 

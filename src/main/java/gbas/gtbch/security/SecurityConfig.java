@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 
 
 @EnableWebSecurity
-@DependsOn("checkSapodDataSource")
+@DependsOn("waitSapodDataSource")
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     /**
