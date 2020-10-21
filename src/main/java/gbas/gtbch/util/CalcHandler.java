@@ -6,6 +6,11 @@ import gbas.tvk.otpravka.object.VagonOtpr;
 import gbas.tvk.otpravka.object.VagonOtprTransit;
 import gbas.tvk.payment.CalcPlataData;
 import gbas.tvk.payment.PayTransportation;
+import gbas.tvk.report.gu46a.gtGu46.CountGu46;
+import gbas.tvk.report.gu46a.gtGu46.bean.VedGu46;
+import gbas.tvk.report.gu46a.gtGu46.convert.ConvertXmlGtToGu46;
+import gbas.tvk.report.gu46a.gtGu46.extend.Tm;
+import gbas.tvk.report.gu46a.gtGu46.parser.GTGu46WriteXml;
 import gbas.tvk.service.SQLUtils;
 import gbas.tvk.util.GZipUtils;
 import org.slf4j.Logger;
@@ -14,6 +19,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -32,51 +38,25 @@ public class CalcHandler {
         this.connection = connection;
     }
 
-    public String calc(String data) {
+    public CalcData calc(CalcData data) {
 
         logger.debug("calchandler process started...");
 
-        String response;
-        PayTransportation payTransportation;
-        ConvertXmlToVagonOtprTransit convertXmlToVagonOtprTransit;
-
         try {
-            CalcPlataData c = null;
 
             Object obj = null;
 
-/*
-            1. xstream xml
-            <gbas.tvk.otpravka.object.VagonOtprTransit>
-            </gbas.tvk.otpravka.object.VagonOtprTransit>
-
-            2. object2xml
-            <?xml version="1.0" encoding="UTF-8"?>
-            <CompleteDocument type="gbas.tvk.otpravka.object.VagonOtprTransit">
-            </CompleteDocument>
-
-            3. full ep xml
-            <?xml version="1.0" encoding="UTF-8"?>
-            <doc name="nakl" pns="0" kos="0" id="0" epd="0" oper="0" version="1">
-            </doc>
-
-            4. small ep xml
-            <?xml version="1.0" encoding="UTF-8"?>
-            <doc name="GT" version="1">
-            </doc>
- */
-
-            if (obj == null && checkTags(data, "<doc name=\"GT\"", "</doc>") || checkTags(data, "<doc name=\"nakl\"", "</doc>")) {
-                convertXmlToVagonOtprTransit = new ConvertXmlToVagonOtprTransit(connection);
-                String string = convertXmlToVagonOtprTransit.parse(data, ConstantsParameters.VERIFY,
+            if (obj == null && checkTags(data.getInputXml(), "<table name=\"nakl\"", "</table>")) {
+                ConvertXmlToVagonOtprTransit convertXmlToVagonOtprTransit = new ConvertXmlToVagonOtprTransit(connection);
+                String string = convertXmlToVagonOtprTransit.parse(data.getInputXml(), ConstantsParameters.VERIFY,
                         ConstantsParameters.NO_SYSTEM, null);
                 if (string != null) {
                     obj = convertXmlToVagonOtprTransit.getObject(VagonOtpr.OPER_DEPARTURE);
                 }
             }
 
-            if (obj == null && checkTags(data, "<gbas.tvk.otpravka.object.VagonOtprTransit>", "</gbas.tvk.otpravka.object.VagonOtprTransit>")) {
-                obj = GZipUtils.xml2Object(data);
+            if (obj == null && checkTags(data.getInputXml(), "<gbas.tvk.otpravka.object.VagonOtprTransit>", "</gbas.tvk.otpravka.object.VagonOtprTransit>")) {
+                obj = GZipUtils.xml2Object(data.getInputXml());
             }
 
 /*
@@ -85,9 +65,20 @@ public class CalcHandler {
             }
 */
 
+            if (obj == null && checkTags(data.getInputXml(), "<table name=\"gu46\"", "</table>")) {
+                ConvertXmlGtToGu46 docEC = new ConvertXmlGtToGu46(connection);
+                String string = docEC.parse(data.getInputXml(), ConstantsParameters.VERIFY,
+                        ConstantsParameters.NO_SYSTEM, null);
+
+                if(string != null) {
+                    obj = docEC.getObject((Tm[]) docEC.getObject());
+                }
+            }
+
             if (obj instanceof CalcPlataData || obj instanceof VagonOtprTransit) {
 
-                payTransportation = new PayTransportation(connection);
+                CalcPlataData c;
+                PayTransportation payTransportation = new PayTransportation(connection);
 
                 if (obj instanceof CalcPlataData) {
                     c = (CalcPlataData) obj;
@@ -110,23 +101,29 @@ public class CalcHandler {
                     c = payTransportation.calcPlata((VagonOtprTransit) obj);
                 }
 
-            } else {
-                c = new CalcPlataData();
-                c.s = String.format("Неверный объект расчета: \"%s\"", data);
-            }
+                if (c != null) {
+                    data.setTextResult(c.s);
+                    data.setOutputXml(c.getXml());
+                } else {
+                    data.setTextResult("Ошибка расчета");
+                }
 
-            response = c != null ? c.s : null;
+            } else if (obj instanceof VedGu46) {
+                VedGu46 vedGu46 = new CountGu46(connection).calcVedGu46((VedGu46) obj);
+                data.setTextResult(vedGu46.toString());
+                data.setOutputXml(GTGu46WriteXml.createXml(vedGu46));
+            } else {
+                data.setTextResult(String.format("Неверный объект расчета: \"%s\"", data));
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
-            response = e.getMessage();
-        } finally {
-
+            data.setTextResult(e.getMessage());
         }
 
         logger.debug("calchandler process finished");
 
-        return response != null ? response : "Ошибка";
+        return data;
     }
 
     private boolean checkTags(String text, String start, String end) {

@@ -1,5 +1,6 @@
 package gbas.gtbch.mq;
 
+import gbas.gtbch.util.CalcData;
 import gbas.gtbch.util.CalcHandler;
 import gbas.gtbch.util.MQJob;
 import org.slf4j.Logger;
@@ -82,7 +83,7 @@ public class MQListener implements MessageListener {
         if (message.getJMSCorrelationID() != null) {
 
             jmsTemplate.send(outboundQueueName, session -> {
-                String response = getCalcHandler().calc(message.getText());
+                String response = getCalcHandler().calc(new CalcData(message.getText())).getOutputXml();
 
                 TextMessage answer = session.createTextMessage();
                 answer.setJMSCorrelationID(message.getJMSCorrelationID());

@@ -3,6 +3,7 @@ package gbas.gtbch.web;
 import gbas.gtbch.model.ServerResponse;
 import gbas.gtbch.sapod.model.TpImportDate;
 import gbas.gtbch.sapod.service.TpImportDateService;
+import gbas.gtbch.util.CalcData;
 import gbas.gtbch.util.CalcHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,7 @@ public class ApiController {
     public ServerResponse calc(@RequestParam("data") String data) {
 
         ServerResponse response = new ServerResponse();
-        response.setMessage(getCalcHandler().calc(data));
+        response.setMessage(getCalcHandler().calc(new CalcData(data)).getTextResult());
 
         return response;
     }
