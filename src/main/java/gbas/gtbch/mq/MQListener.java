@@ -16,6 +16,8 @@ import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.TextMessage;
 
+import static gbas.gtbch.util.CropString.getCroppedString;
+
 @Component
 @ConditionalOnExpression("'${app.mq.enable:}' == 'true'")
 public class MQListener implements MessageListener {
@@ -96,12 +98,4 @@ public class MQListener implements MessageListener {
         }
     }
 
-    private final static int CROP_LENGTH = 100;
-
-    private String getCroppedString(String s) {
-        if (s != null && s.length() > CROP_LENGTH - 3) {
-            s = s.replaceAll("(\n|\\s+)", " ").substring(0, CROP_LENGTH - 3) + "...";
-        }
-        return s;
-    }
 }

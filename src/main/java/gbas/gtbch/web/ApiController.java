@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import static gbas.gtbch.util.CropString.getCroppedString;
+
 @RestController
 public class ApiController {
 
@@ -33,7 +35,9 @@ public class ApiController {
     public ServerResponse calc(@RequestParam("data") String data) {
 
         ServerResponse response = new ServerResponse();
-        response.setMessage(getCalcHandler().calc(new CalcData(data)).getTextResult());
+        response.setMessage(getCalcHandler().calc(new CalcData(data)).getOutputXml());
+
+        logger.info(String.format("/api/calc response: \"%s\"", getCroppedString(response.getMessage())));
 
         return response;
     }
