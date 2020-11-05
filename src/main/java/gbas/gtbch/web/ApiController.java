@@ -35,9 +35,20 @@ public class ApiController {
     public ServerResponse calc(@RequestParam("data") String data) {
 
         ServerResponse response = new ServerResponse();
-        response.setMessage(getCalcHandler().calc(new CalcData(data)).getOutputXml());
+        response.setMessage(getCalcHandler().calc(new CalcData(data)).getTextResult());
 
         logger.info(String.format("/api/calc response: \"%s\"", getCroppedString(response.getMessage())));
+
+        return response;
+    }
+
+    @RequestMapping(value = "/api/calcxml", method = RequestMethod.POST)
+    public ServerResponse calcxml(@RequestParam("data") String data) {
+
+        ServerResponse response = new ServerResponse();
+        response.setMessage(getCalcHandler().calc(new CalcData(data)).getOutputXml());
+
+        logger.info(String.format("/api/calcxml response: \"%s\"", getCroppedString(response.getMessage())));
 
         return response;
     }
