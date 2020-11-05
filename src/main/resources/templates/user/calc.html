@@ -25,8 +25,8 @@
                 e.preventDefault();
             });
             $("#uploadButton").click(function (e) {
-                $("#calcData").text("");
-                $("#xmlFileName").val("");
+                // $("#calcData").text("");
+                // $("#xmlFileName").val("");
                 $("#xmlButton").click();
             });
             $("#xmlButton").change(function (e) {
@@ -42,7 +42,6 @@
                 reader.readAsText(file);
             })
         }));
-
     </script>
 
     <h3>Расчет</h3>
@@ -55,10 +54,10 @@
         </div>
 
         <div class="form-inline row">
-            <input id="xmlButton" type="file" style="display: none;">
+            <input id="xmlButton" type="file" accept=".xml, text/xml" style="display: none;">
             <div class="col-sm-10" style="padding-left: 0">
                 <button id="uploadButton" class="btn btn-default btn-outline" type="button">...</button>
-                <input type="text" class="form-control" id="xmlFileName" placeholder="Имя файла" style="width: 93%" disabled>
+                <input type="text" class="form-control" id="xmlFileName" placeholder="Имя файла" style="width: 93%">
             </div>
             <button id="calcButton" class="col-sm-2 btn btn-primary" type="button"
                     data-loading-text="<i class='fa fa-spinner fa-spin '></i> Расчет">
