@@ -20,30 +20,56 @@
                 };
                 calc(params);
             });
-            $( "#calcResult" ).contextmenu(function(e) {
+            $("#calcResult").contextmenu(function (e) {
                 $(this).text("");
                 e.preventDefault();
             });
+            $("#uploadButton").click(function (e) {
+                $("#calcData").text("");
+                $("#xmlFileName").val("");
+                $("#xmlButton").click();
+            });
+            $("#xmlButton").change(function (e) {
+                var file = e.target.files[0];
+                if (file.type !== "text/xml") {
+                    return;
+                }
+                $("#xmlFileName").val(file.name);
+                var reader = new FileReader();
+                reader.addEventListener('load', function (ev) {
+                    $("#calcData").text(ev.target.result);
+                });
+                reader.readAsText(file);
+            })
         }));
+
     </script>
 
-  <h3>Расчет</h3>
+    <h3>Расчет</h3>
 
-  <div>
+    <div>
         <div class="row form-group">
             <label for="calcData">XML данные</label>
-            <textarea id="calcData" class="form-control" rows="5" style="height: 26vh; font-size: 0.9em; font-family: monospace"></textarea>
+            <textarea id="calcData" class="form-control" rows="5"
+                      style="height: 26vh; font-size: 0.9em; font-family: monospace"></textarea>
         </div>
 
-        <div class="form-actions row">
-            <button id="calcButton" class="row col-sm-offset-10 col-sm-2 btn btn-primary" type="button" data-loading-text="<i class='fa fa-spinner fa-spin '></i> Расчет">
+        <div class="form-inline row">
+            <input id="xmlButton" type="file" style="display: none;">
+            <div class="col-sm-10" style="padding-left: 0">
+                <button id="uploadButton" class="btn btn-default btn-outline" type="button">...</button>
+                <input type="text" class="form-control" id="xmlFileName" placeholder="Имя файла" style="width: 93%" disabled>
+            </div>
+            <button id="calcButton" class="col-sm-2 btn btn-primary" type="button"
+                    data-loading-text="<i class='fa fa-spinner fa-spin '></i> Расчет">
                 Расчет
             </button>
         </div>
 
         <div class="row form-group">
             <label for="calcResult">Результат</label>
-            <textarea id="calcResult" class="form-control" rows="5" style="height: 40vh; font-size: 0.9em; font-family: monospace" readonly></textarea>
+            <textarea id="calcResult" class="form-control" rows="5"
+                      style="height: 40vh; font-size: 0.9em; font-family: monospace" readonly></textarea>
         </div>
     </div>
 
