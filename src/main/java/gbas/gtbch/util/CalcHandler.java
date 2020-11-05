@@ -113,7 +113,7 @@ public class CalcHandler {
                 data.setTextResult(vedGu46.toString());
                 data.setOutputXml(GTGu46WriteXml.createXml(vedGu46));
             } else {
-                data.setTextResult(String.format("Неверный объект расчета: \"%s\"", data));
+                data.setTextResult(String.format("Неверный объект расчета: \"%s\"", data.getInputXml()));
             }
 
         } catch (Exception e) {
@@ -129,8 +129,8 @@ public class CalcHandler {
     private boolean checkTags(String text, String start, String end) {
 
         try {
-            int indexStart = text.indexOf(start);
-            int indexEnd = text.indexOf(end);
+            int indexStart = text.toLowerCase().indexOf(start.toLowerCase());
+            int indexEnd = text.toLowerCase().indexOf(end.toLowerCase());
 
             if (indexStart != -1 && indexEnd != -1 && indexEnd > indexStart) {
                 return true;
