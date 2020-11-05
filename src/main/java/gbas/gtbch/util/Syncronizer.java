@@ -5,9 +5,7 @@ import gbas.gtbch.sapod.service.TpImportDateService;
 import gbas.tvk.nsi.cash.Func;
 import gbas.tvk.util.UtilDate;
 import gbas.tvk.util.synchronizator.Syncronizator;
-import gbas.tvk.util.synchronizator.synchroObjects.NsiOperations;
-import gbas.tvk.util.synchronizator.synchroObjects.SynDist;
-import gbas.tvk.util.synchronizator.synchroObjects.SynStyck;
+import gbas.tvk.util.synchronizator.synchroObjects.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -116,7 +114,7 @@ public class Syncronizer extends ServerJob {
             } catch (IllegalArgumentException ignored) {
             }
 
-            s.setExcludeGroups(SynStyck.class, SynDist.class);
+            s.setExcludeGroups(SynStyck.class, SynDist.class, SynMatherial.class, SynSpec.class);
             s.setExcludeNsiTables("tvk_stan", "tvk_algng", "tvk_etsng", "tvk_gng_etsng", "tvk_algng_etsng", "tvk_algng_dan", "tvk_algng_dang");
 
             s.run(true);
