@@ -1,7 +1,11 @@
 package gbas.gtbch.util;
 
-import gbas.eds.gtbch.ConvertXmlToVagonOtprTransit;
+import gbas.eds.gtbch.fdu92.GtFdu92Converter;
+import gbas.eds.gtbch.fdu92.calc.CardCalculator;
+import gbas.eds.gtbch.invoice.ConvertXmlToVagonOtprTransit;
+import gbas.eds.soap.obj.DocEP;
 import gbas.eds.soap.obj.nakl.constants.ConstantsParameters;
+import gbas.tvk.card.service.ContractCardData;
 import gbas.tvk.otpravka.object.VagonOtpr;
 import gbas.tvk.otpravka.object.VagonOtprTransit;
 import gbas.tvk.payment.CalcPlataData;
@@ -15,13 +19,7 @@ import gbas.tvk.service.SQLUtils;
 import gbas.tvk.util.GZipUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.PathVariable;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -47,7 +45,7 @@ public class CalcHandler {
             Object obj = null;
 
             if (obj == null && checkTags(data.getInputXml(), "<table name=\"nakl\"", "</table>")) {
-                ConvertXmlToVagonOtprTransit convertXmlToVagonOtprTransit = new ConvertXmlToVagonOtprTransit(connection);
+                ConvertXmlToVagonOtprTransit convertXmlToVagonOtprTransit = ConvertXmlToVagonOtprTransit.createConvertXmlToVOT(connection);
                 String string = convertXmlToVagonOtprTransit.parse(data.getInputXml(), ConstantsParameters.VERIFY,
                         ConstantsParameters.NO_SYSTEM, null);
                 if (string != null) {
@@ -72,6 +70,16 @@ public class CalcHandler {
 
                 if(string != null) {
                     obj = docEC.getObject((Tm[]) docEC.getObject());
+                }
+            }
+
+            if (obj == null && checkTags(data.getInputXml(), "<table name=\"fdu92\"", "</table>")) {
+                DocEP docEC = new GtFdu92Converter();
+                String string = docEC.parse(data.getInputXml(), ConstantsParameters.VERIFY,
+                        ConstantsParameters.NO_SYSTEM, null);
+
+                if(string != null) {
+                    obj = docEC.getObject();
                 }
             }
 
@@ -112,6 +120,11 @@ public class CalcHandler {
                 VedGu46 vedGu46 = new CountGu46(connection).calcVedGu46((VedGu46) obj);
                 data.setTextResult(vedGu46.toString());
                 data.setOutputXml(GTGu46WriteXml.createXml(vedGu46));
+            } else if (obj instanceof ContractCardData) {
+                ContractCardData ccd = (ContractCardData) obj;
+                CalcPlataData cp = CardCalculator.calc(connection, ccd);
+                data.setTextResult(cp.s);
+                data.setOutputXml(cp.getXml());
             } else {
                 data.setTextResult(String.format("Неверный объект расчета: \"%s\"", data.getInputXml()));
             }
