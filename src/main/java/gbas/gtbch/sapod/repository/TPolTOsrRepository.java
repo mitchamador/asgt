@@ -35,7 +35,7 @@ public class TPolTOsrRepository {
         tvkTOsr.nTab = rs.getInt("n_tab");
         tvkTOsr.grpk = rs.getInt("grpk");
         tvkTOsr.nSt = rs.getDouble("n_str");
-        tvkTOsr.kof = rs.getDouble("kod");
+        tvkTOsr.kof = rs.getDouble("kof");
         tvkTOsr.id_group_kont = rs.getInt("id_group_kont");
         tvkTOsr.id_group_ts = rs.getInt("id_group_ts");
         return tvkTOsr;

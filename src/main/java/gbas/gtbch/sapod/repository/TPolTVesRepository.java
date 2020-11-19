@@ -37,7 +37,7 @@ public class TPolTVesRepository {
         tvkTVes.maxV = rs.getDouble("max_v");
         tvkTVes.vKat = rs.getDouble("v_kat");
         tvkTVes.vKatR = rs.getDouble("v_kat_r");
-        tvkTVes.kof = rs.getDouble("v_kof");
+        tvkTVes.kof = rs.getDouble("kof");
         tvkTVes.nTab = rs.getInt("n_tab");
         return tvkTVes;
     }

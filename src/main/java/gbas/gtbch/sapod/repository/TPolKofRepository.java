@@ -41,7 +41,7 @@ public class TPolKofRepository {
         tvkKof.maxRast = rs.getDouble("max_rast");
         tvkKof.minVes = rs.getDouble("min_ves");
         tvkKof.maxVes = rs.getDouble("max_ves");
-        tvkKof.kof = rs.getDouble("kod");
+        tvkKof.kof = rs.getDouble("kof");
         tvkKof.id_group_t_kof = rs.getInt("id_tab");
         tvkKof.nz = rs.getDouble("nz");
         return tvkKof;
