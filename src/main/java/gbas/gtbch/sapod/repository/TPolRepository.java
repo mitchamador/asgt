@@ -30,46 +30,43 @@ public class TPolRepository {
         return getDocuments(null, dateBegin, dateEnd);
     }
 
-    public List<TpolDocument> getDocuments(String codeType, Date dateBegin, Date dateEnd) {
+    public List<TpolDocument> getDocuments(String typeCode, Date dateBegin, Date dateEnd) {
         List<Object> args = new ArrayList<>();
 
-        String datesSql = "";
+        String sql = "select id,\n" +
+                "rtrim(type_code),\n" +
+                "rtrim(n_contract),\n" +
+                "date_begin,\n" +
+                "date_end,\n" +
+                "rtrim(name),\n" +
+                "n_pol,\n" +
+                "cod_tip_tarif,\n" +  //8
+                "dobor\n" +  //9
+                " from tvk_tarif\n" +
+                "WHERE\n";
 
         if (dateBegin != null && dateEnd != null) {
-            datesSql = "(date_end >= ? AND date_begin <= ?) AND\n";
+            sql += "(date_end >= ? AND date_begin <= ?) AND\n";
             args.add(dateBegin);
             args.add(dateEnd);
         } else if (dateBegin != null) {
-            datesSql = "date_begin >= ? AND\n";
+            sql += "date_begin >= ? AND\n";
             args.add(dateBegin);
         } else if (dateEnd != null) {
-            datesSql = "date_end <= ? AND\n";
+            sql += "date_end <= ? AND\n";
             args.add(dateEnd);
         }
 
-        String codeTypeSql;
-        if (codeType != null) {
-            codeTypeSql = "type_code = ?\n";
-            args.add(codeType);
+        if (typeCode != null) {
+            sql += "type_code = ?\n";
+            args.add(typeCode);
         } else {
-            codeTypeSql = "type_code IN ('base_tarif', 'down_tarif', 'polnom', 'russia_tarif', 'iskl_tarif', 'tr1_bch')\n";
+            sql += "type_code IN ('base_tarif', 'down_tarif', 'polnom', 'russia_tarif', 'iskl_tarif', 'tr1_bch')\n";
         }
 
-        return jdbcTemplate.query(
-                "select id,\n" +
-                        "rtrim(type_code),\n" +
-                        "rtrim(n_contract),\n" +
-                        "date_begin,\n" +
-                        "date_end,\n" +
-                        "rtrim(name),\n" +
-                        "n_pol,\n" +
-                        "cod_tip_tarif,\n" +  //8
-                        "dobor\n" +  //9
-                        " from tvk_tarif\n" +
-                        "WHERE\n" +
-                        datesSql +
-                        codeTypeSql +
-                        "ORDER BY n_contract", (rs, i) -> {
+        sql += "ORDER BY n_contract";
+
+        return jdbcTemplate.query(sql, (rs, i) -> {
                     final TpolDocument doc = new TpolDocument();
                     doc.id = rs.getInt(1);
                     doc.type_code = rs.getString(2);
