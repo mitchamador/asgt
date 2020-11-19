@@ -31,13 +31,25 @@ public class TPolController {
 
     /**
      * get {@link TpolDocument} list
-     * @param typeCode tvk_tarif.type_code ('base_tarif', 'down_tarif', 'polnom', 'russia_tarif', 'iskl_tarif', 'tr1_bch')
      * @param dateBegin start period date (dd.MM.yyyy)
      * @param dateEnd end period date (dd.MM.yyyy)
      */
     @RequestMapping(value = "/documents", method = RequestMethod.GET)
     public ResponseEntity<List<TpolDocument>> getDocuments(
-            @RequestParam(value = "type_code", required = false) String typeCode,
+            @RequestParam(value = "date_begin", required = false) @DateTimeFormat(pattern = "dd.MM.yyyy") Date dateBegin,
+            @RequestParam(value = "date_end", required = false) @DateTimeFormat(pattern = "dd.MM.yyyy") Date dateEnd) {
+        return new ResponseEntity<>(tpolRepository.getDocuments(dateBegin, dateEnd), HttpStatus.OK);
+    }
+
+    /**
+     * get {@link TpolDocument} list
+     * @param typeCode tvk_tarif.type_code ('base_tarif', 'down_tarif', 'polnom', 'russia_tarif', 'iskl_tarif', 'tr1_bch')
+     * @param dateBegin start period date (dd.MM.yyyy)
+     * @param dateEnd end period date (dd.MM.yyyy)
+     */
+    @RequestMapping(value = "/documents/{typeCode}", method = RequestMethod.GET)
+    public ResponseEntity<List<TpolDocument>> getDocumentsType(
+            @PathVariable String typeCode,
             @RequestParam(value = "date_begin", required = false) @DateTimeFormat(pattern = "dd.MM.yyyy") Date dateBegin,
             @RequestParam(value = "date_end", required = false) @DateTimeFormat(pattern = "dd.MM.yyyy") Date dateEnd) {
         return new ResponseEntity<>(tpolRepository.getDocuments(typeCode, dateBegin, dateEnd), HttpStatus.OK);
