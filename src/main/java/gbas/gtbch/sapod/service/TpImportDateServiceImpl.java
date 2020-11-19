@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service("tpImportDateService")
-public class TpImportImpl implements TpImportDateService {
+public class TpImportDateServiceImpl implements TpImportDateService {
 
     @Autowired
     TpImportDateRepository tpImportDateRepository;

@@ -31,14 +31,21 @@ public class TPolController {
 
     /**
      * get {@link TpolDocument} list
+     * @param codeType code_type ('base_tarif', 'down_tarif', 'polnom', 'russia_tarif', 'iskl_tarif', 'tr1_bch')
      * @param dateBegin start period date (dd.MM.yyyy)
      * @param dateEnd end period date (dd.MM.yyyy)
      */
     @RequestMapping(value = "/documents", method = RequestMethod.GET)
     public ResponseEntity<List<TpolDocument>> getDocuments(
+            @RequestParam(value = "code_type", required = false) String codeType,
             @RequestParam(value = "date_begin", required = false) @DateTimeFormat(pattern = "dd.MM.yyyy") Date dateBegin,
             @RequestParam(value = "date_end", required = false) @DateTimeFormat(pattern = "dd.MM.yyyy") Date dateEnd) {
-        return new ResponseEntity<>(tpolRepository.getDocuments(dateBegin, dateEnd), HttpStatus.OK);
+        return new ResponseEntity<>(tpolRepository.getDocuments(codeType, dateBegin, dateEnd), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/groups", method = RequestMethod.GET)
+    public ResponseEntity<List<String[]>> getGroups() {
+        return new ResponseEntity<>(tpolRepository.getGroups(), HttpStatus.OK);
     }
 
     /**

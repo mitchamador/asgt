@@ -22,9 +22,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.SQLException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -132,13 +134,29 @@ public class GtBchTests {
 	@Test
 	public void tpolRepositoryTest() throws ParseException {
 		List<TpolDocument> list;
+
+/*
+		List<String[]> groups = tpolRepository.getGroups();
+		logger.info("getGroups(): " + (groups == null ? "null" : ("groups size = " + groups.size())));
+
+		if (groups != null && !groups.isEmpty()) {
+			for (String[] s : groups) {
+				String codeType = s[0];
+				list = tpolRepository.getDocuments(codeType, null, null);
+				logger.info("getDocuments(\"" + codeType + "\",null, null): " +  (list == null ? "null" : ("list size = " + list.size())));
+			}
+		}
+*/
+
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+
 		list = tpolRepository.getDocuments(null, null);
 		logger.info("getDocuments(null, null): " +  (list == null ? "null" : ("list size = " + list.size())));
-		list = tpolRepository.getDocuments(new SimpleDateFormat("dd.MM.yyyy").parse("01.01.2020"), null);
+		list = tpolRepository.getDocuments(Date.valueOf(LocalDate.parse("01.01.2020", formatter)), null);
 		logger.info("getDocuments(date, null): " +  (list == null ? "null" : ("list size = " + list.size())));
-		list = tpolRepository.getDocuments(null, new SimpleDateFormat("dd.MM.yyyy").parse("01.01.2018"));
+		list = tpolRepository.getDocuments(null, Date.valueOf(LocalDate.parse("01.01.2018", formatter)));
 		logger.info("getDocuments(null, date): " +  (list == null ? "null" : ("list size = " + list.size())));
-		list = tpolRepository.getDocuments(new SimpleDateFormat("dd.MM.yyyy").parse("01.01.2018"), new SimpleDateFormat("dd.MM.yyyy").parse("01.01.2020"));
+		list = tpolRepository.getDocuments(Date.valueOf(LocalDate.parse("01.01.2018", formatter)), Date.valueOf(LocalDate.parse("01.01.2020", formatter)));
 		logger.info("getDocuments(date, date): " +  (list == null ? "null" : ("list size = " + list.size())));
 	}
 

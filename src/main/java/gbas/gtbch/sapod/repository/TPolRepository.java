@@ -27,21 +27,33 @@ public class TPolRepository {
     }
 
     public List<TpolDocument> getDocuments(Date dateBegin, Date dateEnd) {
+        return getDocuments(null, dateBegin, dateEnd);
+    }
+
+    public List<TpolDocument> getDocuments(String codeType, Date dateBegin, Date dateEnd) {
         List<Object> args = new ArrayList<>();
 
         String datesSql = "";
-        if (dateBegin != null) {
-            datesSql += "date_begin > ?";
+
+        if (dateBegin != null && dateEnd != null) {
+            datesSql = "(date_end >= ? AND date_begin <= ?) AND\n";
             args.add(dateBegin);
-        }
-        if (dateEnd != null) {
-            datesSql += (datesSql.isEmpty() ? "" : " and ") + "date_end < ?";
+            args.add(dateEnd);
+        } else if (dateBegin != null) {
+            datesSql = "date_begin >= ? AND\n";
+            args.add(dateBegin);
+        } else if (dateEnd != null) {
+            datesSql = "date_end <= ? AND\n";
             args.add(dateEnd);
         }
-        if (!datesSql.isEmpty()) {
-            datesSql = " (" + datesSql + ") AND\n";
-        }
 
+        String codeTypeSql;
+        if (codeType != null) {
+            codeTypeSql = "type_code = ?\n";
+            args.add(codeType);
+        } else {
+            codeTypeSql = "type_code IN ('base_tarif', 'down_tarif', 'polnom', 'russia_tarif', 'iskl_tarif', 'tr1_bch')\n";
+        }
 
         return jdbcTemplate.query(
                 "select id,\n" +
@@ -56,12 +68,7 @@ public class TPolRepository {
                         " from tvk_tarif\n" +
                         "WHERE\n" +
                         datesSql +
-                        "  (type_code = 'base_tarif'\n" +
-                        "  OR type_code = 'down_tarif'\n" +
-                        "  OR type_code = 'polnom'\n" +
-                        "  OR type_code = 'russia_tarif'\n" +
-                        "  OR type_code = 'iskl_tarif'\n" +
-                        "  OR type_code = 'tr1_bch')\n" +
+                        codeTypeSql +
                         "ORDER BY n_contract", (rs, i) -> {
                     final TpolDocument doc = new TpolDocument();
                     doc.id = rs.getInt(1);
@@ -101,6 +108,16 @@ public class TPolRepository {
                                 "where k.kod = t.tip_t_tar and t.id = ?\n" +
                                 "order by 1",
                 idTPol == 0 ? null : new Object[]{idTPol},
+                (rs, i) -> {
+                    String[] result = new String[2];
+                    result[0] = Func.iif(rs.getString(1));
+                    result[1] = Func.iif(rs.getString(2));
+                    return result;
+                });
+    }
+
+    public List<String[]> getGroups() {
+        return jdbcTemplate.query("select code, name from type_document where code IN ('base_tarif', 'down_tarif', 'polnom', 'russia_tarif', 'iskl_tarif', 'tr1_bch')",
                 (rs, i) -> {
                     String[] result = new String[2];
                     result[0] = Func.iif(rs.getString(1));
