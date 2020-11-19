@@ -25,6 +25,16 @@ public class CalculationLog {
         public String getName() {
             return name;
         }
+
+        public static Source getSource(String name) {
+            if (name != null) {
+                try {
+                    return valueOf(name);
+                } catch (IllegalArgumentException ignored) {
+                }
+            }
+            return null;
+        }
     }
     /**
      * document type (max size - 8 chars)
@@ -49,6 +59,16 @@ public class CalculationLog {
 
         public String getName() {
             return name;
+        }
+
+        public static Type getType(String name) {
+            if (name != null) {
+                try {
+                    return valueOf(name);
+                } catch (IllegalArgumentException ignored) {
+                }
+            }
+            return null;
         }
     }
 
