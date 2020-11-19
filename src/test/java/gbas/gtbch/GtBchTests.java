@@ -2,7 +2,7 @@ package gbas.gtbch;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import gbas.gtbch.sapod.model.TpImportDate;
-import gbas.gtbch.sapod.repository.TpolRepositoryImpl;
+import gbas.gtbch.sapod.repository.TPolRepository;
 import gbas.gtbch.sapod.service.TpImportDateService;
 import gbas.gtbch.web.request.KeyValue;
 import gbas.gtbch.websapod.ServicesImpl;
@@ -127,7 +127,7 @@ public class GtBchTests {
 	}
 
 	@Autowired
-	TpolRepositoryImpl tpolRepository;
+	TPolRepository tpolRepository;
 
 	@Test
 	public void tpolRepositoryTest() throws ParseException {
