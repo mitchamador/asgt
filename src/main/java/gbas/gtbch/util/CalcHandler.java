@@ -6,6 +6,8 @@ import gbas.eds.gtbch.invoice.ConvertXmlToVagonOtprTransit;
 import gbas.eds.rw.isc.typeexchange.Tm;
 import gbas.eds.soap.obj.DocEP;
 import gbas.eds.soap.obj.nakl.constants.ConstantsParameters;
+import gbas.gtbch.sapod.model.CalculationLog;
+import gbas.gtbch.sapod.service.CalculationLogService;
 import gbas.tvk.card.service.ContractCardData;
 import gbas.tvk.otpravka.object.VagonOtpr;
 import gbas.tvk.otpravka.object.VagonOtprTransit;
@@ -22,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Date;
 
 /**
  *
@@ -30,21 +33,42 @@ public class CalcHandler {
 
     private final static Logger logger = LoggerFactory.getLogger(CalcHandler.class.getName());
 
+    /**
+     *
+     */
     private Connection connection;
 
-    public CalcHandler(Connection connection) throws SQLException {
+    /**
+     *
+     */
+    private CalculationLogService calculationLogService;
+
+    public CalcHandler(Connection connection, CalculationLogService calculationLogService) throws SQLException {
         this.connection = connection;
+        this.calculationLogService = calculationLogService;
     }
 
     public CalcData calc(CalcData data) {
 
         logger.debug("calchandler process started...");
 
+        CalculationLog calculationLog = null;
+
         try {
+
+            calculationLog = new CalculationLog();
+            calculationLog.setInboundTime(new Date());
+            calculationLog.setInboundXml(data.getInputXml());
+            calculationLog.setSource(data.getSource());
+
+            calculationLog = calculationLogService.save(calculationLog);
+
+            calculationLog.setType(CalculationLog.Type.UNKNOWN);
 
             Object obj = null;
 
             if (obj == null && checkTags(data.getInputXml(), "<table name=\"nakl\"", "</table>")) {
+                calculationLog.setType(CalculationLog.Type.NAKL);
                 ConvertXmlToVagonOtprTransit convertXmlToVagonOtprTransit = ConvertXmlToVagonOtprTransit.createConvertXmlToVOT(connection);
                 String string = convertXmlToVagonOtprTransit.parse(data.getInputXml(), ConstantsParameters.VERIFY,
                         ConstantsParameters.NO_SYSTEM, null);
@@ -54,6 +78,7 @@ public class CalcHandler {
             }
 
             if (obj == null && checkTags(data.getInputXml(), "<gbas.tvk.otpravka.object.VagonOtprTransit>", "</gbas.tvk.otpravka.object.VagonOtprTransit>")) {
+                calculationLog.setType(CalculationLog.Type.VOT);
                 obj = GZipUtils.xml2Object(data.getInputXml());
             }
 
@@ -64,6 +89,7 @@ public class CalcHandler {
 */
 
             if (obj == null && checkTags(data.getInputXml(), "<table name=\"gu46\"", "</table>")) {
+                calculationLog.setType(CalculationLog.Type.GU46);
                 ConvertXmlGtToGu46 docEC = new ConvertXmlGtToGu46(connection);
                 String string = docEC.parse(data.getInputXml(), ConstantsParameters.VERIFY,
                         ConstantsParameters.NO_SYSTEM, null);
@@ -74,6 +100,7 @@ public class CalcHandler {
             }
 
             if (obj == null && checkTags(data.getInputXml(), "<table name=\"fdu92\"", "</table>")) {
+                calculationLog.setType(CalculationLog.Type.CARD);
                 DocEP docEC = new GtFdu92Converter();
                 String string = docEC.parse(data.getInputXml(), ConstantsParameters.VERIFY,
                         ConstantsParameters.NO_SYSTEM, null);
@@ -110,28 +137,57 @@ public class CalcHandler {
                 }
 
                 if (c != null) {
+
+                    if (c.vo != null) {
+                        calculationLog.setNumber(c.vo.numberOtpr);
+                        if (c.vo.oper == VagonOtpr.OPER_DEPARTURE) {
+                            calculationLog.setStation(c.vo.k_st_otpr);
+                        } else if (c.vo.oper == VagonOtpr.OPER_ARRIVAL) {
+                            calculationLog.setStation(c.vo.k_st_nazn);
+                        }
+                    }
+
                     data.setTextResult(c.s);
                     data.setOutputXml(c.getXml());
                 } else {
                     data.setTextResult("Ошибка расчета");
                 }
 
+
             } else if (obj instanceof VedGu46) {
                 VedGu46 vedGu46 = new CountGu46(connection).calcVedGu46((VedGu46) obj);
                 data.setTextResult(vedGu46.toString());
                 data.setOutputXml(GTGu46WriteXml.createXml(vedGu46));
+
+                calculationLog.setNumber(vedGu46.numVed);
+                calculationLog.setStation(vedGu46.stationCode);
+
             } else if (obj instanceof ContractCardData) {
                 ContractCardData ccd = (ContractCardData) obj;
                 CalcPlataData cp = CardCalculator.calc(connection, ccd);
                 data.setTextResult(cp.s);
                 data.setOutputXml(cp.getXml());
+
+                calculationLog.setNumber(ccd.n_contract);
+                calculationLog.setStation(ccd.code_station);
+
             } else {
                 data.setTextResult(String.format("Неверный объект расчета: \"%s\"", data.getInputXml()));
             }
 
+
         } catch (Exception e) {
             e.printStackTrace();
             data.setTextResult(e.getMessage());
+        } finally {
+
+            if (calculationLog != null) {
+                calculationLog.setOutboundTime(new Date());
+                calculationLog.setOutboundXml(data != null ? data.getOutputXml() : null);
+                calculationLog.setOutboundText(data != null ? data.getTextResult() : null);
+                calculationLogService.save(calculationLog);
+            }
+
         }
 
         logger.debug("calchandler process finished");

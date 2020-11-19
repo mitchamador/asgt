@@ -1,8 +1,10 @@
 package gbas.gtbch;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import gbas.gtbch.sapod.model.CalculationLog;
 import gbas.gtbch.sapod.model.TpImportDate;
 import gbas.gtbch.sapod.repository.TPolRepository;
+import gbas.gtbch.sapod.service.CalculationLogService;
 import gbas.gtbch.sapod.service.TpImportDateService;
 import gbas.gtbch.web.request.KeyValue;
 import gbas.gtbch.websapod.ServicesImpl;
@@ -22,12 +24,14 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Vector;
 
@@ -151,13 +155,58 @@ public class GtBchTests {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
 		list = tpolRepository.getDocuments(null, null);
-		logger.info("getDocuments(null, null): " +  (list == null ? "null" : ("list size = " + list.size())));
-		list = tpolRepository.getDocuments(Date.valueOf(LocalDate.parse("01.01.2020", formatter)), null);
-		logger.info("getDocuments(date, null): " +  (list == null ? "null" : ("list size = " + list.size())));
-		list = tpolRepository.getDocuments(null, Date.valueOf(LocalDate.parse("01.01.2018", formatter)));
-		logger.info("getDocuments(null, date): " +  (list == null ? "null" : ("list size = " + list.size())));
-		list = tpolRepository.getDocuments(Date.valueOf(LocalDate.parse("01.01.2018", formatter)), Date.valueOf(LocalDate.parse("01.01.2020", formatter)));
-		logger.info("getDocuments(date, date): " +  (list == null ? "null" : ("list size = " + list.size())));
+		logger.info("getDocuments(null, null): " + (list == null ? "null" : ("list size = " + list.size())));
+		list = tpolRepository.getDocuments(getDate(LocalDate.parse("01.01.2020", formatter)), null);
+		logger.info("getDocuments(date, null): " + (list == null ? "null" : ("list size = " + list.size())));
+		list = tpolRepository.getDocuments(null, getDate(LocalDate.parse("01.01.2018", formatter)));
+		logger.info("getDocuments(null, date): " + (list == null ? "null" : ("list size = " + list.size())));
+		list = tpolRepository.getDocuments(getDate(LocalDate.parse("01.01.2018", formatter)), getDate(LocalDate.parse("01.01.2020", formatter)));
+		logger.info("getDocuments(date, date): " + (list == null ? "null" : ("list size = " + list.size())));
+	}
+
+	private Date getDate(LocalDate localDate) {
+		return Date.from(localDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
+	}
+
+	@Autowired
+	CalculationLogService calculationLogService;
+
+	@Test
+	public void calculationLogTest1() {
+		CalculationLog calculationLog = new CalculationLog();
+		calculationLog.setNumber("1234");
+		calculationLog.setStation("150000");
+		calculationLog.setType(CalculationLog.Type.CARD);
+		calculationLog.setSource(CalculationLog.Source.REST);
+		calculationLog.setInboundTime(new Date());
+		calculationLog.setInboundXml("inbound XML");
+
+		calculationLog = calculationLogService.save(calculationLog);
+
+		int id = calculationLog.getId();
+
+		logger.info("calculationLog.id = {}", id);
+
+		calculationLog = calculationLogService.findById(id);
+
+		if (calculationLog != null) {
+			calculationLog.setOutboundTime(new Date());
+			calculationLog.setOutboundXml("outbound XML");
+			calculationLog.setOutboundText("outbound text");
+
+			calculationLog = calculationLogService.save(calculationLog);
+
+			if (calculationLog != null) {
+				id = calculationLog.getId();
+				logger.info("calculationLog.id = {}", id);
+			}
+
+		}
+	}
+
+	@Test
+	public void calculationLogTest2() {
+
 	}
 
 }

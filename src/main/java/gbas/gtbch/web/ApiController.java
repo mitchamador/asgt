@@ -1,6 +1,7 @@
 package gbas.gtbch.web;
 
 import gbas.gtbch.model.ServerResponse;
+import gbas.gtbch.sapod.model.CalculationLog;
 import gbas.gtbch.sapod.model.TpImportDate;
 import gbas.gtbch.sapod.service.TpImportDateService;
 import gbas.gtbch.util.CalcData;
@@ -35,7 +36,7 @@ public class ApiController {
     public ServerResponse calc(@RequestParam("data") String data) {
 
         ServerResponse response = new ServerResponse();
-        response.setMessage(getCalcHandler().calc(new CalcData(data)).getTextResult());
+        response.setMessage(getCalcHandler().calc(new CalcData(data, CalculationLog.Source.REST)).getTextResult());
 
         logger.info(String.format("/api/calc response: \"%s\"", getCroppedString(response.getMessage())));
 
@@ -46,7 +47,7 @@ public class ApiController {
     public ServerResponse calcxml(@RequestParam("data") String data) {
 
         ServerResponse response = new ServerResponse();
-        response.setMessage(getCalcHandler().calc(new CalcData(data)).getOutputXml());
+        response.setMessage(getCalcHandler().calc(new CalcData(data, CalculationLog.Source.REST)).getOutputXml());
 
         logger.info(String.format("/api/calcxml response: \"%s\"", getCroppedString(response.getMessage())));
 

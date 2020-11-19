@@ -1,5 +1,6 @@
 package gbas.gtbch.config;
 
+import gbas.gtbch.sapod.service.CalculationLogService;
 import gbas.gtbch.util.CalcHandler;
 import gbas.tvk.interaction.pensi.ConnectionManager;
 import gbas.tvk.interaction.pensi.PensiManager;
@@ -98,8 +99,8 @@ public class AppConfig {
     @Bean
     @Scope("prototype")
     @Autowired
-    CalcHandler calcHandler(@Qualifier("sapodDataSource") DataSource sapodDataSource) throws SQLException {
-        return new CalcHandler(sapodDataSource.getConnection());
+    CalcHandler calcHandler(@Qualifier("sapodDataSource") DataSource sapodDataSource, CalculationLogService calculationLogService) throws SQLException {
+        return new CalcHandler(sapodDataSource.getConnection(), calculationLogService);
     }
 
     @Value("${app.jobs.pensimanager.fullmergepensi:true}")
