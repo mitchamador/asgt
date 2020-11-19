@@ -1,5 +1,6 @@
 package gbas.gtbch.web;
 
+import gbas.gtbch.sapod.model.TpolGroup;
 import gbas.gtbch.sapod.repository.TPolRepository;
 import gbas.gtbch.sapod.repository.TPolRowRepository;
 import gbas.tvk.tpol3.TpolDocument;
@@ -56,7 +57,7 @@ public class TPolController {
     }
 
     @RequestMapping(value = "/groups", method = RequestMethod.GET)
-    public ResponseEntity<List<String[]>> getGroups() {
+    public ResponseEntity<List<TpolGroup>> getGroups() {
         return new ResponseEntity<>(tpolRepository.getGroups(), HttpStatus.OK);
     }
 

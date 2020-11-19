@@ -1,5 +1,6 @@
 package gbas.gtbch.sapod.repository;
 
+import gbas.gtbch.sapod.model.TpolGroup;
 import gbas.tvk.nsi.cash.Func;
 import gbas.tvk.tpol3.TpolDocument;
 import org.slf4j.Logger;
@@ -67,22 +68,21 @@ public class TPolRepository {
         sql += "ORDER BY n_contract";
 
         return jdbcTemplate.query(sql, (rs, i) -> {
-                    final TpolDocument doc = new TpolDocument();
-                    doc.id = rs.getInt(1);
-                    doc.type_code = rs.getString(2);
-                    doc.n_contract = rs.getString(3);
-                    doc.date_begin = rs.getDate(4);
-                    doc.date_end = rs.getDate(5);
-                    doc.name = rs.getString(6);
-                    doc.n_pol = rs.getInt(7);
-                    doc.codTipTar = rs.getInt(8);
-                    doc.codDobor = rs.getShort(9);
-                    return doc;
-                }, args.toArray(new Object[0]));
+            final TpolDocument doc = new TpolDocument();
+            doc.id = rs.getInt(1);
+            doc.type_code = rs.getString(2);
+            doc.n_contract = rs.getString(3);
+            doc.date_begin = rs.getDate(4);
+            doc.date_end = rs.getDate(5);
+            doc.name = rs.getString(6);
+            doc.n_pol = rs.getInt(7);
+            doc.codTipTar = rs.getInt(8);
+            doc.codDobor = rs.getShort(9);
+            return doc;
+        }, args.toArray(new Object[0]));
     }
 
     /**
-     *
      * @return
      */
     public List<String[]> getBaseTarifList() {
@@ -113,13 +113,17 @@ public class TPolRepository {
                 });
     }
 
-    public List<String[]> getGroups() {
+    /**
+     * get tpol groups
+     * @return
+     */
+    public List<TpolGroup> getGroups() {
         return jdbcTemplate.query("select code, name from type_document where code IN ('base_tarif', 'down_tarif', 'polnom', 'russia_tarif', 'iskl_tarif', 'tr1_bch')",
                 (rs, i) -> {
-                    String[] result = new String[2];
-                    result[0] = Func.iif(rs.getString(1));
-                    result[1] = Func.iif(rs.getString(2));
-                    return result;
+                    TpolGroup group = new TpolGroup();
+                    group.setCode(Func.iif(rs.getString("code")));
+                    group.setName(Func.iif(rs.getString("name")));
+                    return group;
                 });
     }
 
