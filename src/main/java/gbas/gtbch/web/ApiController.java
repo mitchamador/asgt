@@ -8,6 +8,7 @@ import gbas.gtbch.sapod.service.CalculationLogService;
 import gbas.gtbch.sapod.service.TpImportDateService;
 import gbas.gtbch.util.CalcData;
 import gbas.gtbch.util.CalcHandler;
+import gbas.gtbch.web.request.KeyValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectFactory;
@@ -17,8 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static gbas.gtbch.util.CropString.getCroppedString;
 
@@ -110,5 +110,25 @@ public class ApiController {
     public ResponseEntity<CalculationLog> getCalculationLog(
             @PathVariable int id) {
         return new ResponseEntity<>(calculationLogService.findById(id), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/api/calclog/sources", method = RequestMethod.GET)
+    public ResponseEntity<List<KeyValue>> getCalculationLogSources() {
+        List<KeyValue> list = new ArrayList<>();
+        list.add(new KeyValue(null, "Все"));
+        for (CalculationLog.Source source : CalculationLog.Source.values()) {
+            list.add(new KeyValue(source.name(), source.getName()));
+        }
+        return new ResponseEntity<>(list, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/api/calclog/types", method = RequestMethod.GET)
+    public ResponseEntity<List<KeyValue>> getCalculationLogTypes() {
+        List<KeyValue> list = new ArrayList<>();
+        list.add(new KeyValue(null, "Все"));
+        for (CalculationLog.Type type : CalculationLog.Type.values()) {
+            list.add(new KeyValue(type.name(), type.getName()));
+        }
+        return new ResponseEntity<>(list, HttpStatus.OK);
     }
 }

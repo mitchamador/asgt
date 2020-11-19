@@ -12,8 +12,8 @@ public class CalculationLog {
      * source type (max size - 8 characters)
      */
     public enum Source {
-        MQ("mq"),
-        REST("http")
+        MQ("MQ"),
+        REST("HTTP")
         ;
 
         private String name;
