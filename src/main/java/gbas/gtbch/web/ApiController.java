@@ -3,6 +3,8 @@ package gbas.gtbch.web;
 import gbas.gtbch.model.ServerResponse;
 import gbas.gtbch.sapod.model.CalculationLog;
 import gbas.gtbch.sapod.model.TpImportDate;
+import gbas.gtbch.sapod.repository.CalculationLogListRepository;
+import gbas.gtbch.sapod.service.CalculationLogService;
 import gbas.gtbch.sapod.service.TpImportDateService;
 import gbas.gtbch.util.CalcData;
 import gbas.gtbch.util.CalcHandler;
@@ -10,10 +12,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Date;
+import java.util.List;
 
 import static gbas.gtbch.util.CropString.getCroppedString;
 
@@ -68,4 +73,42 @@ public class ApiController {
         return response;
     }
 
+    @Autowired
+    private CalculationLogListRepository calculationLogListRepository;
+
+    @RequestMapping(value = "/api/calclog", method = RequestMethod.GET)
+    public ResponseEntity<List<CalculationLog>> getCalculationLogList(
+            @RequestParam(value = "source", required = false) String source,
+            @RequestParam(value = "type", required = false) String type,
+            @RequestParam(value = "station", required = false) String station,
+            @RequestParam(value = "number", required = false) String number,
+            @RequestParam(value = "date_begin", required = false) @DateTimeFormat(pattern = "dd.MM.yyyy") Date dateBegin,
+            @RequestParam(value = "date_end", required = false) @DateTimeFormat(pattern = "dd.MM.yyyy") Date dateEnd) {
+
+        CalculationLog filter = new CalculationLog();
+
+        if (source != null) {
+            filter.setSource(CalculationLog.Source.getSource(source));
+        }
+        if (type != null) {
+            filter.setType(CalculationLog.Type.getType(source));
+        }
+        if (station != null) {
+            filter.setStation(station);
+        }
+        if (number != null) {
+            filter.setNumber(number);
+        }
+
+        return new ResponseEntity<>(calculationLogListRepository.getList(null, dateBegin, dateEnd), HttpStatus.OK);
+    }
+
+    @Autowired
+    private CalculationLogService calculationLogService;
+
+    @RequestMapping(value = "/api/calclog/{id}", method = RequestMethod.GET)
+    public ResponseEntity<CalculationLog> getCalculationLog(
+            @PathVariable int id) {
+        return new ResponseEntity<>(calculationLogService.findById(id), HttpStatus.OK);
+    }
 }

@@ -3,6 +3,7 @@ package gbas.gtbch;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import gbas.gtbch.sapod.model.CalculationLog;
 import gbas.gtbch.sapod.model.TpImportDate;
+import gbas.gtbch.sapod.repository.CalculationLogListRepository;
 import gbas.gtbch.sapod.repository.TPolRepository;
 import gbas.gtbch.sapod.service.CalculationLogService;
 import gbas.gtbch.sapod.service.TpImportDateService;
@@ -152,16 +153,21 @@ public class GtBchTests {
 		}
 */
 
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
 		list = tpolRepository.getDocuments(null, null);
 		logger.info("getDocuments(null, null): " + (list == null ? "null" : ("list size = " + list.size())));
-		list = tpolRepository.getDocuments(getDate(LocalDate.parse("01.01.2020", formatter)), null);
+		list = tpolRepository.getDocuments(getDate("01.01.2020"), null);
 		logger.info("getDocuments(date, null): " + (list == null ? "null" : ("list size = " + list.size())));
-		list = tpolRepository.getDocuments(null, getDate(LocalDate.parse("01.01.2018", formatter)));
+		list = tpolRepository.getDocuments(null, getDate("01.01.2018"));
 		logger.info("getDocuments(null, date): " + (list == null ? "null" : ("list size = " + list.size())));
-		list = tpolRepository.getDocuments(getDate(LocalDate.parse("01.01.2018", formatter)), getDate(LocalDate.parse("01.01.2020", formatter)));
+		list = tpolRepository.getDocuments(getDate("01.01.2018"), getDate("01.01.2020"));
 		logger.info("getDocuments(date, date): " + (list == null ? "null" : ("list size = " + list.size())));
+	}
+
+	private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+
+	private Date getDate(String date) {
+		return getDate(LocalDate.parse(date, formatter));
 	}
 
 	private Date getDate(LocalDate localDate) {
@@ -204,8 +210,20 @@ public class GtBchTests {
 		}
 	}
 
+	@Autowired
+	private CalculationLogListRepository calculationLogListRepository;
+
 	@Test
 	public void calculationLogTest2() {
+		List<CalculationLog> list;
+
+		list = calculationLogListRepository.getList(null, getDate("01.01.2020"), getDate("31.12.2020"));
+		logger.info("calculationLogListRepository.getList(): " + (list == null ? "null" : ("list size = " + list.size())));
+
+		CalculationLog filter = new CalculationLog();
+		filter.setType(CalculationLog.Type.CARD);
+		list = calculationLogListRepository.getList(filter, null, null);
+		logger.info("calculationLogListRepository.getList(): " + (list == null ? "null" : ("list size = " + list.size())));
 
 	}
 
