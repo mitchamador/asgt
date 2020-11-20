@@ -15,6 +15,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -37,12 +38,12 @@ public class CalculationLogListRepository {
 
     /**
      * get list
-     * @param filter
+     * @param params
      * @param dateBegin
      * @param dateEnd
      * @return
      */
-    public List<CalculationLog> getList(CalculationLog filter, Date dateBegin, Date dateEnd) {
+    public List<CalculationLog> getList(Map<String, String> params, Date dateBegin, Date dateEnd) {
         List<Object> args = new ArrayList<>();
 
         String sql = "";
@@ -56,22 +57,22 @@ public class CalculationLogListRepository {
             args.add(dateEnd);
         }
 
-        if (filter != null) {
-            if (filter.getSource() != null) {
+        if (params != null) {
+            if (params.get("source") != null) {
                 sql += addToSql(sql, "sourcetype = ?");
-                args.add(filter.getSource().toString());
+                args.add(params.get("source"));
             }
-            if (filter.getType() != null) {
+            if (params.get("type") != null) {
                 sql += addToSql(sql, "doctype = ?");
-                args.add(filter.getType().toString());
+                args.add(params.get("type"));
             }
-            if (filter.getNumber() != null) {
+            if (params.get("number") != null) {
                 sql += addToSql(sql, "docnumber = ?");
-                args.add(filter.getNumber());
+                args.add(params.get("number"));
             }
-            if (filter.getStation() != null) {
+            if (params.get("station") != null) {
                 sql += addToSql(sql, "station = ?");
-                args.add(filter.getStation());
+                args.add(params.get("station"));
             }
         }
 

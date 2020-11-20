@@ -1,5 +1,7 @@
 package gbas.gtbch.web;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import gbas.gtbch.model.ServerResponse;
 import gbas.gtbch.sapod.model.CalculationLog;
 import gbas.gtbch.sapod.model.TpImportDate;
@@ -18,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 import static gbas.gtbch.util.CropString.getCroppedString;
@@ -76,42 +79,60 @@ public class ApiController {
     @Autowired
     private CalculationLogListRepository calculationLogListRepository;
 
+    /**
+     * get CalculationLog
+     * <p>params:</p>
+     * <ul>
+     *     <li>type - {@link CalculationLog.Type}</li>
+     *     <li>source - {@link CalculationLog.Source}</li>
+     *     <li>station - station code</li>
+     *     <li>date_begin - start period (dd.MM.yyyy)</li>
+     *     <li>date_end - end period (dd.MM.yyyy)</li>
+     * </ul>
+     * @param params
+     * @param dateBegin
+     * @param dateEnd
+     * @return
+     */
     @RequestMapping(value = "/api/calclog", method = RequestMethod.GET)
     public ResponseEntity<List<CalculationLog>> getCalculationLogList(
-            @RequestParam(value = "source", required = false) String source,
-            @RequestParam(value = "type", required = false) String type,
-            @RequestParam(value = "station", required = false) String station,
-            @RequestParam(value = "number", required = false) String number,
+            @RequestParam Map<String,String> params,
             @RequestParam(value = "date_begin", required = false) @DateTimeFormat(pattern = "dd.MM.yyyy") Date dateBegin,
             @RequestParam(value = "date_end", required = false) @DateTimeFormat(pattern = "dd.MM.yyyy") Date dateEnd) {
 
-        CalculationLog filter = new CalculationLog();
-
-        if (source != null) {
-            filter.setSource(CalculationLog.Source.getSource(source));
-        }
-        if (type != null) {
-            filter.setType(CalculationLog.Type.getType(source));
-        }
-        if (station != null) {
-            filter.setStation(station);
-        }
-        if (number != null) {
-            filter.setNumber(number);
-        }
-
-        return new ResponseEntity<>(calculationLogListRepository.getList(null, dateBegin, dateEnd), HttpStatus.OK);
+        return new ResponseEntity<>(calculationLogListRepository.getList(params, dateBegin, dateEnd), HttpStatus.OK);
     }
 
     @Autowired
     private CalculationLogService calculationLogService;
 
+    /**
+     *
+     * @param id
+     * @return
+     */
     @RequestMapping(value = "/api/calclog/{id}", method = RequestMethod.GET)
     public ResponseEntity<CalculationLog> getCalculationLog(
             @PathVariable int id) {
         return new ResponseEntity<>(calculationLogService.findById(id), HttpStatus.OK);
     }
 
+    /**
+     *
+     * @param request
+     * @param id
+     * @return
+     * @throws JsonProcessingException
+     */
+    @RequestMapping(value = "/api/calclog/{id}/gz", method = RequestMethod.GET)
+    public ResponseEntity getCalculationLogGzipped(HttpServletRequest request, @PathVariable int id) throws JsonProcessingException {
+        return GzippedResponseEntity.getGzippedResponseEntity(request, new ObjectMapper().writeValueAsString(calculationLogService.findById(id)));
+    }
+
+    /**
+     *
+     * @return
+     */
     @RequestMapping(value = "/api/calclog/sources", method = RequestMethod.GET)
     public ResponseEntity<List<KeyValue>> getCalculationLogSources() {
         List<KeyValue> list = new ArrayList<>();
@@ -122,6 +143,10 @@ public class ApiController {
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
+    /**
+     *
+     * @return
+     */
     @RequestMapping(value = "/api/calclog/types", method = RequestMethod.GET)
     public ResponseEntity<List<KeyValue>> getCalculationLogTypes() {
         List<KeyValue> list = new ArrayList<>();
