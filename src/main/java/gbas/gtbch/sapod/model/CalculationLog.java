@@ -1,5 +1,7 @@
 package gbas.gtbch.sapod.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 import java.util.Date;
@@ -112,6 +114,7 @@ public class CalculationLog {
      * inbound time
      */
     @Column(name = "inbound_time")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss.SSS", timezone = "Europe/Minsk")
     private Date inboundTime;
 
     /**
@@ -125,6 +128,7 @@ public class CalculationLog {
      * outbound time
      */
     @Column(name = "outbound_time")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss.SSS", timezone = "Europe/Minsk")
     private Date outboundTime;
 
     /**
