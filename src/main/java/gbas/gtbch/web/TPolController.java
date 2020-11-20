@@ -1,5 +1,6 @@
 package gbas.gtbch.web;
 
+import gbas.gtbch.sapod.model.CodeName;
 import gbas.gtbch.sapod.model.TpolGroup;
 import gbas.gtbch.sapod.repository.TPolRepository;
 import gbas.gtbch.sapod.repository.TPolRowRepository;
@@ -65,7 +66,7 @@ public class TPolController {
      * get {@link TPRow} list
      * @param id - tvk_tarif.id
      */
-    @RequestMapping(value = "/rows/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/document/{id:[\\d]+}/rows", method = RequestMethod.GET)
     public ResponseEntity<List<TPRow>> getRows(@PathVariable int id) {
         return new ResponseEntity<>(tpolRowRepository.getRows(id), HttpStatus.OK);
     }
@@ -75,7 +76,7 @@ public class TPolController {
      * @return
      */
     @RequestMapping(value = "/ttar", method = RequestMethod.GET)
-    public ResponseEntity<List<String[]>> getTTar() {
+    public ResponseEntity<List<CodeName>> getTTar() {
         return new ResponseEntity<>(tpolRepository.getBaseTarifList(), HttpStatus.OK);
     }
 }

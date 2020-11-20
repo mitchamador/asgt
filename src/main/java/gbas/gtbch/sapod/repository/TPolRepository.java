@@ -1,5 +1,6 @@
 package gbas.gtbch.sapod.repository;
 
+import gbas.gtbch.sapod.model.CodeName;
 import gbas.gtbch.sapod.model.TpolGroup;
 import gbas.tvk.nsi.cash.Func;
 import gbas.tvk.tpol3.TpolDocument;
@@ -85,7 +86,7 @@ public class TPolRepository {
     /**
      * @return
      */
-    public List<String[]> getBaseTarifList() {
+    public List<CodeName> getBaseTarifList() {
         return getBaseTarifList(0);
     }
 
@@ -95,7 +96,7 @@ public class TPolRepository {
      * @param idTPol
      * @return
      */
-    public List<String[]> getBaseTarifList(int idTPol) {
+    public List<CodeName> getBaseTarifList(int idTPol) {
         return jdbcTemplate.query(idTPol == 0 ?
                         "select kod, name\n" +
                                 "from tvk_tip_tar\n" +
@@ -106,10 +107,7 @@ public class TPolRepository {
                                 "order by 1",
                 idTPol == 0 ? null : new Object[]{idTPol},
                 (rs, i) -> {
-                    String[] result = new String[2];
-                    result[0] = Func.iif(rs.getString(1));
-                    result[1] = Func.iif(rs.getString(2));
-                    return result;
+                    return new CodeName(Func.iif(rs.getString("kod")), Func.iif(rs.getString("name")));
                 });
     }
 
