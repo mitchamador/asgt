@@ -31,10 +31,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -220,9 +217,10 @@ public class GtBchTests {
 		list = calculationLogListRepository.getList(null, getDate("01.01.2020"), getDate("31.12.2020"));
 		logger.info("calculationLogListRepository.getList(): " + (list == null ? "null" : ("list size = " + list.size())));
 
-		CalculationLog filter = new CalculationLog();
-		filter.setType(CalculationLog.Type.CARD);
-		list = calculationLogListRepository.getList(filter, null, null);
+		Map<String, String> params = new HashMap<>();
+		params.put("type", "CARD");
+
+		list = calculationLogListRepository.getList(params, null, null);
 		logger.info("calculationLogListRepository.getList(): " + (list == null ? "null" : ("list size = " + list.size())));
 
 	}
