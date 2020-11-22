@@ -38,6 +38,12 @@ public class SystemInfo {
             @Autowired(required = false) BuildProperties buildProperties) {
         List<KeyValue> info = new ArrayList<>();
 
+        info.add(
+                new KeyValue("Java",
+                        "Runtime: " + System.getProperty("java.runtime.name") + " " + System.getProperty("java.runtime.version") + "; " +
+                        "VM: " + System.getProperty("java.vm.vendor") + " " + System.getProperty("java.vm.name") + " " + System.getProperty("java.vm.version"))
+        );
+
         info.add(new KeyValue("Сервер приложений", servletContext.getServerInfo()));
 
         info.addAll(getDbInfo(sapodDataSource, ""));
