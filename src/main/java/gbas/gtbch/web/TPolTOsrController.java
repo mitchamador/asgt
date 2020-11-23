@@ -42,7 +42,7 @@ public class TPolTOsrController {
      * @param obj - {@link TvkTOsr}
      */
     @RequestMapping(value = "", method = RequestMethod.POST)
-    public ResponseEntity saveKof(@RequestBody TvkTOsr obj) {
+    public ResponseEntity saveTOsr(@RequestBody TvkTOsr obj) {
         int id = tPolTOsrRepository.saveCont(obj);
         return id != 0 ? ResponseEntity.created(URI.create("/api/tpol/tosr/" + id)).build() : ResponseEntity.notFound().build();
     }
@@ -52,7 +52,7 @@ public class TPolTOsrController {
      * @param id - tvk_t_osr.id
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
-    public ResponseEntity updateKof(@PathVariable int id, @RequestBody TvkTOsr obj) {
+    public ResponseEntity updateTOsr(@PathVariable int id, @RequestBody TvkTOsr obj) {
         obj.id = id;
         return tPolTOsrRepository.saveCont(obj) != 0 ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
     }
@@ -62,7 +62,7 @@ public class TPolTOsrController {
      * @param id - tvk_t_osr.id
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<Boolean> deleteKof(@PathVariable int id) {
+    public ResponseEntity<Boolean> deleteTOsr(@PathVariable int id) {
         return new ResponseEntity<>(tPolTOsrRepository.deleteCont(id), HttpStatus.OK);
     }
 
