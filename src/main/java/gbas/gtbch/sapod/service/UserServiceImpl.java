@@ -17,7 +17,7 @@ import java.util.List;
  *
  */
 @Service("userService")
-@Transactional("sapodTransactionManager")
+@Transactional(transactionManager = "sapodTransactionManager")
 public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Autowired

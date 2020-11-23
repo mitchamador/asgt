@@ -50,7 +50,6 @@ public class CurrencyServiceImpl implements CurrencyService {
     }
 
     @Override
-    @Transactional
     public void deleteByShortName(String shortName) {
         currencyRepository.deleteAllByShortName(shortName);
     }
