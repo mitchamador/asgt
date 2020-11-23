@@ -2,7 +2,7 @@ package gbas.gtbch.security;
 
 import gbas.gtbch.sapod.model.User;
 import gbas.gtbch.sapod.service.UserService;
-import gbas.tvk.util.UtilDate;
+import gbas.gtbch.util.UtilDate8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
@@ -42,7 +42,7 @@ public class LoginHandler implements AuthenticationSuccessHandler, AccessDeniedH
             logger.info("{} logged in", user.toString());
 
             user.setLoggedInDate(new Date());
-            logger.debug("set logged in date to {} for user {}", UtilDate.getStringFullDate(user.getLoggedInDate()), user.getUsername());
+            logger.debug("set logged in date to {} for user {}", UtilDate8.getStringFullDate(user.getLoggedInDate()), user.getUsername());
             userService.updateLoggedInDate(user);
         }
 

@@ -1,6 +1,5 @@
 package gbas.gtbch.util;
 
-import gbas.tvk.util.UtilDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -19,7 +18,7 @@ public class MQJob extends ServerJob {
 
     @Override
     public void log(String s) {
-        super.log(UtilDate.getStringFullDate(new Date()) + " " + s);
+        super.log(UtilDate8.getStringFullDate(new Date()) + " " + s);
     }
 
     @Override

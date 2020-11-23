@@ -2,7 +2,6 @@ package gbas.gtbch.util;
 
 import gbas.tvk.interaction.pensi.PensiManager;
 import gbas.tvk.interaction.pensi.jobs.PensiJobStatus;
-import gbas.tvk.util.UtilDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +37,7 @@ public class PensiServerJob extends ServerJob {
 
     @Override
     public void log(String s) {
-        String dateString = UtilDate.getStringFullDate(new Date());
+        String dateString = UtilDate8.getStringFullDate(new Date());
         //super.log(dateString + " " + s);
 
         pensiMainJob.log(dateString + " [" + getPensiTaskName() + "] " + s);

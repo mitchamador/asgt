@@ -97,7 +97,7 @@ public class Syncronizer extends ServerJob {
                     if (filename != null) {
                         String dateStr = (filename.substring(12, 14) + "") + '.' + (filename.substring(9, 11) + "") + '.' +
                                 (filename.substring(4, 8) + "") + ' ' + (filename.substring(15, 17) + "") + ':' + (filename.substring(18, 20) + "");
-                        Date dateCreate = UtilDate.getDate(dateStr, "dd.MM.yyyy HH:mm");
+                        Date dateCreate = UtilDate8.getDate(dateStr);
                         if (dateCreate != null) {
                             TpImportDate tpImportDate = new TpImportDate();
                             tpImportDate.setDateCreate(dateCreate);

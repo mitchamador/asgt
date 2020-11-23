@@ -2,8 +2,8 @@ package gbas.gtbch.web;
 
 import gbas.gtbch.sapod.model.TpImportDate;
 import gbas.gtbch.sapod.service.TpImportDateService;
+import gbas.gtbch.util.UtilDate8;
 import gbas.gtbch.web.request.KeyValue;
-import gbas.tvk.util.UtilDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -133,7 +133,7 @@ public class MainController {
 
     private String getStringTime(Object time, int diff) {
         if (time instanceof Instant) {
-            return UtilDate.getStringDate(new java.util.Date(((Instant) time).toEpochMilli()), "dd.MM.yyyy HH:mm:ss");
+            return UtilDate8.getStringDate(new java.util.Date(((Instant) time).toEpochMilli()), "dd.MM.yyyy HH:mm:ss");
         } else if (time instanceof Duration) {
             Duration duration = (Duration) time;
             if (duration.getSeconds() > diff) {

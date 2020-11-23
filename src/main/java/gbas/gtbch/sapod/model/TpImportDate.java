@@ -1,6 +1,6 @@
 package gbas.gtbch.sapod.model;
 
-import gbas.tvk.util.UtilDate;
+import gbas.gtbch.util.UtilDate8;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -52,6 +52,6 @@ public class TpImportDate {
     }
 
     public String getTpDateString() {
-        return dateCreate != null ? ("ТП от " + UtilDate.getStringDateTime(dateCreate)) : "";
+        return dateCreate != null ? ("ТП от " + UtilDate8.getStringDateTime(dateCreate)) : "";
     }
 }

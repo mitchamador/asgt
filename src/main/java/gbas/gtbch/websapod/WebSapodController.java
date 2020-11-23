@@ -2,6 +2,7 @@ package gbas.gtbch.websapod;
 
 import gbas.gtbch.sapod.model.TpImportDate;
 import gbas.gtbch.sapod.service.TpImportDateService;
+import gbas.gtbch.util.UtilDate8;
 import gbas.sapod.bridge.constants.json.Errors;
 import gbas.sapod.bridge.constants.json.Key;
 import gbas.sapod.bridge.constants.json.KeyValue;
@@ -11,7 +12,6 @@ import gbas.sapod.bridge.controllers.RouteException;
 import gbas.sapod.bridge.controllers.RouteService;
 import gbas.sapod.bridge.utilities.JsonBuilder;
 import gbas.tvk.desktop.Version;
-import gbas.tvk.util.UtilDate;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -184,7 +184,7 @@ public class WebSapodController {
         TpImportDate tpImportDate = tpImportDateService.getTpImportDate();
 
         return new ResponseEntity<>(
-                JsonBuilder.getJsonObject(Collections.singletonList(new KeyValue("computed", UtilDate.getStringDate(tpImportDate.getDateCreate(), "dd/MM/yy")))).toJSONString(),
+                JsonBuilder.getJsonObject(Collections.singletonList(new KeyValue("computed", UtilDate8.getStringDate(tpImportDate.getDateCreate(), "dd/MM/yy")))).toJSONString(),
                 HttpStatus.OK);
     }
 

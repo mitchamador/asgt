@@ -5,7 +5,6 @@ import com.ibm.msg.client.wmq.WMQConstants;
 import gbas.gtbch.mq.MQProperties;
 import gbas.gtbch.web.request.KeyValue;
 import gbas.tvk.desktop.Version;
-import gbas.tvk.util.UtilDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +54,7 @@ public class SystemInfo {
 
         String[] version = new Version().getVersion();
 
-        info.add(new KeyValue("Сборка", (buildProperties == null ? "local" : ("версия: " + buildProperties.getVersion() + "; время сборки: " + UtilDate.getStringDateTime(new java.util.Date(buildProperties.getTime().toEpochMilli())))
+        info.add(new KeyValue("Сборка", (buildProperties == null ? "local" : ("версия: " + buildProperties.getVersion() + "; время сборки: " + UtilDate8.getStringDateTime(new java.util.Date(buildProperties.getTime().toEpochMilli())))
                 + "; core: " + version[0] + " от " + version[1])));
 
         return info;

@@ -5,9 +5,9 @@ import gbas.gtbch.sapod.model.ExchangeRate;
 import gbas.gtbch.sapod.service.CurrencyService;
 import gbas.gtbch.sapod.service.ExchangeRateService;
 import gbas.gtbch.util.ServerJob;
+import gbas.gtbch.util.UtilDate8;
 import gbas.tvk.interaction.nbrb.CurrencyDownloader;
 import gbas.tvk.nsi.currency.service.CurrencyRate;
-import gbas.tvk.util.UtilDate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -22,7 +22,7 @@ public class NbrbCurrencyDownloaderJob extends ServerJob {
 
     private void log(String s, boolean addJobLog) {
         if (addJobLog) {
-            super.log("" + UtilDate.getStringFullDate(new Date()) + " - " + s);
+            super.log("" + UtilDate8.getStringFullDate(new Date()) + " - " + s);
         }
         logger.info(s);
     }
