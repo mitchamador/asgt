@@ -1,5 +1,9 @@
 # embedded profile configuration
 
+spring:
+  main:
+    banner-mode: console
+
 server:
   compression:
     enabled: false
@@ -35,3 +39,10 @@ app:
     outbound:
       jndi-name: "jms/GT.OUT.Q"
       name: "Q.OUT"
+
+logging:
+  level:
+    org:
+      springframework:
+        transaction:
+          interceptor: trace
