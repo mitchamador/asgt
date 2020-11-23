@@ -2,6 +2,7 @@ package gbas.gtbch;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import gbas.gtbch.sapod.model.CalculationLog;
+import gbas.gtbch.sapod.model.TPolDocument;
 import gbas.gtbch.sapod.model.TpImportDate;
 import gbas.gtbch.sapod.repository.CalculationLogListRepository;
 import gbas.gtbch.sapod.repository.TPolRepository;
@@ -11,7 +12,6 @@ import gbas.gtbch.web.request.KeyValue;
 import gbas.gtbch.websapod.ServicesImpl;
 import gbas.sapod.bridge.controllers.Services;
 import gbas.sapod.bridge.utilities.JsonBuilder;
-import gbas.tvk.tpol3.TpolDocument;
 import gbas.tvk.util.UtilDate;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,7 +27,6 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.ParseException;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -135,7 +134,7 @@ public class GtBchTests {
 
 	@Test
 	public void tpolRepositoryTest() throws ParseException {
-		List<TpolDocument> list;
+		List<TPolDocument> list;
 
 /*
 		List<String[]> groups = tpolRepository.getGroups();
