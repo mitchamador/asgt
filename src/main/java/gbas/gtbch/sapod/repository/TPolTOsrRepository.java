@@ -9,9 +9,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
-import javax.transaction.Transactional;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -91,7 +91,7 @@ public class TPolTOsrRepository {
      * @param osr
      * @return
      */
-    @Transactional
+    @Transactional(transactionManager = "sapodTransactionManager")
     public int saveCont(TvkTOsr osr) {
         Integer id;
 

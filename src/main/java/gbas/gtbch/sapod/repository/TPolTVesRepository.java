@@ -9,9 +9,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
-import javax.transaction.Transactional;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -88,7 +88,7 @@ public class TPolTVesRepository {
      * @param tVes
      * @return
      */
-    @Transactional
+    @Transactional(transactionManager = "sapodTransactionManager")
     public int saveVO(TvkTVes tVes) {
         Integer id = jdbcTemplate.query("select id from tvk_group_t_ves where n_tab = ?",
                 new Object[]{tVes.nTab},

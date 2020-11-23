@@ -1,7 +1,5 @@
 package gbas.gtbch.sapod.repository;
 
-import gbas.tvk.nsi.cash.Func;
-import gbas.tvk.tpol3.TpolDocument;
 import gbas.tvk.tpol3.service.TPRow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,15 +9,13 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
-import javax.transaction.Transactional;
 import java.sql.PreparedStatement;
 import java.sql.Types;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Component
@@ -122,7 +118,7 @@ public class TPolRowRepository {
      * @param row
      * @return
      */
-    @Transactional
+    @Transactional(transactionManager = "sapodTransactionManager")
     public int saveRow(TPRow row) {
 
         if (row.id == 0) {
