@@ -1,5 +1,7 @@
 package gbas.gtbch.sapod.model;
 
+import gbas.gtbch.util.StringTrimConverter;
+
 import javax.persistence.*;
 
 @Entity
@@ -12,12 +14,15 @@ public class Currency {
     int id;
 
     @Column(name = "name", length = 20)
+    @Convert(converter = StringTrimConverter.class)
     String name;
 
     @Column(name = "short_name", length = 10)
+    @Convert(converter = StringTrimConverter.class)
     String shortName;
 
     @Column(name = "symbol", length = 3)
+    @Convert(converter = StringTrimConverter.class)
     String symbol;
 
     public int getId() {
