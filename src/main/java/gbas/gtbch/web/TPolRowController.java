@@ -146,7 +146,7 @@ public class TPolRowController {
      * @param data data
      * @return
      */
-    @RequestMapping(value = "/{id:[\\d]+}/items/{name}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{id:[\\d]+}/item/{name}", method = RequestMethod.GET)
     public ResponseEntity<List<String[]>> getItemData(@PathVariable int id, @PathVariable String name, @RequestParam(value = "data", required = false) String[] data) {
         TPItem tpItem = TPItems.getTpItem(name);
         if (tpItem != null) {
@@ -166,7 +166,7 @@ public class TPolRowController {
      * @param data data
      * @return
      */
-    @RequestMapping(value = "/{id:[\\d]+}/items/{name}", method = RequestMethod.POST)
+    @RequestMapping(value = "/{id:[\\d]+}/item/{name}", method = RequestMethod.POST)
     public ResponseEntity<Integer> saveItemData(@PathVariable int id, @PathVariable String name, @RequestParam(value = "data") String[] data) {
         TPItem tpItem = TPItems.getTpItem(name);
         if (tpItem != null) {
@@ -182,7 +182,7 @@ public class TPolRowController {
      * @param data data
      * @return
      */
-    @RequestMapping(value = "/{id:[\\d]+}/items/{name}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/{id:[\\d]+}/item/{name}", method = RequestMethod.DELETE)
     public ResponseEntity<Boolean> deleteItemData(@PathVariable int id, @PathVariable String name, @RequestParam(value = "data") String data) {
         TPItem tpItem = TPItems.getTpItem(name);
         if (tpItem != null) {
