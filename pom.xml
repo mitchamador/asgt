@@ -94,6 +94,19 @@
         </profile>
     </profiles>
 
+    <dependencyManagement>
+        <dependencies>
+            <!-- sapod-parent pom -->
+            <dependency>
+                <groupId>gbas</groupId>
+                <artifactId>sapod-parent</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -254,14 +267,12 @@
         <dependency>
             <groupId>gbas</groupId>
             <artifactId>sapod-core</artifactId>
-            <version>LATEST</version>
         </dependency>
 
         <!-- websapod core -->
         <dependency>
             <groupId>gbas</groupId>
             <artifactId>sapod-web-core</artifactId>
-            <version>LATEST</version>
         </dependency>
 
     </dependencies>
