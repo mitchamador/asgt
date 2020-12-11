@@ -114,7 +114,7 @@ public class Syncronizer extends ServerJob {
             } catch (IllegalArgumentException ignored) {
             }
 
-            s.setExcludeGroups(SynStyck.class, SynDist.class, SynMatherial.class, SynSpec.class);
+            s.setExcludeGroups(SynStyck.class, SynDist.class/*, SynMatherial.class, SynSpec.class*/);
             s.setExcludeNsiTables("tvk_stan", "tvk_algng", "tvk_etsng", "tvk_gng_etsng", "tvk_algng_etsng", "tvk_algng_dan", "tvk_algng_dang");
 
             s.run(true);
