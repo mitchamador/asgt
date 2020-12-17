@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{fragments/layout}">
+<head>
+    <title></title>
+</head>
+<body>
+
+<div layout:fragment="content" th:remove="tag">
+
+    <!--    <link rel="stylesheet" type="text/css" th:href="@{/webjars/datatables/css/jquery.dataTables.min.css}"/>-->
+    <link rel="stylesheet" type="text/css" th:href="@{/webjars/datatables/css/dataTables.bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/webjars/datatables-select/css/select.bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css}"/>
+
+    <script th:src="@{/webjars/datatables/js/jquery.dataTables.min.js}"></script>
+    <script th:src="@{/webjars/datatables/js/dataTables.bootstrap.min.js}"></script>
+    <script th:src="@{/webjars/datatables-select/js/dataTables.select.min.js}"></script>
+    <script th:src="@{/webjars/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js}"></script>
+    <script th:src="@{/webjars/bootstrap-datetimepicker/js/locales/bootstrap-datetimepicker.ru.js}"></script>
+
+    <script th:inline="javascript">
+        $(document).ready($(function () {
+            /*<![CDATA[*/
+            //var sources = [[${sources}]];
+            var types = [[${types}]];
+            /*]]>*/
+
+            var table = $('#calcLogTable').DataTable({
+                scrollY: "20vh",
+                scrollCollapse: true,
+                paging: false,
+                searching: false,
+                info: false,
+                columns: [
+                    {"defaultContent": "", "width": "10%"},
+                    {"data": "type", "width": "30%"},
+                    {"data": "number", "width": "15%"},
+                    {"data": "station", "width": "15%"},
+                    {"data": "inboundTime", "width": "40%"}
+                ],
+                columnDefs: [{
+                    "searchable": false,
+                    "orderable": false,
+                    "targets": 0
+                }],
+                language : {
+                     "zeroRecords": " "
+                },
+                style: 'single',
+                select: true
+            });
+
+            table.on('order.dt search.dt', function () {
+                table.column(0, {search: 'applied', order: 'applied'}).nodes().each(function (cell, i) {
+                    cell.innerHTML = i + 1;
+                });
+            }).draw();
+
+            $('.dataTables_scrollBody').css('height', '20vh');
+
+
+            $('#calcLogTable tbody').on('click', 'tr', function () {
+                $(this).toggleClass('selected');
+                if ($(this).hasClass('selected')) {
+                    var d = table.row(this).data();
+                    $.ajax({
+                        url: contextRoot + "api/calclog/" + d.id,
+                        method: 'get',
+                        headers: {
+                              "Accept" : "application/json"
+                        },
+                        success: function (result) {
+                            $("#inXml").val(result.inboundXml);
+                            $("#outXml").val(result.outboundXml);
+                            $("#outText").val(result.outboundText);
+                        }
+                    });
+                }
+            });
+
+            $("#datetime_begin").datetimepicker({
+                todayHighlight: true,
+                format: "dd.mm.yyyy hh:ii",
+                language: 'ru',
+                minView: 0,
+                autoclose: true
+            });
+            $("#datetime_begin").datetimepicker('setDate', new Date(new Date().getTime() - 24 * 60 * 60 * 1000));
+
+            $("#datetime_end").datetimepicker({
+                format: "dd.mm.yyyy hh:ii",
+                language: 'ru',
+                minView: 0,
+                autoclose: true
+            });
+
+            $("#datetime_end").datetimepicker('setDate', new Date());
+
+            $("#loadButton").click(function (e) {
+                var data = {};
+                data.date_begin = $("#datetime_begin_text").val();
+                data.date_end = $("#datetime_end_text").val();
+                if ($("#typeDocument option:selected").val() !== "") {
+                    data.type = $("#typeDocument option:selected").val();
+                }
+                $.ajax({
+                    url: contextRoot + "api/calclog/",
+                    method: 'get',
+                    data: data,
+                    success: function (result) {
+                        for (var i = 0, ien = result.length; i < ien; i++) {
+                            var t = types.find(function (x) {
+                                return x.key === result[i].type
+                            });
+                            if (t !== undefined) {
+                                result[i].type = t.value;
+                            }
+                        }
+                        table.clear();
+                        table.rows.add(result);
+                        table.draw();
+                    }
+                });
+            });
+            //table.draw();
+        }));
+    </script>
+
+    <h3>Лог расчета</h3>
+
+    <div style="display: inline-flex; width: 100%">
+        <h5><span class="text-nowrap" style="margin-right: 5px">Период с</span></h5>
+        <div class="form-group" style="flex-grow: 1">
+            <div id="datetime_begin" class="input-group date">
+                <input id="datetime_begin_text" type="text" class="form-control"/>
+                <span class="input-group-addon">
+                    <i class="glyphicon glyphicon-calendar"></i>
+                </span>
+            </div>
+        </div>
+        <h5><span style="margin-right: 5px; margin-left: 5px">по</span></h5>
+        <div class="form-group" style="flex-grow: 1">
+            <div id="datetime_end" class="input-group date">
+                <input  id="datetime_end_text" type="text" class="form-control"/>
+                <span class="input-group-addon">
+                    <i class="glyphicon glyphicon-calendar"></i>
+                </span>
+            </div>
+        </div>
+        <h5><span class="text-nowrap" style="margin-right: 5px; margin-left: 5px">Тип документа</span></h5>
+        <select id="typeDocument" class="form-control" style="width: 30%">
+            <th:block th:each="type : ${types}">
+                <option th:value="${type.getKey()}" th:text="${type.getValue()}"></option>
+            </th:block>
+        </select>
+        <button id="loadButton" class="col-sm-2 btn btn-primary" type="button" style="margin-left: 5px; height: 50%">
+            Загрузить
+        </button>
+    </div>
+
+
+    <table id="calcLogTable" class="table-condensed table-bordered" style="width:100%; font-size: 0.9em">
+        <thead>
+        <tr>
+            <th>№ п/п</th>
+            <th>Тип документа</th>
+            <th>Номер документа</th>
+            <th>Станция</th>
+            <th>Дата расчета</th>
+        </tr>
+        </thead>
+    </table>
+
+    <ul id="calcLogTabFolder" class="nav nav-tabs" style="width: 100%; margin-top: 10px">
+        <li class="active">
+            <a id="inXmlTab" data-toggle="tab" href="#inXmlTabItem">Входной XML</a>
+        </li>
+        <li>
+            <a id="outXmlTab" data-toggle="tab" href="#outXmlTabItem">Выходной XML</a>
+        </li>
+        <li>
+            <a id="outTextTab" data-toggle="tab" href="#outTextTabItem">Выходной текст</a>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <div id="inXmlTabItem" class="tab-pane active" style="width: 100%">
+            <textarea id="inXml" class="form-control" rows="5"
+                      style="height: 40vh; font-size: 0.9em; font-family: monospace"></textarea>
+        </div>
+        <div id="outXmlTabItem" class="tab-pane" style="width: 100%">
+            <textarea id="outXml" class="form-control" rows="5"
+                      style="height: 40vh; font-size: 0.9em; font-family: monospace"></textarea>
+        </div>
+        <div id="outTextTabItem" class="tab-pane" style="width: 100%">
+            <textarea id="outText" class="form-control" rows="5"
+                      style="height: 40vh; font-size: 0.9em; font-family: monospace"></textarea>
+        </div>
+    </div>
+
+</body>
+
+</html>

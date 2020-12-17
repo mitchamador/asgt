@@ -1,5 +1,6 @@
 package gbas.gtbch.web;
 
+import gbas.gtbch.sapod.model.CalculationLog;
 import gbas.gtbch.sapod.model.TpImportDate;
 import gbas.gtbch.sapod.service.TpImportDateService;
 import gbas.gtbch.util.UtilDate8;
@@ -84,6 +85,27 @@ public class MainController {
     @GetMapping("/admin/mq")
     public ModelAndView adminMq() {
         return new ModelAndView("admin/mq");
+    }
+
+    @GetMapping("/admin/calclog")
+    public ModelAndView adminCalcLog() {
+        ModelAndView model = new ModelAndView("admin/calclog");
+
+        List<KeyValue> sources = new ArrayList<>();
+        sources.add(new KeyValue(null, "Все"));
+        for (CalculationLog.Source source : CalculationLog.Source.values()) {
+            sources.add(new KeyValue(source.name(), source.getName()));
+        }
+        model.addObject("sources", sources);
+
+        List<KeyValue> types = new ArrayList<>();
+        types.add(new KeyValue(null, "Все"));
+        for (CalculationLog.Type type : CalculationLog.Type.values()) {
+            types.add(new KeyValue(type.name(), type.getName()));
+        }
+        model.addObject("types", types);
+
+        return model;
     }
 
     @GetMapping("/index")
