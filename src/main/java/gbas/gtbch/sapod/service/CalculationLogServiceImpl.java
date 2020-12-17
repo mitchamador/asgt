@@ -2,15 +2,15 @@ package gbas.gtbch.sapod.service;
 
 import gbas.gtbch.sapod.model.CalculationLog;
 import gbas.gtbch.sapod.repository.CalculationLogRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @Service("calculationLogService")
+@Transactional(transactionManager = "sapodTransactionManager")
 public class CalculationLogServiceImpl implements CalculationLogService {
 
     private final CalculationLogRepository calculationLogRepository;
