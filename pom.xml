@@ -235,6 +235,32 @@
             <version>4.7.0</version>
             <scope>${package-shared.scope}</scope>
         </dependency>
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>datatables</artifactId>
+            <version>1.10.21</version>
+            <scope>${package-shared.scope}</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>datatables-select</artifactId>
+            <version>1.3.1</version>
+            <scope>${package-shared.scope}</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>datatables-plugins</artifactId>
+            <version>1.10.21</version>
+            <scope>${package-shared.scope}</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>bootstrap-datetimepicker</artifactId>
+            <version>2.4.4</version>
+            <scope>${package-shared.scope}</scope>
+        </dependency>
+
+
 
         <dependency>
             <groupId>commons-fileupload</groupId>
