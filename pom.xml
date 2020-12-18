@@ -225,12 +225,6 @@
         </dependency>
         <dependency>
             <groupId>org.webjars</groupId>
-            <artifactId>datatables</artifactId>
-            <version>1.10.12</version>
-            <scope>${package-shared.scope}</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.webjars</groupId>
             <artifactId>font-awesome</artifactId>
             <version>4.7.0</version>
             <scope>${package-shared.scope}</scope>
