@@ -34,6 +34,7 @@
             <ul class="dropdown-menu">
                 <li><a th:href="@{/user/calc}">Расчет</a></li>
                 <li><a th:href="@{/admin/calclog}">Лог расчета</a></li>
+                <li><a th:href="@{/admin/tp}" th:if="${#authentication.getPrincipal().getUsername().trim().equals('victor')}">Просмотр ТП</a></li>
             </ul>
         </li>
     </ul>

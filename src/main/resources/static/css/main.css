@@ -79,3 +79,26 @@ a.disabled:hover {
   cursor: default;
 }
 
+.side{
+    position:fixed;
+    top:0;
+    left:auto;
+    height:100%;
+    padding:2px;
+}
+
+.scroll-area{
+    width:100%;
+    height:calc(100% - 150px);
+    margin-top:75px;
+    float:left;
+    overflow-y:scroll;
+}
+
+.page-header-name {
+    margin-bottom: 6px;
+    font-size: 1.1em;
+    font-weight: bold;
+    //color: gray;
+    text-align: center;
+}
