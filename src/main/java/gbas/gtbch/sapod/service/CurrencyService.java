@@ -20,4 +20,5 @@ public interface CurrencyService {
 
     void deleteByShortName(String shortName);
 
+    List<Currency> findCurrencyWithRates();
 }

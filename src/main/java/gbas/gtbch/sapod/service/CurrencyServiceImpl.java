@@ -53,4 +53,9 @@ public class CurrencyServiceImpl implements CurrencyService {
     public void deleteByShortName(String shortName) {
         currencyRepository.deleteAllByShortName(shortName);
     }
+
+    @Override
+    public List<Currency> findCurrencyWithRates() {
+        return currencyRepository.findAllByShortNameIsNotNullAndShortNameNot("");
+    }
 }

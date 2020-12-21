@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{fragments/layout}">
+<head>
+    <title></title>
+</head>
+<body>
+
+<div layout:fragment="content" th:remove="tag">
+
+    <link rel="stylesheet" type="text/css" th:href="@{/css/flag-icons.css}"/>
+
+    <!--    <link rel="stylesheet" type="text/css" th:href="@{/webjars/datatables/css/jquery.dataTables.min.css}"/>-->
+    <link rel="stylesheet" type="text/css" th:href="@{/webjars/datatables/css/dataTables.bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/webjars/datatables-select/css/select.bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css}"/>
+
+    <script th:src="@{/webjars/datatables/js/jquery.dataTables.min.js}"></script>
+    <script th:src="@{/webjars/datatables/js/dataTables.bootstrap.min.js}"></script>
+    <script th:src="@{/webjars/datatables-select/js/dataTables.select.min.js}"></script>
+    <script th:src="@{/webjars/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js}"></script>
+    <script th:src="@{/webjars/bootstrap-datetimepicker/js/locales/bootstrap-datetimepicker.ru.js}"></script>
+
+    <script th:inline="javascript">
+        $(document).ready($(function () {
+
+            function loadTable() {
+                var data = {};
+                data.date = $("#date_text").val();
+
+                $("#exchangeRateFragment").load(
+                    "./currency/rates",
+                    $.param(data)
+                );
+            }
+
+            var currentDate = new Date();
+
+            $("#date").datetimepicker({
+                todayHighlight: true,
+                format: "dd.mm.yyyy",
+                language: 'ru',
+                minView: 2,
+                autoclose: true
+            });
+
+            $("#date").datetimepicker('setDate', currentDate);
+
+            $("#date").datetimepicker()
+                .on('changeDate', function(e){
+                    loadTable();
+                });
+
+            loadTable();
+
+        }));
+    </script>
+
+    <div class="page-header-name">Курс валют</div>
+
+    <div style="display: inline-flex;">
+        <h5><span class="text-nowrap" style="margin-right: 5px">Курсы валют НБ РБ, действующие на дату</span></h5>
+        <div class="form-group" style="flex-grow: 1">
+            <div id="date" class="input-group date">
+                <input id="date_text" type="text" class="form-control"/>
+                <span class="input-group-addon">
+                    <i class="glyphicon glyphicon-calendar"></i>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div id="exchangeRateFragment">
+    </div>
+
+</div>
+
+</body>
+
+</html>

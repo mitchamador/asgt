@@ -8,7 +8,23 @@ import java.util.List;
 
 @Repository
 public interface CurrencyRepository extends JpaRepository<Currency, Integer> {
+    /**
+     *
+     * @param shortName
+     * @return
+     */
     List<Currency> findAllByShortName(String shortName);
 
+    /**
+     *
+     * @param shortName
+     */
     void deleteAllByShortName(String shortName);
+
+    /**
+     *
+     * @param emptyString
+     * @return
+     */
+    List<Currency> findAllByShortNameIsNotNullAndShortNameNot(String emptyString);
 }

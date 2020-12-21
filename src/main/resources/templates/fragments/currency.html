@@ -1,0 +1,66 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<th:block th:fragment="rates">
+
+    <script type="application/javascript">
+        $(document).ready($(function () {
+
+            var table = $('#exchangeRateTable').DataTable({
+                scrollY: "",
+                scrollCollapse: true,
+                paging: false,
+                searching: false,
+                info: false,
+                language : {
+                    "zeroRecords": " ",
+                    searchPlaceholder: "Поиск",
+                    "search": "Поиск:"
+                },
+                style: 'single',
+                select: true
+            });
+
+
+        }));
+    </script>
+
+    <table id="exchangeRateTable" class="table-condensed table-bordered" style="height: 100%; width:100%">
+        <thead>
+        <tr>
+            <th style="width: 40%">Наименование иностранной валюты</th>
+            <th style="width: 40%">Количество единиц иностранной валюты,<br>
+                буквенный код валюты</th>
+            <th style="width: 20%">Официальный курс</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        <th:block th:each="rate : ${rates}">
+            <tr>
+                <td>
+                    <div>
+                        <th:block th:switch="${rate.getCurrency().getShortName()}">
+                            <i th:case="'USD'" class="flag-icon flag-icon-us"></i>
+                            <i th:case="'EUR'" class="flag-icon flag-icon-eu"></i>
+                            <i th:case="'KZT'" class="flag-icon flag-icon-kz"></i>
+                            <i th:case="'RUB'" class="flag-icon flag-icon-ru"></i>
+                            <i th:case="'CHF'" class="flag-icon flag-icon-ch"></i>
+                        </th:block>
+                        <span class="text" th:text="${rate.getCurrency().getName() + rate.getComment()}"></span>
+                    </div>
+                </td>
+                <!--                <td class="flag-icon flag-icon-eu" th:text="${rate.getCurrency().getName()}"></td>-->
+                <td th:text="${#numbers.formatDecimal(rate.getHowMuch(), 1, 0) + ' ' + rate.getCurrency().getShortName()}"></td>
+                <td style="text-align: end" th:text="${rate.getRate()}"></td>
+            </tr>
+        </th:block>
+        </tbody>
+
+    </table>
+
+</th:block>
+
+</body>
+</html>

@@ -10,24 +10,27 @@ public class ExchangeRate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    int id;
+    private int id;
 
     @OneToOne()
     @JoinColumn(name = "code", referencedColumnName = "code")
-    Currency currency;
+    private Currency currency;
 
     @Column(name = "from_date")
-    Date fromDate;
+    private Date fromDate;
 
     @Column(name = "how_much")
-    double howMuch;
+    private double howMuch;
 
     @Column(name = "rate")
-    double rate;
+    private double rate;
 
     @OneToOne()
     @JoinColumn(name = "base_currency", referencedColumnName = "code")
-    Currency baseCurrency;
+    private Currency baseCurrency;
+
+    @Transient
+    private String comment;
 
     public int getId() {
         return id;
@@ -75,5 +78,13 @@ public class ExchangeRate {
 
     public void setBaseCurrency(Currency baseCurrency) {
         this.baseCurrency = baseCurrency;
+    }
+
+    public String getComment() {
+        return comment == null ? "" : comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 }
