@@ -8,6 +8,7 @@ import gbas.gtbch.sapod.model.TpImportDate;
 import gbas.gtbch.sapod.service.CalculationLogService;
 import gbas.gtbch.sapod.service.TpImportDateService;
 import gbas.gtbch.util.CalcData;
+import gbas.gtbch.util.CalcError;
 import gbas.gtbch.util.CalcHandler;
 import gbas.gtbch.web.request.KeyValue;
 import org.slf4j.Logger;
@@ -30,21 +31,21 @@ public class ApiController {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
-    /**
-     * inject bean with prototype scope to singleton bean
-     */
-    @Autowired
-    private ObjectFactory<CalcHandler> calcHandlerObjectFactory;
+    private final CalcHandler calcHandler;
+    private final TpImportDateService tpImportDateService;
+    private final CalculationLogService calculationLogService;
 
-    private CalcHandler getCalcHandler() {
-        return calcHandlerObjectFactory.getObject();
+    public ApiController(CalcHandler calcHandler, TpImportDateService tpImportDateService, CalculationLogService calculationLogService) {
+        this.calcHandler = calcHandler;
+        this.tpImportDateService = tpImportDateService;
+        this.calculationLogService = calculationLogService;
     }
 
     @RequestMapping(value = "/api/calc", method = RequestMethod.POST)
     public ServerResponse calc(@RequestParam("data") String data) {
 
         ServerResponse response = new ServerResponse();
-        response.setMessage(getCalcHandler().calc(new CalcData(data, CalculationLog.Source.REST)).getTextResult());
+        response.setMessage(calcHandler.calc(new CalcData(data, CalculationLog.Source.REST)).getTextResult());
 
         logger.info(String.format("/api/calc response: \"%s\"", getCroppedString(response.getMessage())));
 
@@ -55,15 +56,12 @@ public class ApiController {
     public ServerResponse calcxml(@RequestParam("data") String data) {
 
         ServerResponse response = new ServerResponse();
-        response.setMessage(getCalcHandler().calc(new CalcData(data, CalculationLog.Source.REST)).getOutputXml());
+        response.setMessage(calcHandler.calc(new CalcData(data, CalculationLog.Source.REST)).getOutputXml());
 
         logger.info(String.format("/api/calcxml response: \"%s\"", getCroppedString(response.getMessage())));
 
         return response;
     }
-
-    @Autowired
-    private TpImportDateService tpImportDateService;
 
     @RequestMapping(value = "/api/tpdate", method = RequestMethod.GET)
     public ServerResponse getTpImportDate() {
@@ -75,9 +73,6 @@ public class ApiController {
 
         return response;
     }
-
-    @Autowired
-    private CalculationLogService calculationLogService;
 
     /**
      * get CalculationLog

@@ -3,7 +3,8 @@ package gbas.gtbch.util;
 public enum CalcError {
     NO_ERROR(0, "Без ошибок"),
     UNKNOWN_OBJECT(1, "Неверный объект расчета"),
-    EXCEPTION(2, "Исключение при расчете")
+    EXCEPTION(2, "Исключение при расчете"),
+    NULL(3, "Null or empty object")
     ;
 
 

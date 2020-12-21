@@ -82,27 +82,6 @@ public class AppConfig {
         return dbHelper;
     }
 
-//    /**
-//     * класс расчета расстояний
-//     * * @Scope("prototype") - используются множественные экземпляры класса
-//     * * connection должен закрываться в конце жизненного цикла бина public методом close()
-//     * @return
-//     * @throws SQLException
-//     */
-//    @Bean
-//    @Scope("prototype")
-//    @Autowired
-//    DistCalc distCalc(@Qualifier("sapodDataSource") DataSource sapodDataSource) throws SQLException {
-//        return new DistCalc(sapodDataSource.getConnection(), new DistCalcDbSapod());
-//    }
-
-    @Bean
-    @Scope("prototype")
-    @Autowired
-    CalcHandler calcHandler(@Qualifier("sapodDataSource") DataSource sapodDataSource, CalculationLogService calculationLogService) throws SQLException {
-        return new CalcHandler(sapodDataSource.getConnection(), calculationLogService);
-    }
-
     @Value("${app.jobs.pensimanager.fullmergepensi:true}")
     private boolean fullInsertMergePensi;
 

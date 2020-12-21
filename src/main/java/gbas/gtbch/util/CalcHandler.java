@@ -21,7 +21,10 @@ import gbas.tvk.service.SQLUtils;
 import gbas.tvk.util.GZipUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Date;
@@ -29,6 +32,7 @@ import java.util.Date;
 /**
  *
  */
+@Component
 public class CalcHandler {
 
     private final static Logger logger = LoggerFactory.getLogger(CalcHandler.class.getName());
@@ -36,15 +40,15 @@ public class CalcHandler {
     /**
      *
      */
-    private Connection connection;
+    private final DataSource dataSource;
 
     /**
      *
      */
     private CalculationLogService calculationLogService;
 
-    public CalcHandler(Connection connection, CalculationLogService calculationLogService) throws SQLException {
-        this.connection = connection;
+    public CalcHandler(@Qualifier("sapodDataSource") DataSource dataSource, CalculationLogService calculationLogService) throws SQLException {
+        this.dataSource = dataSource;
         this.calculationLogService = calculationLogService;
     }
 
@@ -52,18 +56,22 @@ public class CalcHandler {
 
         logger.debug("calchandler process started...");
 
+        Connection connection = null;
+
         CalculationLog calculationLog = null;
 
         try {
+
+            connection = dataSource.getConnection();
 
             calculationLog = new CalculationLog();
             calculationLog.setInboundTime(new Date());
             calculationLog.setInboundXml(data.getInputXml());
             calculationLog.setSource(data.getSource());
+            calculationLog.setType(CalculationLog.Type.UNKNOWN);
 
             calculationLog = calculationLogService.save(calculationLog);
 
-            calculationLog.setType(CalculationLog.Type.UNKNOWN);
 
             Object obj = null;
 
@@ -179,16 +187,23 @@ public class CalcHandler {
 
         } catch (Exception e) {
             e.printStackTrace();
-            data.setTextResult(e.getMessage());
-            data.setError(CalcError.EXCEPTION.getCode());
+            if (data != null) {
+                data.setTextResult(e.getMessage());
+                data.setError(CalcError.EXCEPTION.getCode());
+            }
         } finally {
+            SQLUtils.close(connection);
 
             if (calculationLog != null) {
                 calculationLog.setOutboundTime(new Date());
                 calculationLog.setOutboundXml(data != null ? data.getOutputXml() : null);
                 calculationLog.setOutboundText(data != null ? data.getTextResult() : null);
-                calculationLog.setErrorCode(data != null ? data.getErrorCode() : CalcError.NO_ERROR.getCode());
+                calculationLog.setErrorCode(data == null || data.getOutputXml() == null || data.getOutputXml().trim().isEmpty()
+                        ? CalcError.NULL.getCode()
+                        : data.getErrorCode());
                 calculationLogService.save(calculationLog);
+            } else {
+                logger.info("Calculation log is null");
             }
 
         }
@@ -213,11 +228,4 @@ public class CalcHandler {
         return false;
     }
 
-    /**
-     * default destroy method
-     */
-    public void close() {
-        logger.debug("calchandler destroy");
-        SQLUtils.close(connection);
-    }
 }
