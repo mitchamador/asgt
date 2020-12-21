@@ -6,7 +6,6 @@ import gbas.gtbch.sapod.model.Currency;
 import gbas.gtbch.sapod.model.ExchangeRate;
 import gbas.gtbch.sapod.model.TPolDocument;
 import gbas.gtbch.sapod.model.TpImportDate;
-import gbas.gtbch.sapod.repository.CalculationLogListRepository;
 import gbas.gtbch.sapod.repository.TPolRepository;
 import gbas.gtbch.sapod.service.CalculationLogService;
 import gbas.gtbch.sapod.service.CurrencyService;
@@ -216,20 +215,17 @@ public class GtBchTests {
 		}
 	}
 
-	@Autowired
-	private CalculationLogListRepository calculationLogListRepository;
-
 	@Test
 	public void calculationLogTest2() {
 		List<CalculationLog> list;
 
-		list = calculationLogListRepository.getList(null, getDate("01.01.2020"), getDate("31.12.2020"));
+		list = calculationLogService.getList(null, getDate("01.01.2020"), getDate("31.12.2020"));
 		logger.info("calculationLogListRepository.getList(): " + (list == null ? "null" : ("list size = " + list.size())));
 
 		Map<String, String> params = new HashMap<>();
 		params.put("type", "CARD");
 
-		list = calculationLogListRepository.getList(params, null, null);
+		list = calculationLogService.getList(params, null, null);
 		logger.info("calculationLogListRepository.getList(): " + (list == null ? "null" : ("list size = " + list.size())));
 
 	}

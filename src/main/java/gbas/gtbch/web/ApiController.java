@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import gbas.gtbch.model.ServerResponse;
 import gbas.gtbch.sapod.model.CalculationLog;
 import gbas.gtbch.sapod.model.TpImportDate;
-import gbas.gtbch.sapod.repository.CalculationLogListRepository;
 import gbas.gtbch.sapod.service.CalculationLogService;
 import gbas.gtbch.sapod.service.TpImportDateService;
 import gbas.gtbch.util.CalcData;
@@ -22,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static gbas.gtbch.util.CropString.getCroppedString;
 
@@ -77,7 +77,7 @@ public class ApiController {
     }
 
     @Autowired
-    private CalculationLogListRepository calculationLogListRepository;
+    private CalculationLogService calculationLogService;
 
     /**
      * get CalculationLog
@@ -100,11 +100,18 @@ public class ApiController {
             @RequestParam(value = "date_begin", required = false) @DateTimeFormat(pattern = "dd.MM.yyyy HH:mm") Date dateBegin,
             @RequestParam(value = "date_end", required = false) @DateTimeFormat(pattern = "dd.MM.yyyy HH:mm") Date dateEnd) {
 
-        return new ResponseEntity<>(calculationLogListRepository.getList(params, dateBegin, dateEnd), HttpStatus.OK);
-    }
+        List<CalculationLog> calculationLogs = calculationLogService.getList(params, dateBegin, dateEnd);
 
-    @Autowired
-    private CalculationLogService calculationLogService;
+        if (calculationLogs != null) {
+            for (CalculationLog log : calculationLogs) {
+                if (log.getInboundTime() != null && log.getOutboundTime() != null) {
+                    log.setDurationText(String.format("%.1f c", (double) (log.getOutboundTime().getTime() - log.getInboundTime().getTime()) / TimeUnit.SECONDS.toMillis(1)));
+                }
+            }
+        }
+
+        return new ResponseEntity<>(calculationLogs, HttpStatus.OK);
+    }
 
     /**
      *

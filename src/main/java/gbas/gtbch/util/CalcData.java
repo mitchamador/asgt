@@ -7,6 +7,8 @@ import gbas.gtbch.sapod.model.CalculationLog;
  */
 public class CalcData {
 
+    private int error;
+
     public CalcData(String inputXml, CalculationLog.Source source) {
         this.inputXml = inputXml;
         this.source = source;
@@ -64,5 +66,13 @@ public class CalcData {
 
     public void setSource(CalculationLog.Source source) {
         this.source = source;
+    }
+
+    public void setError(int error) {
+        this.error = error;
+    }
+
+    public int getErrorCode() {
+        return error;
     }
 }

@@ -12,10 +12,7 @@ import org.springframework.stereotype.Component;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  *
@@ -54,7 +51,11 @@ public class CalculationLogListRepository {
 
         if (dateEnd != null) {
             sql += addToSql(sql, "inbound_time <= ?");
-            args.add(dateEnd);
+            Calendar c = Calendar.getInstance();
+            c.setTime(dateEnd);
+            c.set(Calendar.SECOND, 59);
+            c.set(Calendar.MILLISECOND, 999);
+            args.add(c.getTime());
         }
 
         if (params != null) {
@@ -76,7 +77,7 @@ public class CalculationLogListRepository {
             }
         }
 
-        sql = "select id, sourcetype, doctype, docnumber, station, inbound_time\n" +
+        sql = "select id, sourcetype, doctype, docnumber, station, inbound_time, outbound_time, error_code\n" +
                 "from calculation_log\n"
                 + sql;
 
@@ -91,6 +92,8 @@ public class CalculationLogListRepository {
             calculationLog.setNumber(rs.getString("docnumber"));
             calculationLog.setStation(rs.getString("station"));
             calculationLog.setInboundTime(rs.getTimestamp("inbound_time"));
+            calculationLog.setOutboundTime(rs.getTimestamp("outbound_time"));
+            calculationLog.setErrorCode(rs.getInt("error_code"));
 
             return calculationLog;
         });

@@ -35,10 +35,11 @@
                 info: false,
                 columns: [
                     {"defaultContent": "", "width": "10%"},
-                    {"data": "type", "width": "30%"},
-                    {"data": "number", "width": "15%"},
-                    {"data": "station", "width": "15%"},
-                    {"data": "inboundTime", "width": "40%"}
+                    {"data": "type", "width": "40%"},
+                    // {"data": "number", "width": "15%"},
+                    // {"data": "station", "width": "15%"},
+                    {"data": "inboundTime", "width": "35%"},
+                    {"data": "durationText", "width": "15%"}
                 ],
                 columnDefs: [{
                     "searchable": false,
@@ -49,7 +50,12 @@
                      "zeroRecords": " "
                 },
                 style: 'single',
-                select: true
+                select: true,
+                "createdRow": function(row, data, dataIndex){
+                    if (data.errorCode === 1) {
+                        $(row).css("color", "red");
+                    }
+                }
             });
 
             table.on('order.dt search.dt', function () {
@@ -126,7 +132,7 @@
                     }
                 });
             });
-            //table.draw();
+
         }));
     </script>
 
@@ -172,9 +178,12 @@
                     <tr>
                         <th>№ п/п</th>
                         <th>Тип документа</th>
+<!--
                         <th>Номер документа</th>
                         <th>Станция</th>
+-->
                         <th>Дата расчета</th>
+                        <th>Время обработки</th>
                     </tr>
                     </thead>
                 </table>

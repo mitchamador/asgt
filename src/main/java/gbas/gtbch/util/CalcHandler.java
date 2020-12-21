@@ -173,18 +173,21 @@ public class CalcHandler {
 
             } else {
                 data.setTextResult(String.format("Неверный объект расчета: \"%s\"", data.getInputXml()));
+                data.setError(CalcError.UNKNOWN_OBJECT.getCode());
             }
 
 
         } catch (Exception e) {
             e.printStackTrace();
             data.setTextResult(e.getMessage());
+            data.setError(CalcError.EXCEPTION.getCode());
         } finally {
 
             if (calculationLog != null) {
                 calculationLog.setOutboundTime(new Date());
                 calculationLog.setOutboundXml(data != null ? data.getOutputXml() : null);
                 calculationLog.setOutboundText(data != null ? data.getTextResult() : null);
+                calculationLog.setErrorCode(data != null ? data.getErrorCode() : CalcError.NO_ERROR.getCode());
                 calculationLogService.save(calculationLog);
             }
 

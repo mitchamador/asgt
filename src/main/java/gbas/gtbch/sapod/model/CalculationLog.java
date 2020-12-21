@@ -145,6 +145,18 @@ public class CalculationLog {
     @Lob
     private String outboundText;
 
+    /**
+     * error
+     */
+    @Column(name = "error_code")
+    private int errorCode;
+
+    /**
+     * string for calc duration
+     */
+    @Transient
+    private String durationText;
+
     public int getId() {
         return id;
     }
@@ -225,4 +237,19 @@ public class CalculationLog {
         this.source = source;
     }
 
+    public int getErrorCode() {
+        return errorCode;
+    }
+
+    public void setErrorCode(int error) {
+        this.errorCode = error;
+    }
+
+    public String getDurationText() {
+        return durationText;
+    }
+
+    public void setDurationText(String durationText) {
+        this.durationText = durationText;
+    }
 }

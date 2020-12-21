@@ -5,6 +5,7 @@ import gbas.gtbch.sapod.model.Currency;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -34,4 +35,13 @@ public interface CalculationLogService {
      * @return
      */
     CalculationLog findById(int id);
+
+    /**
+     *
+     * @param params
+     * @param dateBegin
+     * @param dateEnd
+     * @return
+     */
+    List<CalculationLog> getList(Map<String, String> params, Date dateBegin, Date dateEnd);
 }
