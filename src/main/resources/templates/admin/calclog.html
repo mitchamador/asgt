@@ -52,7 +52,7 @@
                 style: 'single',
                 select: true,
                 "createdRow": function(row, data, dataIndex){
-                    if (data.errorCode === 1) {
+                    if (data.errorCode !== 0) {
                         $(row).css("color", "red");
                     }
                 }
