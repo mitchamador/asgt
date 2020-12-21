@@ -85,7 +85,8 @@
                 format: "dd.mm.yyyy hh:ii",
                 language: 'ru',
                 minView: 0,
-                autoclose: true
+                autoclose: true,
+                weekStart: 1
             });
             $("#datetime_begin").datetimepicker('setDate', new Date(new Date().getTime() - 24 * 60 * 60 * 1000));
 
@@ -93,7 +94,8 @@
                 format: "dd.mm.yyyy hh:ii",
                 language: 'ru',
                 minView: 0,
-                autoclose: true
+                autoclose: true,
+                weekStart: 1
             });
 
             $("#datetime_end").datetimepicker('setDate', new Date());
