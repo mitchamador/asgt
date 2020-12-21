@@ -18,20 +18,5 @@
 .flag-icon.flag-icon-squared {
     width: 1em;
 }
-.flag-icon-ch {
-    background-image: url(/img/flags/ch.svg);
-}
-.flag-icon-eu {
-    background-image: url(/img/flags/eu.svg);
-}
-.flag-icon-kz {
-    background-image: url(/img/flags/kz.svg);
-}
-.flag-icon-ru {
-    background-image: url(/img/flags/ru.svg);
-}
-.flag-icon-us {
-    background-image: url(/img/flags/us.svg);
-}
 
 

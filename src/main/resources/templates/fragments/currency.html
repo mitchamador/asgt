@@ -42,16 +42,15 @@
                 <td>
                     <div>
                         <th:block th:switch="${rate.getCurrency().getShortName()}">
-                            <i th:case="'USD'" class="flag-icon flag-icon-us"></i>
-                            <i th:case="'EUR'" class="flag-icon flag-icon-eu"></i>
-                            <i th:case="'KZT'" class="flag-icon flag-icon-kz"></i>
-                            <i th:case="'RUB'" class="flag-icon flag-icon-ru"></i>
-                            <i th:case="'CHF'" class="flag-icon flag-icon-ch"></i>
+                            <i th:case="'USD'" class="flag-icon" th:style="'background-image: url(' + @{/img/flags/us.svg} + ');'"></i>
+                            <i th:case="'EUR'" class="flag-icon" th:style="'background-image: url(' + @{/img/flags/eu.svg} + ');'"></i>
+                            <i th:case="'KZT'" class="flag-icon" th:style="'background-image: url(' + @{/img/flags/kz.svg} + ');'"></i>
+                            <i th:case="'RUB'" class="flag-icon" th:style="'background-image: url(' + @{/img/flags/ru.svg} + ');'"></i>
+                            <i th:case="'CHF'" class="flag-icon" th:style="'background-image: url(' + @{/img/flags/ch.svg} + ');'"></i>
                         </th:block>
                         <span class="text" th:text="${rate.getCurrency().getName() + rate.getComment()}"></span>
                     </div>
                 </td>
-                <!--                <td class="flag-icon flag-icon-eu" th:text="${rate.getCurrency().getName()}"></td>-->
                 <td th:text="${#numbers.formatDecimal(rate.getHowMuch(), 1, 0) + ' ' + rate.getCurrency().getShortName()}"></td>
                 <td style="text-align: end" th:text="${rate.getRate()}"></td>
             </tr>
