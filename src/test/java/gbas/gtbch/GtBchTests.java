@@ -2,12 +2,17 @@ package gbas.gtbch;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import gbas.gtbch.sapod.model.CalculationLog;
+import gbas.gtbch.sapod.model.Currency;
+import gbas.gtbch.sapod.model.ExchangeRate;
 import gbas.gtbch.sapod.model.TPolDocument;
 import gbas.gtbch.sapod.model.TpImportDate;
 import gbas.gtbch.sapod.repository.CalculationLogListRepository;
 import gbas.gtbch.sapod.repository.TPolRepository;
 import gbas.gtbch.sapod.service.CalculationLogService;
+import gbas.gtbch.sapod.service.CurrencyService;
+import gbas.gtbch.sapod.service.ExchangeRateService;
 import gbas.gtbch.sapod.service.TpImportDateService;
+import gbas.gtbch.util.UtilDate8;
 import gbas.gtbch.web.request.KeyValue;
 import gbas.gtbch.websapod.ServicesImpl;
 import gbas.sapod.bridge.controllers.Services;
@@ -28,6 +33,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -170,6 +176,10 @@ public class GtBchTests {
 		return Date.from(localDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
 	}
 
+	private String formatDate(Date date) {
+		return formatter.format(LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault()));
+	}
+
 	@Autowired
 	CalculationLogService calculationLogService;
 
@@ -222,6 +232,58 @@ public class GtBchTests {
 		list = calculationLogListRepository.getList(params, null, null);
 		logger.info("calculationLogListRepository.getList(): " + (list == null ? "null" : ("list size = " + list.size())));
 
+	}
+
+	@Autowired
+	private ExchangeRateService exchangeRateService;
+
+	@Autowired
+	private CurrencyService currencyService;
+
+	@Test
+	public void exchangeRateTests() {
+		List<ExchangeRate> list;
+
+/*
+		list = exchangeRateService.getRates("USD", getDate("01.11.2020"), getDate("30.11.2020"));
+		if (list != null) {
+			for (ExchangeRate r : list) {
+				logger.info("{}: {} {} = {} {}", formatDate(r.getFromDate()), r.getHowMuch(), r.getCurrency().getShortName(), r.getRate(), r.getBaseCurrency().getShortName());
+			}
+		}
+
+		list = exchangeRateService.getRates(getDate("01.11.2020"), getDate("30.11.2020"));
+		if (list != null) {
+			for (ExchangeRate r : list) {
+				logger.info("{}: {} {} = {} {}", formatDate(r.getFromDate()), r.getHowMuch(), r.getCurrency().getShortName(), r.getRate(), r.getBaseCurrency().getShortName());
+			}
+		}
+
+		list = exchangeRateService.getRates(getDate("21.12.2020"));
+		if (list != null) {
+			for (ExchangeRate r : list) {
+				logger.info("{}: {} {} = {} {}", formatDate(r.getFromDate()), r.getHowMuch(), r.getCurrency().getShortName(), r.getRate(), r.getBaseCurrency().getShortName());
+			}
+		}
+
+		{
+			ExchangeRate r = exchangeRateService.getRate("USD", getDate("18.12.2020"));
+			logger.info("{}: {} {} = {} {}", formatDate(r.getFromDate()), r.getHowMuch(), r.getCurrency().getShortName(), r.getRate(), r.getBaseCurrency().getShortName());
+		}
+*/
+
+		{
+			List<Currency> currencies = currencyService.findCurrencyWithRates();
+			for (Currency c : currencies) {
+				logger.info("{}", c.getShortName());
+			}
+		}
+	}
+
+	@Test
+	public void utilDate8Tests() {
+		logger.info("UtilDate8.getDate(\"01.01.2020\") {}", UtilDate8.getDate("01.01.2020"));
+		logger.info("UtilDate8.getDate(\"01.01.2020 00:20\") {}", UtilDate8.getDate("01.01.2020 00:20"));
 	}
 
 }

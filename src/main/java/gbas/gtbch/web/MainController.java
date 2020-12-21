@@ -42,6 +42,39 @@ public class MainController {
         this.context = context;
     }
 
+    /**
+     * index.html
+     * @param
+     * @return
+     */
+    @GetMapping("/index")
+    public String index() {
+        return "index";
+    }
+
+    /**
+     * login page
+     * @return
+     */
+    @GetMapping("/login")
+    public String login() {
+        return "index";
+    }
+
+    /**
+     * access-denied page
+     * @return
+     */
+    @GetMapping("/access-denied")
+    public String accessDenied() {
+        return "error/access-denied";
+    }
+
+    /**
+     * index.html
+     * @param authentication
+     * @return
+     */
     @GetMapping("/")
     public ModelAndView root(Authentication authentication) {
         if (authentication != null) {
@@ -56,11 +89,19 @@ public class MainController {
         return new ModelAndView("index");
     }
 
+    /**
+     * main user page
+     * @return
+     */
     @GetMapping("/user")
     public ModelAndView userIndex() {
         return new ModelAndView("user/index");
     }
 
+    /**
+     * main admin page
+     * @return
+     */
     @GetMapping("/admin")
     public ModelAndView adminIndex() {
         return new ModelAndView("admin/index");
@@ -69,6 +110,10 @@ public class MainController {
     @Autowired
     private TpImportDateService tpImportDateService;
 
+    /**
+     * sync page
+     * @return
+     */
     @GetMapping("/admin/sync")
     public ModelAndView adminSync() {
 
@@ -77,16 +122,28 @@ public class MainController {
         return new ModelAndView("admin/sync", "tpdate", tpImportDate != null ? tpImportDate.getTpDateString() : "");
     }
 
+    /**
+     * nbrb page
+     * @return
+     */
     @GetMapping("/admin/nbrb")
     public ModelAndView adminNbrb() {
         return new ModelAndView("admin/nbrb");
     }
 
+    /**
+     * mq log page
+     * @return
+     */
     @GetMapping("/admin/mq")
     public ModelAndView adminMq() {
         return new ModelAndView("admin/mq");
     }
 
+    /**
+     * calulation log page
+     * @return
+     */
     @GetMapping("/admin/calclog")
     public ModelAndView adminCalcLog() {
         ModelAndView model = new ModelAndView("admin/calclog");
@@ -108,26 +165,19 @@ public class MainController {
         return model;
     }
 
-    @GetMapping("/index")
-    public String index() {
-        return "index";
-    }
-
-    @GetMapping("/login")
-    public String login() {
-        return "index";
-    }
-
-    @GetMapping("/access-denied")
-    public String accessDenied() {
-        return "error/access-denied";
-    }
-
+    /**
+     * calculation page
+     * @return
+     */
     @GetMapping("/user/calc")
     public ModelAndView calc() {
         return new ModelAndView("user/calc");
     }
 
+    /**
+     * users info page
+     * @return
+     */
     @GetMapping("/user/info")
     public ModelAndView info() {
         List<KeyValue> systemProperties = new ArrayList<>(systemPropertiesList);
@@ -149,10 +199,21 @@ public class MainController {
         return new ModelAndView("user/info", "info", systemProperties);
     }
 
+    /**
+     *
+     * @param time
+     * @return
+     */
     private String getStringTime(Object time) {
         return getStringTime(time, 10);
     }
 
+    /**
+     *
+     * @param time
+     * @param diff
+     * @return
+     */
     private String getStringTime(Object time, int diff) {
         if (time instanceof Instant) {
             return UtilDate8.getStringDate(new java.util.Date(((Instant) time).toEpochMilli()), "dd.MM.yyyy HH:mm:ss");
@@ -166,7 +227,5 @@ public class MainController {
         }
         return "n/a";
     }
-
-
 
 }

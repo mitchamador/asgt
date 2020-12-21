@@ -28,7 +28,7 @@
             /*]]>*/
 
             var table = $('#calcLogTable').DataTable({
-                scrollY: "20vh",
+                scrollY: "100%",
                 scrollCollapse: true,
                 paging: false,
                 searching: false,
@@ -128,78 +128,88 @@
         }));
     </script>
 
-    <div class="page-header-name">Лог расчета</div>
+    <div class="display" style="height: calc(100vh - 190px)">
 
-    <div style="display: inline-flex; width: 100%">
-        <h5><span class="text-nowrap" style="margin-right: 5px">Период с</span></h5>
-        <div class="form-group" style="flex-grow: 1">
-            <div id="datetime_begin" class="input-group date">
-                <input id="datetime_begin_text" type="text" class="form-control"/>
-                <span class="input-group-addon">
-                    <i class="glyphicon glyphicon-calendar"></i>
-                </span>
+        <div class="page-header-name">Лог расчета</div>
+
+        <div style="display: inline-flex; width: 100%; margin-bottom: -10px">
+            <h5><span class="text-nowrap" style="margin-right: 5px">Период с</span></h5>
+            <div class="form-group" style="flex-grow: 1">
+                <div id="datetime_begin" class="input-group date">
+                    <input id="datetime_begin_text" type="text" class="form-control"/>
+                    <span class="input-group-addon">
+                        <i class="glyphicon glyphicon-calendar"></i>
+                    </span>
+                </div>
+            </div>
+            <h5><span style="margin-right: 5px; margin-left: 5px">по</span></h5>
+            <div class="form-group" style="flex-grow: 1">
+                <div id="datetime_end" class="input-group date">
+                    <input  id="datetime_end_text" type="text" class="form-control"/>
+                    <span class="input-group-addon">
+                        <i class="glyphicon glyphicon-calendar"></i>
+                    </span>
+                </div>
+            </div>
+            <h5><span class="text-nowrap" style="margin-right: 5px; margin-left: 5px">Тип документа</span></h5>
+            <select id="typeDocument" class="form-control" style="width: 30%">
+                <th:block th:each="type : ${types}">
+                    <option th:value="${type.getKey()}" th:text="${type.getValue()}"></option>
+                </th:block>
+            </select>
+            <button id="loadButton" class="col-sm-2 btn btn-primary" type="button" style="margin-left: 5px; height: 50%">
+                Загрузить
+            </button>
+        </div>
+
+        <div style="height: 100%">
+            <div style="height: 35%">
+                <table id="calcLogTable" class="table-condensed table-bordered"
+                       style="width:100%; font-size: 0.9em">
+                    <thead>
+                    <tr>
+                        <th>№ п/п</th>
+                        <th>Тип документа</th>
+                        <th>Номер документа</th>
+                        <th>Станция</th>
+                        <th>Дата расчета</th>
+                    </tr>
+                    </thead>
+                </table>
+            </div>
+
+            <div style="height: calc(65% - 10px); margin-top: 20px; display: flex; flex-direction: column;">
+                <ul id="calcLogTabFolder" class="nav nav-tabs" style="width: 100%;">
+                    <li class="active">
+                        <a id="inXmlTab" data-toggle="tab" href="#inXmlTabItem">Входной XML</a>
+                    </li>
+                    <li>
+                        <a id="outXmlTab" data-toggle="tab" href="#outXmlTabItem">Выходной XML</a>
+                    </li>
+                    <li>
+                        <a id="outTextTab" data-toggle="tab" href="#outTextTabItem">Выходной текст</a>
+                    </li>
+                </ul>
+
+                <div class="tab-content" style="flex-grow: 1">
+                    <div id="inXmlTabItem" class="tab-pane active" style="height: 100%; width: 100%">
+                        <textarea id="inXml" class="form-control"
+                                  style="height: 100%; font-size: 0.9em; font-family: monospace"></textarea>
+                    </div>
+                    <div id="outXmlTabItem" class="tab-pane" style="height: 100%; width: 100%">
+                        <textarea id="outXml" class="form-control"
+                                  style="height: 100%; font-size: 0.9em; font-family: monospace"></textarea>
+                    </div>
+                    <div id="outTextTabItem" class="tab-pane" style="height: 100%; width: 100%">
+                        <textarea id="outText" class="form-control"
+                                  style="height: 100%; font-size: 0.9em; font-family: monospace"></textarea>
+                    </div>
+                </div>
+
             </div>
         </div>
-        <h5><span style="margin-right: 5px; margin-left: 5px">по</span></h5>
-        <div class="form-group" style="flex-grow: 1">
-            <div id="datetime_end" class="input-group date">
-                <input  id="datetime_end_text" type="text" class="form-control"/>
-                <span class="input-group-addon">
-                    <i class="glyphicon glyphicon-calendar"></i>
-                </span>
-            </div>
-        </div>
-        <h5><span class="text-nowrap" style="margin-right: 5px; margin-left: 5px">Тип документа</span></h5>
-        <select id="typeDocument" class="form-control" style="width: 30%">
-            <th:block th:each="type : ${types}">
-                <option th:value="${type.getKey()}" th:text="${type.getValue()}"></option>
-            </th:block>
-        </select>
-        <button id="loadButton" class="col-sm-2 btn btn-primary" type="button" style="margin-left: 5px; height: 50%">
-            Загрузить
-        </button>
+
     </div>
-
-
-    <table id="calcLogTable" class="table-condensed table-bordered" style="width:100%; font-size: 0.9em">
-        <thead>
-        <tr>
-            <th>№ п/п</th>
-            <th>Тип документа</th>
-            <th>Номер документа</th>
-            <th>Станция</th>
-            <th>Дата расчета</th>
-        </tr>
-        </thead>
-    </table>
-
-    <ul id="calcLogTabFolder" class="nav nav-tabs" style="width: 100%; margin-top: 10px">
-        <li class="active">
-            <a id="inXmlTab" data-toggle="tab" href="#inXmlTabItem">Входной XML</a>
-        </li>
-        <li>
-            <a id="outXmlTab" data-toggle="tab" href="#outXmlTabItem">Выходной XML</a>
-        </li>
-        <li>
-            <a id="outTextTab" data-toggle="tab" href="#outTextTabItem">Выходной текст</a>
-        </li>
-    </ul>
-
-    <div class="tab-content">
-        <div id="inXmlTabItem" class="tab-pane active" style="width: 100%">
-            <textarea id="inXml" class="form-control" rows="5"
-                      style="height: 40vh; font-size: 0.9em; font-family: monospace"></textarea>
-        </div>
-        <div id="outXmlTabItem" class="tab-pane" style="width: 100%">
-            <textarea id="outXml" class="form-control" rows="5"
-                      style="height: 40vh; font-size: 0.9em; font-family: monospace"></textarea>
-        </div>
-        <div id="outTextTabItem" class="tab-pane" style="width: 100%">
-            <textarea id="outText" class="form-control" rows="5"
-                      style="height: 40vh; font-size: 0.9em; font-family: monospace"></textarea>
-        </div>
-    </div>
-
 </body>
 
 </html>

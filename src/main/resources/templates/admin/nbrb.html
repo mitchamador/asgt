@@ -37,24 +37,22 @@
         }));
     </script>
 
-    <div class="page-header-name">Прием курсов валют НБ РБ</div>
+    <div class="display" style="height: calc(100vh - 190px)">
 
-    <div>
-        <div class="row form-group">
+        <div class="page-header-name">Прием курсов валют НБ РБ</div>
+
+        <div class="row form-group" style="height: 100%">
             <label for="logNbrb">Обновление курсов валют</label>
-            <textarea id="logNbrb" class="form-control" rows="5"
-                      style="height: 50vh; font-size: 0.9em; font-family: monospace" readonly></textarea>
+            <textarea id="logNbrb" class="form-control"
+                      style="height: calc(100% - 20px); margin-bottom: 10px; font-size: 0.9em; font-family: monospace" readonly></textarea>
+            <button id="startNbrb" class="col-sm-offset-10 col-sm-2 btn btn-primary" type="button">Обновить курсы валют</button>
         </div>
-    </div>
 
-    <div class="form-actions row btn-toolbar pull-right">
-        <button id="startNbrb" class="btn btn-primary" type="button">Обновить курсы валют</button>
-    </div>
-
-
-    <!--
+        <!--
         <p class="text-left"><a href="javascript:javascript:history.go(-1)" >Вернуться</a></p>
     -->
+    </div>
+
 </div>
 
 </body>

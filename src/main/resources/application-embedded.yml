@@ -16,6 +16,9 @@ app:
       url: jdbc:db2://10.4.253.43:50000/TESTDB1
       username: sapod
       password: 123qwedsacxz
+#      url: jdbc:db2://10.4.253.161:50000/GTBCH
+#      username: u352gtdb
+#      password: 165#z15fa3&
       driverClassName: com.ibm.db2.jcc.DB2Driver
   pensi:
     datasource:

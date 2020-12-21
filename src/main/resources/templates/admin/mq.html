@@ -7,6 +7,7 @@
     <title></title>
 </head>
 <body>
+
 <div layout:fragment="content" th:remove="tag">
 
     <script type="application/javascript">
@@ -23,15 +24,17 @@
         }));
     </script>
 
-    <div class="page-header-name">MQ</div>
+    <div class="display" style="height: calc(100vh - 165px)">
 
-    <div>
-        <div class="row form-group">
+        <div class="page-header-name">MQ</div>
+
+        <div class="row form-group" style="height: 100%; margin-top: -10px">
             <label for="logMq">Лог MQ</label>
-            <textarea id="logMq" wrap="off" class="form-control" rows="5" style="height: 50vh; font-size: 0.9em; font-family: monospace" readonly></textarea>
+            <textarea id="logMq" wrap="off" class="form-control"
+                      style="height: 100%; font-size: 0.9em; font-family: monospace" readonly></textarea>
         </div>
-    </div>
 
+    </div>
 </div>
 
 </body>
