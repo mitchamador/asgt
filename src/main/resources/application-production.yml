@@ -2,10 +2,10 @@
 app:
   sapod:
     datasource:
-      jndi-name: "jdbc/SAPOD"
+      jndi-name: "jdbc/GTMAIN"
   pensi:
     datasource:
-      jndi-name: "jdbc/PENSI"
+      jndi-name: "jdbc/GTPENSI"
   mq:
     enable: true
     queue-manager:
