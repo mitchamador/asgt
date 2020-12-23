@@ -6,26 +6,29 @@ spring:
 
 server:
   compression:
-    enabled: false
+    enabled: true
   port: 8080
 
 app:
   sapod:
     datasource:
-      jndi-name: "jdbc/SAPOD"
-      url: jdbc:db2://10.4.253.43:50000/TESTDB1
-      username: sapod
-      password: 123qwedsacxz
-#      url: jdbc:db2://10.4.253.161:50000/GTBCH
-#      username: u352gtdb
-#      password: 165#z15fa3&
+      jndi-name: "jdbc/GTMAIN"
+#      url: jdbc:db2://10.4.253.43:50000/GTTEST
+#      username: gttestmain
+#      password: 123qwedsacxz
+      url: jdbc:db2://10.4.253.161:50000/GTTEST
+      username: u352gtdb
+      password: 165#z15fa3&
       driverClassName: com.ibm.db2.jcc.DB2Driver
   pensi:
     datasource:
-      jndi-name: "jdbc/PENSI"
-      url: jdbc:db2://10.4.253.43:50000/TESTDB1
-      username: pensi
-      password: 123qwedsacxz
+      jndi-name: "jdbc/GTPENSI"
+#      url: jdbc:db2://10.4.253.43:50000/GTTEST
+#      username: gttestpensi
+#      password: 123qwedsacxz
+      url: jdbc:db2://10.4.253.161:50000/GTTEST
+      username: u563pensidb
+      password: a873*#faa
       driverClassName: com.ibm.db2.jcc.DB2Driver
   mq:
     #enable: true
