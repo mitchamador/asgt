@@ -5,6 +5,7 @@ import com.ibm.msg.client.wmq.WMQConstants;
 import gbas.gtbch.mq.MQProperties;
 import gbas.gtbch.web.request.KeyValue;
 import gbas.tvk.desktop.Version;
+import gbas.tvk.service.db.DbHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,12 @@ import java.util.List;
 public class SystemInfo {
 
     private final static Logger logger = LoggerFactory.getLogger(SystemInfo.class);
+
+    private final DbHelper dbHelper;
+
+    public SystemInfo(DbHelper dbHelper) {
+        this.dbHelper = dbHelper;
+    }
 
     @Bean
     public List<KeyValue> systemProperties(
@@ -62,8 +69,6 @@ public class SystemInfo {
 
     private List<KeyValue> getMqInfo(MQProperties mqProperties) {
         List<KeyValue> info = new ArrayList<>();
-
-
 
         MQConnectionFactory mqConnectionFactory = null;
 
@@ -109,11 +114,15 @@ public class SystemInfo {
         List<KeyValue> info = new ArrayList<>();
         try {
             try (Connection c = dataSource.getConnection()) {
+
+                String schemaName = dbHelper.getSchemaName(c);
+
                 DatabaseMetaData databaseMetaData = c.getMetaData();
                 info.add(new KeyValue("БД" + name,
                         databaseMetaData.getDatabaseProductName() + " v" + databaseMetaData.getDatabaseMajorVersion() + "." + databaseMetaData.getDatabaseMinorVersion() +
-                        ", " + databaseMetaData.getDriverName() + " " + databaseMetaData.getDriverVersion() +
-                        ", " + databaseMetaData.getURL() + ", user=" + databaseMetaData.getUserName()
+                                ", " + databaseMetaData.getDriverName() + " " + databaseMetaData.getDriverVersion() +
+                                ", " + databaseMetaData.getURL() + (schemaName != null ? (", schema=" + schemaName) : "") +
+                                ", user=" + databaseMetaData.getUserName()
                 ));
             }
         } catch (SQLException e) {

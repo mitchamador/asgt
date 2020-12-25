@@ -13,22 +13,22 @@ app:
   sapod:
     datasource:
       jndi-name: "jdbc/GTMAIN"
-#      url: jdbc:db2://10.4.253.43:50000/GTTEST
-#      username: gttestmain
-#      password: 123qwedsacxz
-      url: jdbc:db2://10.4.253.161:50000/GTTEST
+#      url: jdbc:db2://10.4.253.43:50000/TEST:currentSchema=GTMAIN;
+#      username: dbgtuser
+#      password: 123qwe
+      url: jdbc:db2://10.4.253.161:50000/GTTEST:currentSchema=GTMAIN;
       username: u352gtdb
       password: 165#z15fa3&
       driverClassName: com.ibm.db2.jcc.DB2Driver
   pensi:
     datasource:
       jndi-name: "jdbc/GTPENSI"
-#      url: jdbc:db2://10.4.253.43:50000/GTTEST
-#      username: gttestpensi
-#      password: 123qwedsacxz
-      url: jdbc:db2://10.4.253.161:50000/GTTEST
-      username: u563pensidb
-      password: a873*#faa
+#      url: jdbc:db2://10.4.253.43:50000/TEST:currentSchema=GTPENSI;
+#      username: dbgtuser
+#      password: 123qwe
+      url: jdbc:db2://10.4.253.161:50000/GTTEST:currentSchema=GTPENSI;
+      username: u352gtdb
+      password: 165#z15fa3&
       driverClassName: com.ibm.db2.jcc.DB2Driver
   mq:
     #enable: true
