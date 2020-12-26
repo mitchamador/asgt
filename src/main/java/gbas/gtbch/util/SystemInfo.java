@@ -18,6 +18,8 @@ import org.springframework.stereotype.Component;
 import javax.jms.ConnectionFactory;
 import javax.servlet.ServletContext;
 import javax.sql.DataSource;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
@@ -50,7 +52,17 @@ public class SystemInfo {
                         "VM: " + System.getProperty("java.vm.vendor") + " " + System.getProperty("java.vm.name") + " " + System.getProperty("java.vm.version"))
         );
 
-        info.add(new KeyValue("Сервер приложений", servletContext.getServerInfo()));
+        String host = "";
+        try {
+            host = ", host: " + InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException ignored) {
+        }
+
+        info.add(new KeyValue("Сервер приложений",
+                servletContext.getServerInfo() +
+                host +
+                ", contextPath: \"" + servletContext.getContextPath() + "\""
+                ));
 
         info.addAll(getDbInfo(sapodDataSource, ""));
         info.addAll(getDbInfo(pensiDataSource, " ПЭНСИ"));
