@@ -4,8 +4,8 @@ import gbas.gtbch.sapod.model.CodeName;
 import gbas.gtbch.sapod.model.TPolDocument;
 import gbas.gtbch.sapod.model.TPolSobst;
 import gbas.gtbch.sapod.model.TpolGroup;
-import gbas.gtbch.sapod.repository.TPolRepository;
-import gbas.gtbch.sapod.repository.TPolRowRepository;
+import gbas.gtbch.sapod.service.TPolService;
+import gbas.gtbch.sapod.service.TPolRowService;
 import gbas.tvk.tpol3.service.TPRow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,12 +24,12 @@ public class TPolController {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final TPolRepository tpolRepository;
-    private final TPolRowRepository tpolRowRepository;
+    private final TPolService tpolService;
+    private final TPolRowService tpolRowService;
 
-    public TPolController(TPolRepository tpolRepository, TPolRowRepository tpolRowRepository) {
-        this.tpolRepository = tpolRepository;
-        this.tpolRowRepository = tpolRowRepository;
+    public TPolController(TPolService tpolService, TPolRowService tpolRowService) {
+        this.tpolService = tpolService;
+        this.tpolRowService = tpolRowService;
     }
 
 
@@ -42,7 +42,7 @@ public class TPolController {
     public ResponseEntity<List<TPolDocument>> getDocuments(
             @RequestParam(value = "date_begin", required = false) @DateTimeFormat(pattern = "dd.MM.yyyy") Date dateBegin,
             @RequestParam(value = "date_end", required = false) @DateTimeFormat(pattern = "dd.MM.yyyy") Date dateEnd) {
-        return new ResponseEntity<>(tpolRepository.getDocuments(dateBegin, dateEnd), HttpStatus.OK);
+        return new ResponseEntity<>(tpolService.getDocuments(dateBegin, dateEnd), HttpStatus.OK);
     }
 
     /**
@@ -56,12 +56,12 @@ public class TPolController {
             @PathVariable String typeCode,
             @RequestParam(value = "date_begin", required = false) @DateTimeFormat(pattern = "dd.MM.yyyy") Date dateBegin,
             @RequestParam(value = "date_end", required = false) @DateTimeFormat(pattern = "dd.MM.yyyy") Date dateEnd) {
-        return new ResponseEntity<>(tpolRepository.getDocuments(typeCode, dateBegin, dateEnd), HttpStatus.OK);
+        return new ResponseEntity<>(tpolService.getDocuments(typeCode, dateBegin, dateEnd), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/groups", method = RequestMethod.GET)
     public ResponseEntity<List<TpolGroup>> getGroups() {
-        return new ResponseEntity<>(tpolRepository.getGroups(), HttpStatus.OK);
+        return new ResponseEntity<>(tpolService.getGroups(), HttpStatus.OK);
     }
 
     /**
@@ -70,7 +70,7 @@ public class TPolController {
      */
     @RequestMapping(value = "/document/{id:[\\d]+}", method = RequestMethod.GET)
     public ResponseEntity<TPolDocument> getDocument(@PathVariable int id) {
-        return new ResponseEntity<>(tpolRepository.getDocument(id), HttpStatus.OK);
+        return new ResponseEntity<>(tpolService.getDocument(id), HttpStatus.OK);
     }
 
     /**
@@ -79,7 +79,7 @@ public class TPolController {
      */
     @RequestMapping(value = "/document", method = RequestMethod.POST)
     public ResponseEntity saveDocument(@RequestBody TPolDocument obj) {
-        int id = tpolRepository.saveDocument(obj);
+        int id = tpolService.saveDocument(obj);
         return id != 0 ? ResponseEntity.created(URI.create("/api/tpol/document/" + id)).build() : ResponseEntity.notFound().build();
     }
 
@@ -90,7 +90,7 @@ public class TPolController {
     @RequestMapping(value = "/document/{id:[\\d]+}", method = RequestMethod.PUT)
     public ResponseEntity updateDocument(@PathVariable int id, @RequestBody TPolDocument obj) {
         obj.id = id;
-        return tpolRepository.saveDocument(obj) != 0 ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+        return tpolService.saveDocument(obj) != 0 ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
     }
 
     /**
@@ -99,7 +99,8 @@ public class TPolController {
      */
     @RequestMapping(value = "/document/{id:[\\d]+}", method = RequestMethod.DELETE)
     public ResponseEntity<Boolean> deleteDocument(@PathVariable int id) {
-        return new ResponseEntity<>(tpolRepository.deleteDocument(id), HttpStatus.OK);
+        logger.info("delete tp document with id = {}", id);
+        return new ResponseEntity<>(tpolService.deleteDocument(id), HttpStatus.OK);
     }
 
     /**
@@ -108,7 +109,7 @@ public class TPolController {
      */
     @RequestMapping(value = "/document/{id:[\\d]+}/rows", method = RequestMethod.GET)
     public ResponseEntity<List<TPRow>> getRows(@PathVariable int id) {
-        return new ResponseEntity<>(tpolRowRepository.getRows(id), HttpStatus.OK);
+        return new ResponseEntity<>(tpolRowService.getRows(id), HttpStatus.OK);
     }
 
     /**
@@ -117,7 +118,7 @@ public class TPolController {
      */
     @RequestMapping(value = "/document/{id:[\\d]+}/sobsts", method = RequestMethod.GET)
     public ResponseEntity<List<TPolSobst>> getDocumentSobsts(@PathVariable int id, @RequestParam(defaultValue = "false") boolean checked) {
-        return new ResponseEntity<>(tpolRepository.getSobstList(id, checked), HttpStatus.OK);
+        return new ResponseEntity<>(tpolService.getSobstList(id, checked), HttpStatus.OK);
     }
 
     /**
@@ -127,7 +128,7 @@ public class TPolController {
      */
     @RequestMapping(value = "/document/{id:[\\d]+}/sobsts", method = RequestMethod.POST)
     public ResponseEntity<Boolean> setDocumentSobsts(@PathVariable int id, @RequestBody List<TPolSobst> list) {
-        return new ResponseEntity<>(tpolRepository.saveSobstList(id, list), HttpStatus.OK);
+        return new ResponseEntity<>(tpolService.saveSobstList(id, list), HttpStatus.OK);
     }
 
     /**
@@ -136,7 +137,7 @@ public class TPolController {
      */
     @RequestMapping(value = "/ttar", method = RequestMethod.GET)
     public ResponseEntity<List<CodeName>> getTTar() {
-        return new ResponseEntity<>(tpolRepository.getBaseTarifList(), HttpStatus.OK);
+        return new ResponseEntity<>(tpolService.getBaseTarifList(), HttpStatus.OK);
     }
 
     /**
@@ -144,7 +145,7 @@ public class TPolController {
      */
     @RequestMapping(value = "/sobsts", method = RequestMethod.GET)
     public ResponseEntity<List<TPolSobst>> getSobsts() {
-        return new ResponseEntity<>(tpolRepository.getSobstList(0, false), HttpStatus.OK);
+        return new ResponseEntity<>(tpolService.getSobstList(0, false), HttpStatus.OK);
     }
 
 }

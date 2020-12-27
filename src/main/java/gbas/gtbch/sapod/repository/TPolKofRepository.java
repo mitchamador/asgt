@@ -15,12 +15,12 @@ import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 
 @Component
 public class TPolKofRepository {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(TPolKofRepository.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(TPolKofRepository.class);
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -45,7 +45,6 @@ public class TPolKofRepository {
     }
 
     /**
-     *
      * @param id
      * @return
      */
@@ -62,9 +61,7 @@ public class TPolKofRepository {
         return list == null || list.isEmpty() ? null : list.get(0);
     }
 
-
     /**
-     *
      * @return
      */
     public List<TvkKof> getKofList() {
@@ -72,7 +69,6 @@ public class TPolKofRepository {
     }
 
     /**
-     *
      * @param idTPol
      * @return
      */
@@ -88,7 +84,6 @@ public class TPolKofRepository {
     }
 
     /**
-     *
      * @param kof
      * @return
      */
@@ -97,14 +92,14 @@ public class TPolKofRepository {
 
         Integer id = jdbcTemplate.query("select id from tvk_group_t_kof where n_tab = ?",
                 new Object[]{kof.nTab},
-                resultSet -> {
-                    return resultSet.getInt("id");
-                });
+                resultSet -> resultSet.next() ? resultSet.getInt("id") : null);
 
         if (id == null) {
             KeyHolder keyHolder = new GeneratedKeyHolder();
             jdbcTemplate.update(connection -> {
-                PreparedStatement preparedStatement = connection.prepareStatement("insert into tvk_group_t_kof (n_tab) values (?)");
+                PreparedStatement preparedStatement = connection.prepareStatement(
+                        "insert into tvk_group_t_kof (n_tab) values (?)",
+                        Statement.RETURN_GENERATED_KEYS);
                 preparedStatement.setInt(1, kof.nTab);
                 return preparedStatement;
             }, keyHolder);
@@ -136,7 +131,8 @@ public class TPolKofRepository {
 
             if (kof.id == 0) {
                 preparedStatement = connection.prepareStatement("insert into tvk_kof (id_tab, min_rast, max_rast, min_ves, max_ves, kof, nz) " +
-                        " values (?, ?, ?, ?, ?, ?, ?)");
+                                " values (?, ?, ?, ?, ?, ?, ?)",
+                        Statement.RETURN_GENERATED_KEYS);
             } else {
                 preparedStatement = connection.prepareStatement("update tvk_kof set id_tab=?, min_rast=?, max_rast=?, min_ves=?, max_ves=?, kof=?, nz=? " +
                         " where id = ?");
@@ -158,20 +154,19 @@ public class TPolKofRepository {
         }, keyHolder);
 
         if (kof.id == 0) {
-            kof.id = (int) keyHolder.getKey();
+            kof.id = (int) (keyHolder.getKey() != null ? keyHolder.getKey() : 0);
+            ;
         }
 
         return kof.id;
     }
 
     /**
-     *
      * @param id
      * @return
      */
+    @Transactional(transactionManager = "sapodTransactionManager")
     public boolean deleteKof(int id) {
         return jdbcTemplate.update("delete from tvk_kof where id = " + id) != 0;
     }
-
-
 }

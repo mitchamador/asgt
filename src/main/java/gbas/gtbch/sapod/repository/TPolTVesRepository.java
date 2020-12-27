@@ -3,7 +3,6 @@ package gbas.gtbch.sapod.repository;
 import gbas.tvk.tpol3.TvkTVes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -15,21 +14,20 @@ import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 
 @Component
 public class TPolTVesRepository {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(TPolTVesRepository.class);
+    public static final Logger logger = LoggerFactory.getLogger(TPolTVesRepository.class);
 
     private final JdbcTemplate jdbcTemplate;
 
-    @Autowired
     public TPolTVesRepository(@Qualifier("sapodDataSource") DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    private static TvkTVes mapVORow(ResultSet rs, int i) throws SQLException {
+    public static TvkTVes mapVORow(ResultSet rs, int i) throws SQLException {
         TvkTVes tvkTVes = new TvkTVes();
         tvkTVes.id = rs.getInt("id");
         tvkTVes.id_group_t_ves = rs.getInt("id_tab");
@@ -43,7 +41,6 @@ public class TPolTVesRepository {
     }
 
     /**
-     *
      * @param id
      * @return
      */
@@ -60,7 +57,6 @@ public class TPolTVesRepository {
     }
 
     /**
-     *
      * @return
      */
     public List<TvkTVes> getVOList() {
@@ -68,7 +64,6 @@ public class TPolTVesRepository {
     }
 
     /**
-     *
      * @param idTPol
      * @return
      */
@@ -84,7 +79,6 @@ public class TPolTVesRepository {
     }
 
     /**
-     *
      * @param tVes
      * @return
      */
@@ -113,9 +107,7 @@ public class TPolTVesRepository {
         {
             id = jdbcTemplate.query("select id_tab, min_v from tvk_t_ves where id_tab = ? and min_v = ?",
                     new Object[]{tVes.id_group_t_ves, tVes.minV},
-                    resultSet -> {
-                        return resultSet.getInt("id");
-                    });
+                    resultSet -> resultSet.next() ? resultSet.getInt("id") : null);
 
             if (id != null) {
                 tVes.id = id;
@@ -128,7 +120,8 @@ public class TPolTVesRepository {
             PreparedStatement preparedStatement;
             if (tVes.id == 0) {
                 preparedStatement = connection.prepareStatement("insert into tvk_t_ves (id_tab, min_v, max_v, v_kat, v_kat_r, kof) " +
-                        "values (?, ?, ?, ?, ?, ?)");
+                                "values (?, ?, ?, ?, ?, ?)",
+                        Statement.RETURN_GENERATED_KEYS);
             } else {
                 preparedStatement = connection.prepareStatement("update tvk_t_ves set id_tab = ?, min_v = ?, max_v = ?, v_kat = ?, v_kat_r = ?, kof = ? " +
                         "where id = ?");
@@ -149,20 +142,19 @@ public class TPolTVesRepository {
         }, keyHolder);
 
         if (tVes.id == 0) {
-            tVes.id = (int) keyHolder.getKey();
+            tVes.id = (int) (keyHolder.getKey() != null ? keyHolder.getKey() : 0);
+            ;
         }
 
         return tVes.id;
     }
 
     /**
-     *
      * @param id
      * @return
      */
+    @Transactional(transactionManager = "sapodTransactionManager")
     public boolean deleteVO(int id) {
         return jdbcTemplate.update("delete from tvk_t_ves where id = " + id) != 0;
     }
-
-
 }

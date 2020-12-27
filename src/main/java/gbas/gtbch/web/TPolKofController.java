@@ -1,6 +1,6 @@
 package gbas.gtbch.web;
 
-import gbas.gtbch.sapod.repository.TPolKofRepository;
+import gbas.gtbch.sapod.service.TPolKofService;
 import gbas.tvk.tpol3.TvkKof;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,10 +13,10 @@ import java.util.List;
 @RequestMapping("/api/tpol/kof")
 public class TPolKofController {
 
-    private final TPolKofRepository tPolKofRepository;
+    private final TPolKofService tPolKofService;
 
-    public TPolKofController(TPolKofRepository tpolKofRepository) {
-        this.tPolKofRepository = tpolKofRepository;
+    public TPolKofController(TPolKofService tpolKofService) {
+        this.tPolKofService = tpolKofService;
     }
 
     /**
@@ -25,7 +25,7 @@ public class TPolKofController {
      */
     @RequestMapping(value = "", method = RequestMethod.GET)
     public ResponseEntity<List<TvkKof>> getKofList() {
-        return new ResponseEntity<>(tPolKofRepository.getKofList(), HttpStatus.OK);
+        return new ResponseEntity<>(tPolKofService.getKofList(), HttpStatus.OK);
     }
 
     /**
@@ -34,7 +34,7 @@ public class TPolKofController {
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public ResponseEntity<TvkKof> getKof(@PathVariable int id) {
-        return new ResponseEntity<>(tPolKofRepository.getKof(id), HttpStatus.OK);
+        return new ResponseEntity<>(tPolKofService.getKof(id), HttpStatus.OK);
     }
 
     /**
@@ -43,7 +43,7 @@ public class TPolKofController {
      */
     @RequestMapping(value = "", method = RequestMethod.POST)
     public ResponseEntity saveKof(@RequestBody TvkKof obj) {
-        int id = tPolKofRepository.saveKof(obj);
+        int id = tPolKofService.saveKof(obj);
         return id != 0 ? ResponseEntity.created(URI.create("/api/tpol/obj/" + id)).build() : ResponseEntity.notFound().build();
     }
 
@@ -55,7 +55,7 @@ public class TPolKofController {
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
     public ResponseEntity updateKof(@PathVariable int id, @RequestBody TvkKof obj) {
         obj.id = id;
-        return tPolKofRepository.saveKof(obj) != 0 ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+        return tPolKofService.saveKof(obj) != 0 ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
     }
 
     /**
@@ -64,7 +64,7 @@ public class TPolKofController {
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Boolean> deleteKof(@PathVariable int id) {
-        return new ResponseEntity<>(tPolKofRepository.deleteKof(id), HttpStatus.OK);
+        return new ResponseEntity<>(tPolKofService.deleteKof(id), HttpStatus.OK);
     }
 
 }

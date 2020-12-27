@@ -3,6 +3,9 @@ package gbas.gtbch.sapod.model;
 import gbas.tvk.tpol3.service.ColumnInfo;
 import gbas.tvk.tpol3.service.TPItem;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class TpolItem {
@@ -38,6 +41,11 @@ public class TpolItem {
     private List<String[]> itemData;
 
     /**
+     * item data size
+     */
+    private int itemDataSize;
+
+    /**
      * item NSI UI header
      */
     private String nsiHeader;
@@ -45,7 +53,7 @@ public class TpolItem {
     /**
      * item NSI UI columns
      */
-    private ColumnInfo[] nsiColumns;
+    private List<ColumnInfo[]> nsiColumns;
 
     /**
      * item NSI itemData
@@ -65,7 +73,11 @@ public class TpolItem {
             this.columns = item.getItemColumnInfo();
 
             this.nsiHeader = item.getNSIDialogTitle();
-            this.nsiColumns = item.getNSIColumnInfo(set);
+
+            this.nsiColumns = new ArrayList<>(Collections.singletonList(item.getNSIColumnInfo(0)));
+            if (item.getTag() == 8) {
+                this.nsiColumns.add(item.getNSIColumnInfo(1));
+            }
         }
     }
 
@@ -77,7 +89,7 @@ public class TpolItem {
         return set;
     }
 
-    public ColumnInfo[] getNsiColumns() {
+    public List<ColumnInfo[]> getNsiColumns() {
         return nsiColumns;
     }
 
@@ -87,6 +99,66 @@ public class TpolItem {
 
     public void setItemData(List<String[]> itemData) {
         this.itemData = itemData;
+    }
+
+    public void setItem(TPItem item) {
+        this.item = item;
+    }
+
+    public void setSet(int set) {
+        this.set = set;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getButtonName() {
+        return buttonName;
+    }
+
+    public void setButtonName(String buttonName) {
+        this.buttonName = buttonName;
+    }
+
+    public ColumnInfo[] getColumns() {
+        return columns;
+    }
+
+    public void setColumns(ColumnInfo[] columns) {
+        this.columns = columns;
+    }
+
+    public String getNsiHeader() {
+        return nsiHeader;
+    }
+
+    public void setNsiHeader(String nsiHeader) {
+        this.nsiHeader = nsiHeader;
+    }
+
+    public void setNsiColumns(List<ColumnInfo[]> nsiColumns) {
+        this.nsiColumns = nsiColumns;
+    }
+
+    public List<String[]> getNsiData() {
+        return nsiData;
+    }
+
+    public void setNsiData(List<String[]> nsiData) {
+        this.nsiData = nsiData;
+    }
+
+    public int getItemDataSize() {
+        return itemDataSize;
+    }
+
+    public void setItemDataSize(int itemDataSize) {
+        this.itemDataSize = itemDataSize;
     }
 }
 

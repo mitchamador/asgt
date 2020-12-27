@@ -4,34 +4,33 @@ import gbas.gtbch.sapod.model.TpolItem;
 import gbas.tvk.tpol3.service.TPRow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class TPolItemsRepository {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(TPolItemsRepository.class);
+    public static final Logger logger = LoggerFactory.getLogger(TPolItemsRepository.class);
 
     private final JdbcTemplate jdbcTemplate;
 
-    @Autowired
     public TPolItemsRepository(@Qualifier("sapodDataSource") DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    static List<String[]> extractStringArrayList(ResultSet rs) throws SQLException {
-        List<String[]> list = new ArrayList<>();
+    public static List<String[]> extractStringArrayList(ResultSet rs) throws SQLException {
+        List<String[]> list = new ArrayList<String[]>();
 
         final ResultSetMetaData data = rs.getMetaData();
         final int col = data.getColumnCount();
@@ -50,7 +49,12 @@ public class TPolItemsRepository {
     }
 
     public List<String[]> getNsi(TpolItem item) {
-        return jdbcTemplate.query(item.getItem().getSqlFromNSI(item.getSet()), TPolItemsRepository::extractStringArrayList);
+        String sql = item.getItem().getSqlFromNSI(item.getSet());
+        if (sql != null) {
+            return jdbcTemplate.query(sql, TPolItemsRepository::extractStringArrayList);
+        } else {
+            return new ArrayList<String[]>();
+        }
     }
 
     public List<String[]> getData(TpolItem item, int id_tpol) {
@@ -63,10 +67,15 @@ public class TPolItemsRepository {
      * @param item {@link TpolItem}
      * @param id   {@link TPRow} id
      * @param data data
-     * @return
+     * @return true if data exists
      */
     public Boolean checkData(TpolItem item, int id, String[] data) {
-        return jdbcTemplate.query(item.getItem().getSqlCheckExist(id, data, 0), ResultSet::next);
+        String sql = item.getItem().getSqlCheckExist(id, data, item.getSet());
+        if (sql != null) {
+            return jdbcTemplate.query(sql, ResultSet::next);
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -77,12 +86,10 @@ public class TPolItemsRepository {
      * @param data data
      * @return
      */
-    public int addData(TpolItem item, int id, String[] data) {
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-
-        jdbcTemplate.update(connection -> connection.prepareStatement(item.getItem().getSqlAddSelected(id, data, 0)), keyHolder);
-
-        return (int) keyHolder.getKey();
+    @Transactional(transactionManager = "sapodTransactionManager")
+    public boolean addData(TpolItem item, int id, String[] data) {
+        return jdbcTemplate.update(connection -> connection.prepareStatement(
+                item.getItem().getSqlAddSelected(id, data, item.getSet()))) != 0;
     }
 
     /**
@@ -93,8 +100,8 @@ public class TPolItemsRepository {
      * @param data
      * @return
      */
+    @Transactional(transactionManager = "sapodTransactionManager")
     public Boolean deleteData(TpolItem item, int id, String data) {
-        return jdbcTemplate.update(item.getItem().getSqlDelSelected(id, data, 0)) != 0;
+        return jdbcTemplate.update(item.getItem().getSqlDelSelected(id, data, item.getSet())) != 0;
     }
-
 }

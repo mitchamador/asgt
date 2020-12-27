@@ -8,20 +8,20 @@ import gbas.gtbch.sapod.model.TpImportDate;
 import gbas.gtbch.sapod.service.CalculationLogService;
 import gbas.gtbch.sapod.service.TpImportDateService;
 import gbas.gtbch.util.CalcData;
-import gbas.gtbch.util.CalcError;
 import gbas.gtbch.util.CalcHandler;
 import gbas.gtbch.web.request.KeyValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.ObjectFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static gbas.gtbch.util.CropString.getCroppedString;

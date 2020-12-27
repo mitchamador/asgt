@@ -15,12 +15,12 @@ import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 
 @Component
 public class TPolTOsrRepository {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(TPolTOsrRepository.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(TPolTOsrRepository.class);
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -28,8 +28,7 @@ public class TPolTOsrRepository {
     public TPolTOsrRepository(@Qualifier("sapodDataSource") DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
-
-    private static TvkTOsr mapContRow(ResultSet rs, int i) throws SQLException {
+    public static TvkTOsr mapContRow(ResultSet rs, int i) throws SQLException {
         TvkTOsr tvkTOsr = new TvkTOsr();
         tvkTOsr.id = rs.getInt("id");
         tvkTOsr.nTab = rs.getInt("n_tab");
@@ -61,7 +60,6 @@ public class TPolTOsrRepository {
     }
 
     /**
-     *
      * @return
      */
     public List<TvkTOsr> getContList() {
@@ -69,7 +67,6 @@ public class TPolTOsrRepository {
     }
 
     /**
-     *
      * @param idTPol
      * @return
      */
@@ -87,7 +84,6 @@ public class TPolTOsrRepository {
     }
 
     /**
-     *
      * @param osr
      * @return
      */
@@ -98,14 +94,15 @@ public class TPolTOsrRepository {
         {
             id = jdbcTemplate.query("select id from tvk_group_t_kont where n_tab = ?",
                     new Object[]{osr.nTab},
-                    resultSet -> {
-                        return resultSet.getInt("id");
-                    });
+                    resultSet -> resultSet.next() ? resultSet.getInt("id") : null);
 
             if (id == null) {
                 KeyHolder keyHolder = new GeneratedKeyHolder();
                 jdbcTemplate.update(connection -> {
-                    PreparedStatement preparedStatement = connection.prepareStatement("insert into tvk_group_t_kont (n_tab) values (?)");
+                    PreparedStatement preparedStatement = connection.prepareStatement(
+                            "insert into tvk_group_t_kont (n_tab) values (?)",
+                            Statement.RETURN_GENERATED_KEYS
+                    );
                     preparedStatement.setInt(1, osr.nTab);
                     return preparedStatement;
                 }, keyHolder);
@@ -159,7 +156,8 @@ public class TPolTOsrRepository {
             PreparedStatement preparedStatement;
             if (osr.id == 0) {
                 preparedStatement = connection.prepareStatement("insert into tvk_t_osr (id_group_kont, id_grpk, id_group_ts, grpk, kof) " +
-                        " values (?, ?, ?, ?, ?)");
+                                " values (?, ?, ?, ?, ?)",
+                        Statement.RETURN_GENERATED_KEYS);
             } else {
                 preparedStatement = connection.prepareStatement("update tvk_t_osr set id_group_kont = ?, id_grpk = ?, id_group_ts = ?, kof = ?, grpk = ? " +
                         " where id = ?");
@@ -179,19 +177,18 @@ public class TPolTOsrRepository {
         }, keyHolder);
 
         if (osr.id == 0) {
-            osr.id = (int) keyHolder.getKey();
+            osr.id = (int) (keyHolder.getKey() != null ? keyHolder.getKey() : 0);
         }
 
         return osr.id;
     }
 
     /**
-     *
      * @param id
      * @return
      */
+    @Transactional(transactionManager = "sapodTransactionManager")
     public boolean deleteCont(int id) {
         return jdbcTemplate.update("delete from tvk_t_osr where id = " + id) != 0;
     }
-
 }

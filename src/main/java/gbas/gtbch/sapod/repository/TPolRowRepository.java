@@ -13,15 +13,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.sql.Types;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.Collections;
 import java.util.List;
 
 @Component
 public class TPolRowRepository {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(TPolRowRepository.class);
+    static final Logger logger = LoggerFactory.getLogger(TPolRowRepository.class);
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -106,9 +107,12 @@ public class TPolRowRepository {
      * delete {@link TPRow}
      *
      * @param id
-     * @return
      */
+    @Transactional(transactionManager = "sapodTransactionManager")
     public boolean deleteRow(int id) {
+        for (ItemTable itemTable : ItemTable.values()) {
+            jdbcTemplate.update("delete from " + itemTable.name() + "  where id_t_pol = " + id);
+        }
         return jdbcTemplate.update("delete from tvk_t_pol where id = " + id) != 0;
     }
 
@@ -123,19 +127,20 @@ public class TPolRowRepository {
 
         if (row.id == 0) {
             // insert new row
-            KeyHolder keyHolder = new GeneratedKeyHolder();
-
             Integer maxNumber = jdbcTemplate.query(
                     "select max(n_str) from tvk_t_pol where id_tarif = ?",
                     new Object[]{row.id_tarif},
-                    rs -> {
-                        return rs.getInt(1);
-                    });
+                    rs -> rs.next() ? rs.getInt(1) : null
+            );
 
             row.nStr = maxNumber != null ? (maxNumber + 1) : 1;
 
+            KeyHolder keyHolder = new GeneratedKeyHolder();
             jdbcTemplate.update(connection -> {
-                PreparedStatement preparedStatement = connection.prepareStatement("insert into tvk_t_pol (id_tarif, t_pol, n_str) values (?, ?, ?)");
+                PreparedStatement preparedStatement = connection.prepareStatement(
+                        "insert into tvk_t_pol (id_tarif, t_pol, n_str) values (?, ?, ?)",
+                        Statement.RETURN_GENERATED_KEYS
+                );
 
                 preparedStatement.setInt(1, row.id_tarif);
                 preparedStatement.setInt(2, row.tPol);
@@ -144,7 +149,7 @@ public class TPolRowRepository {
                 return preparedStatement;
             }, keyHolder);
 
-            row.id = (int) keyHolder.getKey();
+            row.id = (int) (keyHolder.getKey() != null ? keyHolder.getKey() : 0);
         }
 
         if (row.id != 0) {
@@ -152,9 +157,9 @@ public class TPolRowRepository {
             if (row.nTab != 0) {
                 Integer id = jdbcTemplate.query(
                         "select id from tvk_group_t_kof where n_tab = ?",
-                        new Object[]{row.nTab}, rs -> {
-                            return rs.getInt(1);
-                        });
+                        new Object[]{row.nTab},
+                        rs -> rs.next() ? rs.getInt(1) : null
+                );
                 if (id != null) {
                     row.id_tab_kof = id;
                 }
@@ -165,9 +170,9 @@ public class TPolRowRepository {
             if (row.bs_tab != 0) {
                 Integer id = jdbcTemplate.query(
                         "select id from tvk_group_t_kof where n_tab = ?",
-                        new Object[]{row.bs_tab}, rs -> {
-                            return rs.getInt(1);
-                        });
+                        new Object[]{row.bs_tab},
+                        rs -> rs.next() ? rs.getInt(1) : null
+                );
                 if (id != null) {
                     row.id_tab_kofbs = id;
                 }
@@ -229,4 +234,91 @@ public class TPolRowRepository {
         return row.id;
     }
 
+
+    public TPRow copyRow(int sourceRowId, int destinationDocumentId) {
+
+        // read source row
+        TPRow row = getRow(sourceRowId);
+
+        if (row == null) return null;
+
+        row.id = 0;
+        if (destinationDocumentId != 0) {
+            row.id_tarif = destinationDocumentId;
+        }
+
+        // save new row to destination document
+        row.id = saveRow(row);
+
+        if (row.id == 0) return null;
+
+        // copy items
+        for (ItemTable itemTable : ItemTable.values()) {
+            String table = itemTable.name();
+
+            String sqlSelectCommand = "select " + String.join(", ", itemTable.getFields()) + " " +
+                    "from " + table + " " +
+                    "where id_t_pol = ?";
+
+            String sqlInsertCommand = "insert into " + table + " " +
+                    "(id_t_pol, " + String.join(", ", itemTable.getFields()) + ") " +
+                    "values (?," + String.join(",", Collections.nCopies(itemTable.getFields().length, "?")) + ")";
+
+            jdbcTemplate.query(
+                    sqlSelectCommand,
+                    new Object[]{sourceRowId},
+                    rs -> {
+                        jdbcTemplate.update(connection -> {
+                            PreparedStatement preparedStatement = connection.prepareStatement(sqlInsertCommand.toString());
+                            int c = 1;
+                            preparedStatement.setInt(c++, row.id);
+                            for (int i = 0; i < rs.getMetaData().getColumnCount(); i++) {
+                                preparedStatement.setString(c++, rs.getString(i + 1));
+                            }
+                            return preparedStatement;
+                        });
+                    }
+            );
+
+        }
+
+        return row;
+    }
+
+    private enum ItemTable {
+        tvk_t_gr("t_tar", "id_algng", "id_etsng", "code_algng", "code_etsng"),
+        tvk_t_k("id_prv_k", "code_prv_k"),
+        tvk_t_kl("klass"),
+        tvk_t_kon("id_tip_kon", "code_tip_kon"),
+        tvk_t_oso("id_os_ot", "code_os_ot"),
+        tvk_t_oso_add("id_os_ot", "code_os_ot"),
+        tvk_t_rps("id_rod_ps", "code_rod_ps"),
+        tvk_t_sn("id_str_n", "code_str_n"),
+        tvk_t_so("id_str_o", "code_str_o"),
+        tvk_t_sr("id_str_r", "code_str_r"),
+        tvk_t_v("id_prv_k", "code_prv_k"),
+        tvk_t_vh("id_stan", "code_stan"),
+        tvk_t_vot("id_svo", "code_svo"),
+        tvk_t_vs("id_vid_s", "code_vid_s"),
+        tvk_t_vyh("id_stan", "code_stan"),
+        tvk_t_grpk("id_s_grpk_kon", "grpk"),
+        tvk_t_adm("id_adm", "code_adm"),
+        tvk_stan_n("id_stan", "code_stan"),
+        tvk_stan_o("id_stan", "code_stan"),
+        tvk_rail_o("id_pr", "code_pr"),
+        tvk_rail_n("id_pr", "code_pr"),
+        tvk_t_km("km", "km2"),
+        tvk_t_conttrain("kod"),
+        tvk_t_upak("id_rod_u", "code_rod_u");
+
+        private final String[] fields;
+
+        ItemTable(String... fields) {
+            this.fields = fields;
+        }
+
+        public String[] getFields() {
+            return fields;
+        }
+    }
 }

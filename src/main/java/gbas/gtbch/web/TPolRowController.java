@@ -2,41 +2,46 @@ package gbas.gtbch.web;
 
 import gbas.gtbch.sapod.model.CodeName;
 import gbas.gtbch.sapod.model.TpolItem;
-import gbas.gtbch.sapod.repository.*;
+import gbas.gtbch.sapod.service.*;
 import gbas.tvk.tpol3.TvkKof;
 import gbas.tvk.tpol3.TvkTOsr;
 import gbas.tvk.tpol3.TvkTVes;
 import gbas.tvk.tpol3.service.TPItem;
 import gbas.tvk.tpol3.service.TPItems;
 import gbas.tvk.tpol3.service.TPRow;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/tpol/row")
 public class TPolRowController {
 
-    private final TPolRowRepository tpolRowRepository;
-    private final TPolKofRepository tpolKofRepository;
-    private final TPolTVesRepository tpolTVesRepository;
-    private final TPolTOsrRepository tpolTOsrRepository;
-    private final TPolRepository tpolRepository;
-    private final TPolItemsRepository tPolItemsRepository;
+    private static final Logger logger = LoggerFactory.getLogger(TPolRowController.class);
+
+    private final TPolRowService tpolRowService;
+    private final TPolKofService tpolKofService;
+    private final TPolTVesService tpolTVesService;
+    private final TPolTOsrService tpolTOsrService;
+    private final TPolService tpolService;
+    private final TPolItemsService tPolItemsService;
 
 
-    public TPolRowController(TPolRowRepository tPolRowRepository, TPolKofRepository tpolKofRepository, TPolTVesRepository tpolTVesRepository, TPolTOsrRepository tpolTOsrRepository, TPolRepository tpolRepository, TPolItemsRepository tPolItemsRepository) {
-        this.tpolRowRepository = tPolRowRepository;
-        this.tpolKofRepository = tpolKofRepository;
-        this.tpolTVesRepository = tpolTVesRepository;
-        this.tpolTOsrRepository = tpolTOsrRepository;
-        this.tpolRepository = tpolRepository;
-        this.tPolItemsRepository = tPolItemsRepository;
+    public TPolRowController(TPolRowService tPolRowService, TPolKofService tpolKofService, TPolTVesService tpolTVesService, TPolTOsrService tpolTOsrService, TPolService tpolService, TPolItemsService tPolItemsService) {
+        this.tpolRowService = tPolRowService;
+        this.tpolKofService = tpolKofService;
+        this.tpolTVesService = tpolTVesService;
+        this.tpolTOsrService = tpolTOsrService;
+        this.tpolService = tpolService;
+        this.tPolItemsService = tPolItemsService;
     }
 
     /**
@@ -45,7 +50,18 @@ public class TPolRowController {
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public ResponseEntity<TPRow> getRow(@PathVariable int id) {
-        return new ResponseEntity<>(tpolRowRepository.getRow(id), HttpStatus.OK);
+        return new ResponseEntity<>(tpolRowService.getRow(id), HttpStatus.OK);
+    }
+
+    /**
+     * copy TPRow
+     * @param id tvk_t_pol.id
+     * @param documentId - destinatation documentId
+     */
+    @RequestMapping(value = "/{id}/copy", method = RequestMethod.GET)
+    public ResponseEntity<TPRow> copyRow(@PathVariable int id, @RequestParam(required = false, name = "doc_id") int documentId) {
+        logger.info("copy source tp row with id = {} to tp document with id {}", id, documentId);
+        return new ResponseEntity<>(tpolRowService.copyRow(id, documentId), HttpStatus.OK);
     }
 
     /**
@@ -54,7 +70,7 @@ public class TPolRowController {
      */
     @RequestMapping(value = "", method = RequestMethod.POST)
     public ResponseEntity saveRow(@RequestBody TPRow row) {
-        int id = tpolRowRepository.saveRow(row);
+        int id = tpolRowService.saveRow(row);
         return id != 0 ? ResponseEntity.created(URI.create("/api/tpol/row/" + id)).build() : ResponseEntity.notFound().build();
     }
 
@@ -63,9 +79,9 @@ public class TPolRowController {
      * @param id - tvk_t_pol.id
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
-    public ResponseEntity updateKof(@PathVariable int id, @RequestBody TPRow row) {
+    public ResponseEntity updateRow(@PathVariable int id, @RequestBody TPRow row) {
         row.id = id;
-        return tpolRowRepository.saveRow(row) != 0 ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+        return tpolRowService.saveRow(row) != 0 ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
     }
 
     /**
@@ -74,7 +90,8 @@ public class TPolRowController {
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Boolean> deleteRow(@PathVariable int id) {
-        return new ResponseEntity<>(tpolRowRepository.deleteRow(id), HttpStatus.OK);
+        logger.info("delete tp row with id = {}", id);
+        return new ResponseEntity<>(tpolRowService.deleteRow(id), HttpStatus.OK);
     }
 
     /**
@@ -84,7 +101,7 @@ public class TPolRowController {
      */
     @RequestMapping(value = "/{id}/kof", method = RequestMethod.GET)
     public ResponseEntity<List<TvkKof>> getRowKof(@PathVariable int id) {
-        return new ResponseEntity<>(tpolKofRepository.getKofList(id), HttpStatus.OK);
+        return new ResponseEntity<>(tpolKofService.getKofList(id), HttpStatus.OK);
     }
 
     /**
@@ -94,7 +111,7 @@ public class TPolRowController {
      */
     @RequestMapping(value = "/{id}/tves", method = RequestMethod.GET)
     public ResponseEntity<List<TvkTVes>> getRowTVes(@PathVariable int id) {
-        return new ResponseEntity<>(tpolTVesRepository.getVOList(id), HttpStatus.OK);
+        return new ResponseEntity<>(tpolTVesService.getVOList(id), HttpStatus.OK);
     }
 
     /**
@@ -104,7 +121,7 @@ public class TPolRowController {
      */
     @RequestMapping(value = "/{id}/tosr", method = RequestMethod.GET)
     public ResponseEntity<List<TvkTOsr>> getRowTOsr(@PathVariable int id) {
-        return new ResponseEntity<>(tpolTOsrRepository.getContList(id), HttpStatus.OK);
+        return new ResponseEntity<>(tpolTOsrService.getContList(id), HttpStatus.OK);
     }
 
     /**
@@ -114,7 +131,7 @@ public class TPolRowController {
      */
     @RequestMapping(value = "/{id}/ttar", method = RequestMethod.GET)
     public ResponseEntity<List<CodeName>> getRowTTar(@PathVariable int id) {
-        return new ResponseEntity<>(tpolRepository.getBaseTarifList(id), HttpStatus.OK);
+        return new ResponseEntity<>(tpolService.getBaseTarifList(id), HttpStatus.OK);
     }
 
     /**
@@ -123,12 +140,14 @@ public class TPolRowController {
      * @return
      */
     @RequestMapping(value = "/{id:[\\d]+}/items", method = RequestMethod.GET)
-    public ResponseEntity<List<TpolItem>> getItems(@PathVariable int id, @RequestParam(required = false) boolean all) {
+    public ResponseEntity<List<TpolItem>> getItems(
+            @PathVariable int id,
+            @RequestParam(required = false) boolean all) {
         List<TpolItem> items = new ArrayList<>();
         for (TPItems enumItems : TPItems.values()) {
             TpolItem item = new TpolItem(enumItems.getItem());
 
-            List<String[]> data = tPolItemsRepository.getData(item, id);
+            List<String[]> data = tPolItemsService.getData(item, id);
 
             if ((data != null && !data.isEmpty()) || all) {
                 item.setItemData(data);
@@ -147,11 +166,17 @@ public class TPolRowController {
      * @return
      */
     @RequestMapping(value = "/{id:[\\d]+}/item/{name}", method = RequestMethod.GET)
-    public ResponseEntity<List<String[]>> getItemData(@PathVariable int id, @PathVariable String name, @RequestParam(value = "data", required = false) String[] data) {
+    public ResponseEntity<List<String[]>> getItemData(
+            @PathVariable int id,
+            @PathVariable String name,
+            @RequestParam(required = false) String[] data,
+            @RequestParam(name = "set", required = false) Integer setParam) {
+        int set = setParam == null ? 0 : setParam;
+
         TPItem tpItem = TPItems.getTpItem(name);
         if (tpItem != null) {
             if (data == null) {
-                return new ResponseEntity<>(tPolItemsRepository.getData(new TpolItem(tpItem), id), HttpStatus.OK);
+                return new ResponseEntity<>(tPolItemsService.getData(new TpolItem(tpItem, set), id), HttpStatus.OK);
             } else {
                 return ResponseEntity.ok().build();
             }
@@ -167,12 +192,34 @@ public class TPolRowController {
      * @return
      */
     @RequestMapping(value = "/{id:[\\d]+}/item/{name}", method = RequestMethod.POST)
-    public ResponseEntity<Integer> saveItemData(@PathVariable int id, @PathVariable String name, @RequestParam(value = "data") String[] data) {
+    public ResponseEntity<Boolean> saveItemData(
+            @PathVariable int id,
+            @PathVariable String name,
+            @RequestParam(required = false) String[] data,
+            @RequestParam(required = false) List<String[]> array,
+            @RequestParam(name = "set", required = false) Integer setParam) {
+
+        List<String[]> dataArray = data != null ? Collections.singletonList(data) : array;
+
+        int set = setParam == null ? 0 : setParam;
+
         TPItem tpItem = TPItems.getTpItem(name);
-        if (tpItem != null) {
-            return new ResponseEntity<>(tPolItemsRepository.addData(new TpolItem(tpItem), id, data), HttpStatus.OK);
+
+        boolean result = false;
+        if (dataArray != null && tpItem != null) {
+            TpolItem tpolItem = new TpolItem(tpItem, set);
+            for (String[] d : dataArray) {
+                if (!tPolItemsService.checkData(tpolItem, id, d)) {
+                    tPolItemsService.addData(tpolItem, id, d);
+                    logger.info("save item data: rowId = {}, item = {}, set = {}, data = {}", id, tpItem.getName(), set, d);
+                    result = true;
+                } else {
+                    logger.info("item data exists: rowId = {}, item = {}, set = {}, data = {}", id, tpItem.getName(), set, d);
+                }
+            }
         }
-        return ResponseEntity.notFound().build();
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     /**
@@ -183,12 +230,31 @@ public class TPolRowController {
      * @return
      */
     @RequestMapping(value = "/{id:[\\d]+}/item/{name}", method = RequestMethod.DELETE)
-    public ResponseEntity<Boolean> deleteItemData(@PathVariable int id, @PathVariable String name, @RequestParam(value = "data") String data) {
+    public ResponseEntity<Boolean> deleteItemData(
+            @PathVariable int id,
+            @PathVariable String name,
+            @RequestParam(required = false) String[] data,
+            @RequestParam(required = false) List<String[]> array,
+            @RequestParam(name = "set", required = false) Integer setParam) {
+
+        List<String[]> dataArray = data != null ? Collections.singletonList(data) : array;
+
+        int set = setParam == null ? 0 : setParam;
+
         TPItem tpItem = TPItems.getTpItem(name);
-        if (tpItem != null) {
-            return new ResponseEntity<>(tPolItemsRepository.deleteData(new TpolItem(tpItem), id, data), HttpStatus.OK);
+
+        boolean result = false;
+        if (dataArray != null && tpItem != null) {
+            TpolItem tpolItem = new TpolItem(tpItem, set);
+            for (String[] d : dataArray) {
+                if (Arrays.asList("ClassItem", "Distance", "StationTargetItem", "StationSourceItem").contains(name)) {
+                    d[0] = d[1];
+                }
+                result |= tPolItemsService.deleteData(tpolItem, id, d[0]);
+                logger.info("delete item data: rowId = {}, item = {}, set = {}, data = {}", id, tpItem.getName(), set, d);
+            }
         }
-        return ResponseEntity.notFound().build();
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
 }

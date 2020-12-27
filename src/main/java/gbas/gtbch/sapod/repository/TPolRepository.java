@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -26,8 +27,7 @@ import java.util.List;
 
 @Component
 public class TPolRepository {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(TPolRepository.class);
+    public static final Logger logger = LoggerFactory.getLogger(TPolRepository.class);
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -83,8 +83,8 @@ public class TPolRepository {
      * @param dateEnd
      * @return
      */
-    private List<TPolDocument> getDocuments(int id, String typeCode, Date dateBegin, Date dateEnd) {
-        List<Object> args = new ArrayList<>();
+    public List<TPolDocument> getDocuments(int id, String typeCode, Date dateBegin, Date dateEnd) {
+        List<Object> args = new ArrayList<Object>();
 
         String sql = "select id,\n" +
                 "rtrim(type_code),\n" +
@@ -167,6 +167,12 @@ public class TPolRepository {
                 });
     }
 
+    /**
+     *
+     * @param idTarif
+     * @param checked
+     * @return
+     */
     public List<TPolSobst> getSobstList(int idTarif, boolean checked) {
         return jdbcTemplate.query(
                 idTarif == 0 ?
@@ -245,7 +251,8 @@ public class TPolRepository {
             PreparedStatement preparedStatement;
             if (tPolDocument.id == 0) {
                 preparedStatement = connection.prepareStatement("insert into tvk_tarif (type_code, n_contract, date_begin, date_end, name, n_pol, cod_tip_tarif, dobor)" +
-                        " values (?,?,?,?,?,?,?,?)");
+                                " values (?,?,?,?,?,?,?,?)",
+                        Statement.RETURN_GENERATED_KEYS);
             } else {
                 preparedStatement = connection.prepareStatement("update tvk_tarif set type_code = ?, n_contract = ?, date_begin = ?, date_end = ?, name = ?, n_pol = ?, cod_tip_tarif = ?, dobor = ? where id = ?");
             }
@@ -267,7 +274,8 @@ public class TPolRepository {
         }, keyHolder);
 
         if (tPolDocument.id == 0) {
-            tPolDocument.id = (int) keyHolder.getKey();
+            tPolDocument.id = (int) (keyHolder.getKey() != null ? keyHolder.getKey() : 0);
+            ;
         }
 
         saveSobstList(tPolDocument.id, tPolDocument.sobstList);
@@ -275,7 +283,12 @@ public class TPolRepository {
         return tPolDocument.id;
     }
 
-    private int getTPNumber(String type_code) {
+    /**
+     *
+     * @param type_code
+     * @return
+     */
+    public int getTPNumber(String type_code) {
         int nPol = -1;
         if (type_code.equals("base_tarif")) {
             nPol = 0;
