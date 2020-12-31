@@ -113,7 +113,7 @@ public class CalculationLog {
      * inbound time
      */
     @Column(name = "inbound_time")
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss.SSS", timezone = "Europe/Minsk")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss.SSS")
     private Date inboundTime;
 
     /**
@@ -127,7 +127,7 @@ public class CalculationLog {
      * outbound time
      */
     @Column(name = "outbound_time")
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss.SSS", timezone = "Europe/Minsk")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss.SSS")
     private Date outboundTime;
 
     /**

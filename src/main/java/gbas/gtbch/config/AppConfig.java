@@ -1,5 +1,6 @@
 package gbas.gtbch.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import gbas.tvk.interaction.pensi.ConnectionManager;
 import gbas.tvk.interaction.pensi.PensiManager;
 import gbas.tvk.interaction.pensi.sync.Sync;
@@ -30,6 +31,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.TimeZone;
 
 @Configuration
 @EnableScheduling
@@ -138,6 +140,15 @@ public class AppConfig {
     @Lazy
     public Duration startupDuration() {
         return startTime != null && endTime != null ? Duration.between(startTime, endTime) : null;
+    }
+
+    /**
+     * jackson timezone configuration
+     * @param objectMapper
+     */
+    @Autowired
+    public void configureJackson(ObjectMapper objectMapper) {
+        objectMapper.setTimeZone(TimeZone.getDefault());
     }
 
 }
