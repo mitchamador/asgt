@@ -1,3 +1,222 @@
+/**
+ * add counter to first column of DataTable
+ * @param table
+ */
+function addCounterToDataTable(table) {
+    table.on('order.dt search.dt', function () {
+        table.column(0, {search: 'applied', order: 'applied'}).nodes().each(function (cell, i) {
+            cell.innerHTML = i + 1;
+        });
+    }).draw();
+}
+
+/**
+ * show(hide) <a></a> buttons on row selection(deselection) and handle buttons click
+ * @param table
+ * @param functions
+ */
+function addDataTableRowListener(table, functions) {
+    table
+        .on('select', function ( e, dt, type, indexes ) {
+            if (type === 'row') {
+                var nodes$ = dt.rows(indexes).nodes().to$();
+                var a = nodes$.find("a");
+                if (a !== undefined) {
+                    a.removeClass("invisible");
+                }
+                if (functions !== undefined && functions['select'] !== undefined) {
+                    functions['select'](nodes$.closest('tr'), table);
+                }
+            }
+        })
+        .on('deselect',  function ( e, dt, type, indexes ) {
+            if (type === 'row') {
+                var nodes$ = dt.rows(indexes).nodes().to$();
+                var a = nodes$.find("a");
+                if (a !== undefined) {
+                    a.addClass("invisible");
+                }
+                if (functions !== undefined && functions['deselect'] !== undefined) {
+                    functions['deselect'](nodes$.closest('tr'), table);
+                }
+            }
+        });
+
+    $('#' + table.tables().nodes().to$().attr('id') + ' tbody').on('click', 'a', function(e) {
+        e.stopPropagation();
+
+        var f = $(this).attr("id");
+        if (f !== undefined && functions !== undefined && functions[f] !== undefined) {
+            functions[f]($(this).closest('tr'), table);
+        }
+    });
+}
+
+/**
+ * add button listeners for modal window
+ * @param modal
+ * @param functions
+ */
+function addModalButtonsListener(modal, functions) {
+    var buttonId;
+
+    $(modal).on('click', 'button', function(e) {
+        buttonId = $(e.target).attr("id");
+        $(modal).modal('hide');
+    });
+
+    $(modal).on('hidden.bs.modal', function (e) {
+        if (buttonId !== undefined && functions !== undefined && functions[buttonId] !== undefined) {
+            functions[buttonId]();
+        }
+    });
+}
+
+/**
+ * show yes/no modal diallog
+ * @param message
+ * @param param event function params
+ * @param yes yes event function(param)
+ * @param no no event function(param)
+ */
+function showYesNoModal(message, yes, no) {
+    showDynamicModal( {
+        //header: "Внимание!",
+        body : message,
+        buttons : [
+            {
+                id : "yes",
+                class : "btn btn-success",
+                text : "Да",
+                action : function() {
+                    yes()
+                }
+            },
+            {
+                id : "no",
+                class : "btn btn-danger",
+                text : "Нет",
+                action : function() {
+                    no()
+                }
+            }
+        ]
+    });
+}
+
+/**
+ * show dynamically created modal
+ * @param p
+ */
+function showDynamicModal(p) {
+
+    var modalHtml =
+        "    <div id=\"dynamicModal\" class=\"modal\" tabindex=\"-1\">\n" +
+        "        <div class=\"modal-dialog\">\n" +
+        "            <div class=\"modal-content\">\n";
+
+    if (p.header !== undefined) {
+        modalHtml +=
+            "                <div class=\"modal-header\">\n" +
+            "                    <h5 class=\"modal-title\">" + p.header + "</h5>\n" +
+            "<!--                    <button type=\"button\" class=\"close\" data-dismiss=\"modal\">&times;</button>-->\n" +
+            "                </div>\n";
+    }
+
+    modalHtml +=
+        "                <div class=\"modal-body\">\n" +
+        "                    " + p.body + "\n" +
+        "                </div>\n" +
+        "                <div class=\"modal-footer\">\n";
+
+    for (var i = 0; i < p.buttons.length; i++) {
+        var b = p.buttons[i];
+        modalHtml +=
+            "                    <button id=\"" + b.id + "\" type=\"button\" class=\"" + b.class + "\">" + b.text + "</button>\n";
+    }
+
+    modalHtml +=
+        "                </div>\n" +
+        "            </div>\n" +
+        "        </div>\n" +
+        "    </div>";
+
+    $('body').append(modalHtml);
+
+    var modal = $("#dynamicModal");
+    modal.modal();
+    modal.modal('show');
+
+    var buttonId;
+
+    modal.on('click', 'button', function(e) {
+        buttonId = $(e.target).attr("id");
+        modal.modal('hide');
+    });
+
+    modal.on('hidden.bs.modal', function (e) {
+        for (var i = 0; i < p.buttons.length; i++) {
+            var b = p.buttons[i];
+            if (buttonId === b.id) {
+                b.action();
+            }
+        }
+        $(this).remove();
+    });
+
+    modal.modal('show');
+}
+
+/**
+ * create modal with button listeners
+ * @param modal
+ * @param functions
+ * @return m
+ */
+
+function initModal(modal, functions) {
+    var buttonId, params;
+
+    var _modal = $(modal);
+
+    _modal.on('click', 'button', function(e) {
+        if ($(e.target).data("hide") !== 'no') {
+            buttonId = $(e.target).attr("id");
+            $(modal).modal('hide');
+        }
+    });
+
+    _modal.on('hidden.bs.modal', function (e) {
+        if (buttonId !== undefined && functions !== undefined && functions[buttonId] !== undefined) {
+            functions[buttonId](params, _modal);
+        }
+        if (functions !== undefined && functions['onclose'] !== undefined) {
+            functions['onclose'](params, _modal);
+        }
+    });
+
+    var m = {};
+    m.show = function(p, f) {
+        buttonId = undefined;
+        params = p;
+        if (functions === undefined && f !== undefined) {
+            functions = f;
+        }
+        if (f !== undefined && f["before"] !== undefined) {
+            f["before"](params, _modal);
+        }
+        _modal.modal('show');
+        if (f !== undefined && f["after"] !== undefined) {
+            f["after"](params, _modal);
+        }
+    };
+    m.close = function() {
+        _modal.modal('hide');
+    };
+
+    return m;
+}
+
 function calc(params) {
     params.e.preventDefault();
 
@@ -105,7 +324,6 @@ function upload(params) {
 }
 
 function start(params) {
-
     var pollParams = params;
 
     $(pollParams.button).prop("disabled", true);
@@ -183,5 +401,41 @@ function poll(pollParams) {
             },
             dataType: "json"});
     })();
+
+}
+
+var nsiMap = new Map();
+
+/**
+ * get cached NSI for TpolItem
+ * @param item
+ * @param callback
+ */
+function getNsi(item, callback) {
+    var key = item.name + ":" + item.set;
+    var nsiData = nsiMap.get(key);
+
+    var data = {};
+
+    if (item.set !== 0) {
+        data.set = item.set;
+    }
+
+    if (nsiData === undefined) {
+        $.ajax({
+            url: contextRoot + "api/tpol/items/nsi/" + item.name,
+            type: "get",
+            data: data,
+            cache: false,
+            success: function (data) {
+                nsiMap.set(key, nsiData = data);
+                console.log("load data for " + key);
+                callback(nsiData);
+            }
+        });
+    } else {
+        console.log("use cached data for " + key);
+        callback(nsiData);
+    }
 
 }
