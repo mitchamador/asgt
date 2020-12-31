@@ -85,7 +85,8 @@ public class CalcHandler {
                 }
             }
 
-            if (obj == null && checkTags(data.getInputXml(), "<gbas.tvk.otpravka.object.VagonOtprTransit>", "</gbas.tvk.otpravka.object.VagonOtprTransit>")) {
+            if (obj == null && (checkTags(data.getInputXml(), "<gbas.tvk.payment.CalcPlataData>", "</gbas.tvk.payment.CalcPlataData>")
+                    || checkTags(data.getInputXml(), "<gbas.tvk.otpravka.object.VagonOtprTransit>", "</gbas.tvk.otpravka.object.VagonOtprTransit>"))) {
                 calculationLog.setType(CalculationLog.Type.VOT);
                 obj = GZipUtils.xml2Object(data.getInputXml());
             }
@@ -140,6 +141,7 @@ public class CalcHandler {
                             c = payTransportation.countPlataMarshrut(c, c.strIsklTar);
                             break;
                     }
+                    c.setXml(GZipUtils.object2Xml(c));
                 } else {
                     c = payTransportation.calcPlata((VagonOtprTransit) obj);
                 }
