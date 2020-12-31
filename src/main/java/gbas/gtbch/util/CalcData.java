@@ -9,15 +9,15 @@ public class CalcData {
 
     private int error;
 
-    public CalcData(String inputXml, CalculationLog.Source source) {
+    public CalcData(String inputXml, CalculationLog calculationLog) {
         this.inputXml = inputXml;
-        this.source = source;
+        this.calculationLog = calculationLog;
     }
 
     /**
      * input xml
      */
-    private String inputXml;
+    private final String inputXml;
 
     /**
      * output xml
@@ -30,18 +30,14 @@ public class CalcData {
     private String textResult;
 
     /**
-     * source type
-     * @see CalculationLog.Source
+     * CalculationLog
+     * @see CalculationLog
      */
-    private CalculationLog.Source source;
+    private final CalculationLog calculationLog;
 
 
     public String getInputXml() {
         return inputXml;
-    }
-
-    public void setInputXml(String inputXml) {
-        this.inputXml = inputXml;
     }
 
     public String getOutputXml() {
@@ -60,14 +56,6 @@ public class CalcData {
         this.textResult = textResult;
     }
 
-    public CalculationLog.Source getSource() {
-        return source;
-    }
-
-    public void setSource(CalculationLog.Source source) {
-        this.source = source;
-    }
-
     public void setError(int error) {
         this.error = error;
     }
@@ -75,4 +63,9 @@ public class CalcData {
     public int getErrorCode() {
         return error;
     }
+
+    public CalculationLog getCalculationLog() {
+        return calculationLog;
+    }
+
 }

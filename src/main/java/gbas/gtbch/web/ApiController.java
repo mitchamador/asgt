@@ -45,7 +45,7 @@ public class ApiController {
     public ServerResponse calc(@RequestParam("data") String data) {
 
         ServerResponse response = new ServerResponse();
-        response.setMessage(calcHandler.calc(new CalcData(data, CalculationLog.Source.REST)).getTextResult());
+        response.setMessage(calcHandler.calc(new CalcData(data, new CalculationLog(CalculationLog.Source.REST))).getTextResult());
 
         logger.info(String.format("/api/calc response: \"%s\"", getCroppedString(response.getMessage())));
 
@@ -56,7 +56,7 @@ public class ApiController {
     public ServerResponse calcxml(@RequestParam("data") String data) {
 
         ServerResponse response = new ServerResponse();
-        response.setMessage(calcHandler.calc(new CalcData(data, CalculationLog.Source.REST)).getOutputXml());
+        response.setMessage(calcHandler.calc(new CalcData(data, new CalculationLog(CalculationLog.Source.REST))).getOutputXml());
 
         logger.info(String.format("/api/calcxml response: \"%s\"", getCroppedString(response.getMessage())));
 

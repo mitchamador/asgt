@@ -58,16 +58,14 @@ public class CalcHandler {
 
         Connection connection = null;
 
-        CalculationLog calculationLog = null;
+        CalculationLog calculationLog = data.getCalculationLog();
 
         try {
 
             connection = dataSource.getConnection();
 
-            calculationLog = new CalculationLog();
             calculationLog.setInboundTime(new Date());
             calculationLog.setInboundXml(data.getInputXml());
-            calculationLog.setSource(data.getSource());
             calculationLog.setType(CalculationLog.Type.UNKNOWN);
 
             calculationLog = calculationLogService.save(calculationLog);

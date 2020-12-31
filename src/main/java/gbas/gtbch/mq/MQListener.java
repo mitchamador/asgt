@@ -6,8 +6,6 @@ import gbas.gtbch.util.CalcHandler;
 import gbas.gtbch.util.MQJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.ObjectFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
@@ -76,10 +74,10 @@ public class MQListener implements MessageListener {
     private void processMessage(final TextMessage message) throws JMSException {
         log(String.format("message received: %s, messageId: %s, correlationId: %s", getCroppedString(message.getText()), message.getJMSMessageID(), message.getJMSCorrelationID()));
 
-        if (message.getJMSCorrelationID() != null) {
+        String response = calcHandler.calc(new CalcData(message.getText(), new CalculationLog(message.getJMSCorrelationID()))).getOutputXml();
 
+        if (message.getJMSCorrelationID() != null && !message.getJMSCorrelationID().isEmpty()) {
             jmsTemplate.send(outboundQueueName, session -> {
-                String response = calcHandler.calc(new CalcData(message.getText(), CalculationLog.Source.MQ)).getOutputXml();
 
                 TextMessage answer = session.createTextMessage();
                 answer.setJMSCorrelationID(message.getJMSCorrelationID());
@@ -90,6 +88,7 @@ public class MQListener implements MessageListener {
                 return answer;
             });
         }
+
     }
 
 }

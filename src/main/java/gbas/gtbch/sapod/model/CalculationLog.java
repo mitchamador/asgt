@@ -151,11 +151,35 @@ public class CalculationLog {
     @Column(name = "error_code")
     private int errorCode;
 
+    @Column(name = "jms_correlation_id")
+    @Size(max = 36)
+    private String jmsCorrelationId;
+
     /**
      * string for calc duration
      */
     @Transient
     private String durationText;
+
+    public CalculationLog() {
+    }
+
+    /**
+     * create calculation log
+     * @param source
+     */
+    public CalculationLog(Source source) {
+        this.source = source;
+    }
+
+    /**
+     * create calculation log with {@link Source#MQ} as source type
+     * @param jmsCorrelationId
+     */
+    public CalculationLog(String jmsCorrelationId) {
+        this.source = Source.MQ;
+        this.jmsCorrelationId = jmsCorrelationId;
+    }
 
     public int getId() {
         return id;
@@ -252,4 +276,5 @@ public class CalculationLog {
     public void setDurationText(String durationText) {
         this.durationText = durationText;
     }
+
 }
