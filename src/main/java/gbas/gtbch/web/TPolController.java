@@ -74,13 +74,23 @@ public class TPolController {
     }
 
     /**
+     * copy all {@link TPRow}'s from source {@link TPolDocument} to destination {@link TPolDocument}
+     * @param sourceId - tvk_tarif.id
+     * @param destinationId - destination tvk_tarif.id
+     */
+    @RequestMapping(value = "/document/{id:[\\d]+}/copy", method = RequestMethod.GET)
+    public ResponseEntity<Integer> copyDocument(@PathVariable(name = "id") int sourceId, @RequestParam(name = "doc_id") int destinationId) {
+        return new ResponseEntity<>(tpolService.copyDocument(sourceId, destinationId), HttpStatus.OK);
+    }
+
+    /**
      * create new {@link TPolDocument}
      * @param obj - {@link TPolDocument}
      */
     @RequestMapping(value = "/document", method = RequestMethod.POST)
-    public ResponseEntity saveDocument(@RequestBody TPolDocument obj) {
+    public ResponseEntity<Integer> saveDocument(@RequestBody TPolDocument obj) {
         int id = tpolService.saveDocument(obj);
-        return id != 0 ? ResponseEntity.created(URI.create("/api/tpol/document/" + id)).build() : ResponseEntity.notFound().build();
+        return id != 0 ? ResponseEntity.created(URI.create("/api/tpol/document/" + id)).body(id) : ResponseEntity.notFound().build();
     }
 
     /**
@@ -88,9 +98,9 @@ public class TPolController {
      * @param id - tvk_tarif.id
      */
     @RequestMapping(value = "/document/{id:[\\d]+}", method = RequestMethod.PUT)
-    public ResponseEntity updateDocument(@PathVariable int id, @RequestBody TPolDocument obj) {
+    public ResponseEntity<Integer> updateDocument(@PathVariable int id, @RequestBody TPolDocument obj) {
         obj.id = id;
-        return tpolService.saveDocument(obj) != 0 ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+        return tpolService.saveDocument(obj) != 0 ? ResponseEntity.ok().body(obj.id) : ResponseEntity.notFound().build();
     }
 
     /**

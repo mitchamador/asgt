@@ -17,6 +17,7 @@ import java.sql.Statement;
 import java.sql.Types;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -32,33 +33,57 @@ public class TPolRowRepository {
     }
 
     public List<TPRow> getRows(int id_tarif) {
-        return jdbcTemplate.query("select a.id, a.n_str, a.prim, a.tip_t_tar, b.n_tab, c.n_tab,\n" +
-                        "d.n_tab, a.kof, a.id_tab_ves, a.id_ves_norm, a.id_tab_kof, a.kof_sob, a.skid, a.id_tab_kofbs, e.n_tab, a.koleya\n" +
+        return getRows(id_tarif, 0);
+    }
+
+    private List<TPRow> getRows(int id_tarif, int id_row) {
+
+        List<Object> params = new ArrayList<>();
+
+        String whereClause = "";
+
+        if (id_tarif != 0) {
+            whereClause += (whereClause.isEmpty() ? "where " : " and ") + "a.id_tarif=?";
+            params.add(id_tarif);
+        }
+
+        if (id_row != 0) {
+            whereClause += (whereClause.isEmpty() ? "where " : " and ") + "a.id=?";
+            params.add(id_row);
+        }
+
+        return jdbcTemplate.query("select a.id, a.t_pol, a.n_str, a.prim, a.tip_t_tar, a.klas, b.n_tab as ves_n_tab, c.n_tab as kont_n_tab,\n" +
+                        "d.n_tab as kof_n_tab, a.kof, a.id_tab_ves, a.id_ves_norm, a.id_tab_kof, a.kof_sob, a.skid,\n" +
+                        "a.id_tab_kofbs, e.n_tab as kofbs_n_tab, a.koleya, a.id_tarif\n" +
                         "from tvk_t_pol a\n" +
                         "left outer join tvk_group_t_ves b on a.id_tab_ves = b.id\n" +
                         "left outer join tvk_group_t_kont c on a.id_ves_norm = c.id\n" +
                         "left outer join tvk_group_t_kof d on a.id_tab_kof = d.id\n" +
                         "left outer join tvk_group_t_kof e on a.id_tab_kofbs = e.id\n" +
-                        "where a.id_tarif=? order by 2",
-                new Object[]{id_tarif},
+                        whereClause + "\n" +
+                        "order by 2",
+                params.toArray(),
                 (rs, i) -> {
                     TPRow row = new TPRow();
-                    row.id = rs.getInt(1);
-                    row.nStr = rs.getInt(2);
-                    row.prim = rs.getString(3);
-                    row.tipTTar = rs.getDouble(4);
-                    row.tVes = rs.getDouble(5);
-                    row.vesNorm = rs.getDouble(6);
-                    row.nTab = rs.getInt(7);
-                    row.kof = rs.getDouble(8);
-                    row.id_tab_ves = rs.getInt(9);
-                    row.id_ves_norm = rs.getInt(10);
-                    row.id_tab_kof = rs.getInt(11);
-                    row.kof_sobst = rs.getDouble(12);
-                    row.skid = rs.getInt(13);
-                    row.id_tab_kofbs = rs.getInt(14);
-                    row.bs_tab = rs.getInt(15);
-                    row.koleya = rs.getInt(16);
+                    row.id = rs.getInt("id");
+                    row.tPol = rs.getInt("t_pol");
+                    row.nStr = rs.getInt("n_str");
+                    row.prim = rs.getString("prim");
+                    row.tipTTar = rs.getDouble("tip_t_tar");
+                    row.klas = rs.getDouble("klas");
+                    row.tVes = rs.getDouble("ves_n_tab");
+                    row.vesNorm = rs.getDouble("kont_n_tab");
+                    row.nTab = rs.getInt("kof_n_tab");
+                    row.kof = rs.getDouble("kof");
+                    row.id_tab_ves = rs.getInt("id_tab_ves");
+                    row.id_ves_norm = rs.getInt("id_ves_norm");
+                    row.id_tab_kof = rs.getInt("id_tab_kof");
+                    row.kof_sobst = rs.getDouble("kof_sob");
+                    row.skid = rs.getInt("skid");
+                    row.id_tab_kofbs = rs.getInt("id_tab_kofbs");
+                    row.bs_tab = rs.getInt("kofbs_n_tab");
+                    row.koleya = rs.getInt("koleya");
+                    row.id_tarif = rs.getInt("id_tarif");
                     return row;
                 });
     }
@@ -68,38 +93,7 @@ public class TPolRowRepository {
      * @return
      */
     public TPRow getRow(int idRow) {
-        List<TPRow> rows = jdbcTemplate.query("select a.id, a.t_pol, a.n_str, a.prim, a.tip_t_tar, b.n_tab, klas,\n" +
-                        "c.n_tab, d.n_tab, a.kof, a.skid,\n" +
-                        "a.id_tab_ves, a.id_ves_norm, a.id_tab_kof, a.kof_sob, a.id_tab_kofbs, e.n_tab, a.koleya\n" +
-                        "from tvk_t_pol a\n" +
-                        "left outer join tvk_group_t_ves  b on a.id_tab_ves = b.id\n" +
-                        "left outer join tvk_group_t_kont c on a.id_ves_norm = c.id\n" +
-                        "left outer join tvk_group_t_kof  d on a.id_tab_kof  = d.id\n" +
-                        "left outer join tvk_group_t_kof  e on a.id_tab_kofbs  = e.id\n" +
-                        "where a.id = ?",
-                new Object[]{idRow},
-                (rs, i) -> {
-                    TPRow row = new TPRow();
-                    row.id = rs.getInt(1);
-                    row.tPol = rs.getInt(2);
-                    row.nStr = rs.getInt(3);
-                    row.prim = rs.getString(4);
-                    row.tipTTar = rs.getDouble(5);
-                    row.tVes = rs.getDouble(6);             // tvk_group_t_ves.n_tab (tvk_group_t_ves.id = tvk_t_pol.id_tab_ves)
-                    row.klas = rs.getDouble(7);
-                    row.vesNorm = rs.getDouble(8);
-                    row.nTab = rs.getInt(9);                // tvk_group_t_kont.n_tab (tvk_group_t_kont.id = tvk_t_pol.id_ves_norm)
-                    row.kof = rs.getDouble(10);             // tvk_group_t_kof.n_tab (tvk_group_t_kof.id = tvk_t_pol.id_tab_kof)
-                    row.skid = rs.getInt(11);
-                    row.id_tab_ves = rs.getInt(12);
-                    row.id_ves_norm = rs.getInt(13);
-                    row.id_tab_kof = rs.getInt(14);
-                    row.kof_sobst = rs.getDouble(15);
-                    row.id_tab_kofbs = rs.getInt(16);
-                    row.bs_tab = rs.getInt(17);             // tvk_group_t_kof.n_tab (tvk_group_t_kof.id = tvk_t_pol.id_tab_kofbs)
-                    row.koleya = rs.getInt(18);
-                    return row;
-                });
+        List<TPRow> rows = getRows(0, idRow);
         return rows != null && !rows.isEmpty() ? rows.get(0) : null;
     }
 

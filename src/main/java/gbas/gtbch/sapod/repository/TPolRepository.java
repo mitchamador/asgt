@@ -5,6 +5,7 @@ import gbas.gtbch.sapod.model.TPolDocument;
 import gbas.gtbch.sapod.model.TPolSobst;
 import gbas.gtbch.sapod.model.TpolGroup;
 import gbas.tvk.nsi.cash.Func;
+import gbas.tvk.tpol3.service.TPRow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,8 @@ import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -42,11 +45,11 @@ public class TPolRepository {
      * @param id
      * @return
      */
-    public TPolDocument getDocument(int id) {
+    public TPolDocument getDocument(int id, boolean editorMode) {
         List<TPolDocument> list = getDocuments(id, null, null, null);
         if (list != null && !list.isEmpty()) {
             TPolDocument document = list.get(0);
-            document.sobstList = getSobstList(id, true);
+            document.sobstList = getSobstList(id, !editorMode);
             return document;
         } else {
             return null;
@@ -259,8 +262,10 @@ public class TPolRepository {
 
             preparedStatement.setString(1, tPolDocument.type_code);
             preparedStatement.setString(2, tPolDocument.n_contract);
-            preparedStatement.setTimestamp(3, Timestamp.valueOf(LocalDate.from(tPolDocument.date_begin.toInstant()).atStartOfDay()));
-            preparedStatement.setTimestamp(4, Timestamp.valueOf(LocalDate.from(tPolDocument.date_end.toInstant()).atStartOfDay()));
+            preparedStatement.setTimestamp(3, Timestamp.valueOf(LocalDateTime.ofInstant(tPolDocument.date_begin.toInstant(), ZoneId.systemDefault()).toLocalDate().atStartOfDay()));
+            //preparedStatement.setTimestamp(3, new Timestamp(tPolDocument.date_begin.getTime()));
+            preparedStatement.setTimestamp(4, Timestamp.valueOf(LocalDateTime.ofInstant(tPolDocument.date_end.toInstant(), ZoneId.systemDefault()).toLocalDate().atStartOfDay()));
+            //preparedStatement.setTimestamp(4, new Timestamp(tPolDocument.date_end.getTime()));
             preparedStatement.setString(5, tPolDocument.name);
             preparedStatement.setInt(6, getTPNumber(tPolDocument.type_code));
             preparedStatement.setInt(7, tPolDocument.codTipTar);
@@ -350,5 +355,28 @@ public class TPolRepository {
         jdbcTemplate.update("delete from tvk_tarif where id = ?", args);
 
         return true;
+    }
+
+
+    @Autowired
+    private TPolRowRepository tPolRowRepository;
+
+    /**
+     *
+     * @param sourceId
+     * @param destinationId
+     * @return
+     */
+    public Integer copyDocument(int sourceId, int destinationId) {
+
+        List<TPRow> sourceRows = tPolRowRepository.getRows(sourceId);
+
+        if (sourceRows == null) return null;
+
+        for (TPRow tpRow : sourceRows) {
+            tPolRowRepository.copyRow(tpRow.id, destinationId);
+        }
+
+        return destinationId;
     }
 }

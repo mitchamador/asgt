@@ -1,0 +1,1141 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<th:block th:fragment="documents">
+
+    <script type="application/javascript">
+        $(document).ready($(function () {
+
+            var data = {};
+            data.date_begin = $("#datetime_begin_text").val();
+            data.date_end = $("#datetime_end_text").val();
+
+            var type = "";
+            if ($("#typeDocument option:selected").val() !== "") {
+                type = "/" + $("#typeDocument option:selected").val();
+            }
+
+            var documentTable = $('#documentTable').DataTable({
+                scrollY: "calc(100vh - 280px)",
+                scrollCollapse: true,
+                paging: false,
+                searching: true,
+                info: false,
+                language : {
+                    "zeroRecords": " ",
+                    searchPlaceholder: "Поиск",
+                    "search": "Поиск:"
+                },
+                dom: 't<"row col-sm-1 margin-top-sm"f>',
+                style: 'single',
+                select: { style: 'single'},
+                columnDefs: [
+                    {
+                        "searchable": false,
+                        "orderable": false,
+                        "targets": 0
+                    },
+                    {
+                        targets:   -1,
+                        render: function ( data, type, row ) {
+                            if ( type === 'display' ) {
+                                return '<div style="display: flex; max-width: 650px; width: 100%; height: 100%; vertical-align: center">' +
+                                    '<span style="flex-grow: 1; align-self: center;">' + data + '</span>'+
+                                    '<a id="documentEdit" class="invisible btn-success btn-sm" style="align-self: center; margin-right: 3px; padding: 1px 4px; cursor: pointer"><i class="fa fa-edit"></i></a>' +
+                                    '<a id="documentCopy" class="invisible btn-info btn-sm" style="align-self: center; margin-right: 3px; padding: 1px 5px; cursor: pointer"><i class="fa fa-clone"></i></a>' +
+                                    '<a id="documentDelete" class="invisible btn-danger btn-sm" style="align-self: center; padding: 1px 5px; cursor: pointer"><i class="fa fa-trash"></i></a>' +
+                                    '</div>';
+                            }
+                            return data;
+                        }
+                    },
+                    {
+                        targets:   [1, 2, 3],
+                        render: function ( data, type, row ) {
+                            if ( type === 'display' ) {
+                                return '<span class="text-nowrap">' + data + '</span>';
+                            }
+                            return data;
+                        }
+                    }
+                ],
+                ajax : {
+                    url : contextRoot + "api/tpol/documents" + type,
+                    data: data,
+                    dataSrc: ""
+                },
+                rowId: "id",
+                columns: [
+                    { "data": "id" },
+                    { "data": "n_contract"},
+                    { "data": "date_begin" },
+                    { "data": "date_end" },
+                    { "data": "name" }
+                ],
+                order: [
+                    [2, "asc"],
+                    [3, "asc"],
+                    [4, 'asc']
+                ]
+            });
+
+            function setTableHeight(count) {
+                if (count === 0) {
+                    $('.dataTables_scrollBody').css('height', "calc(100vh - 280px)");
+                } else {
+                    $('.dataTables_scrollBody').css('height', "calc(50vh - 180px)");
+                }
+            }
+
+            addCounterToDataTable(documentTable);
+
+            addDataTableRowListener(documentTable,
+                {
+                    "documentEdit" : function(tr) {
+                        var row = documentTable.row(tr);
+                        var d = row.data();
+                        console.log("Редактирование документа тарифной политики с id=" + d.id);
+
+                        $("#documentEditor").load(
+                            "./document/" + d.id + "/editor"
+                        );
+                    },
+                    "documentDelete" : function(tr) {
+                        var row = documentTable.row(tr);
+                        showYesNoModal("Удалить документ тарифной политики?",
+                            function() {
+                                var d = row.data();
+                                console.log("Удаление документа тарифной политики с id=" + d.id);
+
+                                $.ajax({
+                                    url: contextRoot + "api/tpol/document/" + d.id,
+                                    type: "DELETE",
+                                    cache: false,
+                                    success: function (msg) {
+                                        if (msg === true) {
+                                            row.remove().draw();
+                                            $("#divTableRows").html("");
+                                            setTableHeight(0);
+                                        } else {
+                                            console.log("no data reloading needed");
+                                        }
+                                    }
+                                });
+                            },
+                            function() {
+                                var d = row.data();
+                                console.log("Отмена удаления документа тарифной политики с id=" + d.id);
+                            }
+                        );
+                    },
+                    "documentCopy" : function(tr) {
+                        var row = documentTable.row(tr);
+
+                        var d = row.data();
+                        TpData.documentModal.show({
+                            type: "document",
+                            id: d.id
+                        });
+                        TpData.initDocumentModalTable();
+
+/*
+                        showYesNoModal("Копировать документ тарифной политики?",
+                            function() {
+                                var d = row.data();
+                                console.log("Копирование документа тарифной политики с id=" + d.id);
+
+                                var newDocumentId = 0;
+                                documentTable.row("#" + newDocumentId).select();
+
+                            },
+                            function() {
+                                var d = row.data();
+                                console.log("Отмена копирования документа тарифной политики с id=" + d.id);
+
+                                var newDocumentId = 0;
+                                documentTable.row("#" + newDocumentId).select();
+
+                            }
+                        );
+*/
+                    },
+                    "select" : function (tr) {
+                        var row = documentTable.row(tr).data();
+                        console.log("Загрузка строк тарифной политики для документа с id=" + row.id);
+                        setTableHeight(1);
+
+                        $("body").css("cursor", "progress");
+
+                        $("#divTableRows").load(
+                            "./document/" + row.id + "/rows",
+                            function( response, status, xhr ) {
+                                $("body").css("cursor", "default");
+                            }
+                        );
+                    },
+                    "deselect" : function(tr) {
+                        if (documentTable.rows({selected: true}).count() === 0) {
+                            $("#divTableRows").html("");
+                            setTableHeight(0);
+                        }
+                    }
+                }
+            );
+
+            setTableHeight(0);
+
+            window.TpData = {
+                documentModalTable: undefined,
+                initDocumentModalTable: function() {
+                    if (this.documentModalTable === undefined) {
+
+                        this.documentModalTable = $('#documentModalTable').DataTable({
+                            scrollY: "50vh",
+                            scrollCollapse: true,
+                            paging: false,
+                            searching: true,
+                            info: false,
+                            language : {
+                                "zeroRecords": " ",
+                                searchPlaceholder: "Поиск",
+                                "search": "Поиск:"
+                            },
+                            select: { style: 'single'},
+                            columnDefs: [
+                                {
+                                    "searchable": false,
+                                    "orderable": false,
+                                    "targets": 0
+                                }
+                            ],
+                            data: TpData.documentTable.data(),
+                            columns: [
+                                { "data": "id" },
+                                { "data": "n_contract" },
+                                { "data": "date_begin" },
+                                { "data": "date_end" },
+                                { "data": "name" }
+                            ]
+                        });
+
+                        addCounterToDataTable(this.documentModalTable);
+                    }
+                },
+                documentTable : documentTable,
+                documentModal : initModal("#documentModal", {
+                    "copyButton" : function(p) {
+                        var row = TpData.documentModalTable.row({'selected' : true}).data();
+
+                        var destinationDocumentId = row !== undefined ? row.id : undefined;
+
+                        if (p.type === 'row') {
+                            var sourceRowId = p.id;
+                            if (sourceRowId !== undefined) {
+
+                                console.log("copy row, source id=" + sourceRowId + ", destination document id=" + destinationDocumentId);
+
+                                $.ajax({
+                                    url: contextRoot + "api/tpol/row/" + sourceRowId + "/copy",
+                                    data: {
+                                        doc_id: destinationDocumentId
+                                    },
+                                    type: "GET",
+                                    cache: false,
+                                    success: function (msg) {
+                                        if (msg !== undefined && msg.id !== 0) {
+                                            console.log("created row id=" + msg.id);
+                                            TpData.documentTable.row("#" + destinationDocumentId).select();
+                                        } else {
+                                            console.log("no data reloading needed");
+                                        }
+                                    }
+                                });
+
+                            }
+                        } else if (p.type === 'document') {
+                            var sourceDocumentId = p.id;
+                            if (sourceDocumentId !== undefined ) {
+                                console.log("copy all rows, source document id=" + sourceDocumentId + ", destination document id=" + destinationDocumentId);
+
+                                $.ajax({
+                                    url: contextRoot + "api/tpol/document/" + sourceDocumentId + "/copy",
+                                    data: {
+                                        doc_id: destinationDocumentId
+                                    },
+                                    type: "GET",
+                                    cache: false,
+                                    success: function (id) {
+                                        if (id !== undefined && id !== 0) {
+                                            console.log("copied rows to id=" + id);
+                                            TpData.documentTable.row("#" + id).select();
+                                        } else {
+                                            console.log("no data reloading needed");
+                                        }
+                                    }
+                                });
+
+                            }
+                        }
+                    },
+                    "cancelCopyButton" : function (p) {
+                        console.log("cancel copy");
+                    }
+                })
+            };
+
+
+        }));
+
+    </script>
+
+    <div id="documentEditor">
+    </div>
+
+    <div id="documentModal" class="modal" data-keyboard="true" data-backdrop="static" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Выбор целевого документа тарифной политики для копирования</h5>
+                </div>
+                <div class="modal-body">
+                    <table id="documentModalTable" class="table-condensed table-bordered" style="width:100%; font-size: 0.9em">
+                        <thead>
+                        <tr>
+                            <th style="width: 5%">№ п/п</th>
+                            <th style="width: 20%">№ документа</th>
+                            <th style="width: 10%">Дата начала</th>
+                            <th style="width: 10%">Дата окончания</th>
+                            <th style="width: 47%">Примечание</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button id="copyButton" type="button" class="btn btn-success">Копировать</button>
+                    <button id="cancelCopyButton" type="button" class="btn btn-danger">Отмена</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <table id="documentTable" class="table-condensed table-bordered" style="width:100%; font-size: 0.9em">
+        <thead>
+        <tr>
+            <th style="width: 5%">№ п/п</th>
+            <th style="width: 20%">№ документа</th>
+            <th style="width: 10%">Дата начала</th>
+            <th style="width: 10%">Дата окончания</th>
+            <th style="width: 55%">Примечание</th>
+        </tr>
+        </thead>
+    </table>
+
+</th:block>
+
+<th:block th:fragment="documentEditor">
+
+    <script th:inline="javascript">
+        $(document).ready($(function () {
+
+            /*<![CDATA[*/
+            var document = [[${document}]];
+            var tarif = [[${tarif}]];
+            /*]]>*/
+            tarif.unshift({ code: "0", name: ""});
+
+            $("#datetimeBeginDocument").datetimepicker({
+                todayHighlight: true,
+                format: "dd.mm.yyyy",
+                language: 'ru',
+                minView: 2,
+                autoclose: true,
+                weekStart: 1
+            });
+            $("#datetimeBeginDocument").datetimepicker('setDate', new Date(document.date_begin));
+
+            $("#datetimeEndDocument").datetimepicker({
+                format: "dd.mm.yyyy",
+                language: 'ru',
+                minView: 2,
+                autoclose: true,
+                weekStart: 1
+            });
+            $("#datetimeEndDocument").datetimepicker('setDate', new Date(document.date_end));
+
+
+            $('#checkColumn').click(function () {
+                $("#sobstTable tr").find("input:checkbox").prop("checked", $("#sobstTable tr").find("input:checkbox").length !== $("#sobstTable tr td input:checked").length);
+            });
+
+            $('#codTipTar').inputpicker({
+                data: tarif,
+                fields: ['code', 'name'],
+                fieldText : 'name',
+                fieldValue : 'code',
+                headShow: false,
+                //filterOpen: true,
+                autoOpen: true
+            });
+
+            function destroyComponents() {
+                $("#datetimeBeginDocument").datetimepicker('remove');
+                $("#datetimeEndDocument").datetimepicker('remove');
+                $('#codTipTar').inputpicker('destroy');
+            }
+
+            var modalDocumentEditor = initModal("#documentEditModal", {
+                "okDocumentButton" : function (document) {
+
+                    debugger;
+
+                    document.n_contract = $("#nContract").val();
+
+                    document.name = $("#name").val();
+
+/*
+                    var date;
+                    date = $("#datetimeBeginDocument").datetimepicker('getDate');
+                    document.date_begin = new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toJSON();
+                    date = $("#datetimeEndDocument").datetimepicker('getDate');
+                    document.date_end = new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toJSON();
+*/
+
+                    document.date_begin = $("#datetimeBeginDocument").datetimepicker('getDate');
+                    document.date_end = $("#datetimeEndDocument").datetimepicker('getDate');
+
+                    if ($("#codDobor option:selected").val() !== "") {
+                        document.codDobor = $("#codDobor option:selected").val();
+                    }
+
+                    document.codTipTar = $('#codTipTar').val();
+
+                    // clear all checked
+                    document.sobstList.every(function(s) {
+                        s.checked = false;
+                        return true;
+                    });
+
+                    // set checked
+                    var trList = $("#sobstTable tr td :checked").closest('tr');
+                    for (var i = 0; i < trList.length; i++) {
+                        (function(e) {
+                            var adm = document.sobstList.find(function (sobst) {
+                                    return sobst.kAdm === e;
+                                }
+                            );
+                            if (adm !== undefined) {
+                                adm.checked = true;
+                            }
+                        })($(trList[i]).data("kadm"));
+                    }
+
+                    var documentId = document.id;
+
+                    $.ajax({
+                        url: contextRoot + "api/tpol/document/" + (document.id !== 0 ? document.id : ""),
+                        type: document.id !== 0 ? 'PUT' : 'POST',
+                        data: JSON.stringify(document),
+                        cache: false,
+                        contentType: "application/json",
+                        success: function(msg) {
+                            documentId = msg;
+                        },
+                        complete: function ( jqXHR, textStatus) {
+                            if (textStatus === 'success') {
+                                console.log("Сохранение документа тарифной политики с id=" + documentId);
+                            } else {
+                                if (documentId === undefined || documentId === 0) {
+                                    console.log("Ошибка при сохранении нового документа тарифной политики");
+                                } else {
+                                    alert("Ошибка сохранения документа");
+                                    console.log("Ошибка при сохранении документа тарифной политики с id=" + documentId);
+                                }
+                            }
+                            destroyComponents();
+                        }
+                    });
+
+                },
+                "cancelDocumentButton": function (document) {
+                    console.log("Отмена сохранения документа тарифной политики с id=" + document.id);
+                    destroyComponents();
+                }
+            });
+
+            modalDocumentEditor.show(document);
+
+        }));
+    </script>
+
+    <div id="documentEditModal" class="modal" data-keyboard="true" data-backdrop="static" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Редактирование документа тарифной политики</h5>
+                </div>
+
+                <div class="modal-body" style="margin-left: 10px; margin-right: 10px">
+
+                    <div class="row">
+
+                        <div class="col-sm-6" style="width: 50%;">
+
+                            <div class="form-group" style="width: 100%;">
+                                <span class="has-float-label">
+                                    <input class="form-control" id="nContract" type="text"
+                                           placeholder=""
+                                           th:value="${document.getNContract()}"/>
+                                    <label for="nContract">Номер документа</label>
+                                </span>
+                            </div>
+
+                            <div id="datetimeBeginDocument" class="form-group input-group date" style="width: 100%;">
+                                <span class="has-float-label">
+                                    <label for="dateBeginText">Дата начала действия</label>
+                                    <input id="dateBeginText" type="text" class="form-control">
+                                </span>
+                                <span class="input-group-addon">
+                                    <i class="glyphicon glyphicon-calendar"></i>
+                                </span>
+                            </div>
+
+                            <div id="datetimeEndDocument" class="form-group input-group date" style="width: 100%;">
+                                <span class="has-float-label">
+                                    <label for="dateEndText">Дата окончания действия</label>
+                                    <input id="dateEndText" type="text" class="form-control">
+                                </span>
+                                <span class="input-group-addon">
+                                    <i class="glyphicon glyphicon-calendar"></i>
+                                </span>
+                            </div>
+
+                            <div class="form-group" style="width: 100%">
+                                <span class="has-float-label">
+                                    <label for="codDobor">Использовать при доборе</label>
+                                    <select id="codDobor" class="form-control">
+                                        <option value="0" th:selected="${document.getCodDobor() == 0}">Нет</option>
+                                        <option value="1" th:selected="${document.getCodDobor() == 1}">Да</option>
+                                    </select>
+                                </span>
+                            </div>
+
+                            <div class="form-group" style="width: 100%">
+                                <span class="has-float-label">
+                                    <label for="codTipTar">Прейскурант для расчета</label>
+                                    <input id="codTipTar" class="form-control" style="pointer-events: none;" th:value="${document.getCodTipTar()}">
+                                </span>
+                            </div>
+
+                            <div class="form-group" style="width: 100%;">
+                                <span class="has-float-label">
+                                    <textarea rows="5" class="form-control" id="name"
+                                              placeholder=""
+                                              th:text="${document.getName()}">
+                                    </textarea>
+                                    <label for="name">Комментарий</label>
+                                </span>
+                            </div>
+
+                        </div>
+                        <div class="col-sm-6">
+                            <span class="has-float-label">
+                                <label for="sobstTable">Админстрации действия документа</label>
+                                <table id="sobstTable" class="form-control table-condensed table-bordered" style="display: block; height: 60vh; max-height: 400px; overflow-y: scroll; width: 100%; font-size: 0.9em">
+                                    <thead>
+                                    <tr>
+                                        <th class="text-center" scope="col" style="width: 10%;">
+                                            <span id="checkColumn" class="glyphicon glyphicon-check"></span>
+                                        </th>
+                                        <th style="width: 20%">Мнемокод</th>
+                                        <th style="width: 70%">Наименование</th>
+                                    </tr>
+                                    </thead>
+                                    <th:block th:each="s : ${document.sobstList}">
+                                        <tr th:data-kadm="${s.getkAdm()}">
+                                            <td style="padding: 2px" class="text-center">
+                                                <input type="checkbox" th:checked="${s.isChecked()}">
+                                            </td>
+                                            <td style="padding: 2px" th:text="${s.getsName()}"></td>
+                                            <td style="padding: 2px" th:text="${s.getName()}"></td>
+                                        </tr>
+                                    </th:block>
+                                </table>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="okDocumentButton" type="button" class="btn btn-success">Сохранить</button>
+                    <button id="cancelDocumentButton" type="button" class="btn btn-default">Выход</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</th:block>
+
+<th:block th:fragment="rows">
+
+    <script type="application/javascript">
+        $(document).ready($(function () {
+
+            var rowTable = $('#rowTable').DataTable({
+                scrollY: "calc(50vh - 160px)",
+                scrollCollapse: true,
+                paging: false,
+                searching: false,
+                info: false,
+                language : {
+                    "zeroRecords": " "
+                },
+                select: { style: 'single'}
+            });
+
+            addDataTableRowListener(rowTable, {
+                "rowEdit": function(tr) {
+
+                    $("body").css("cursor", "progress");
+
+                    var d = rowTable.row(tr).data();
+
+                    $("#divItems").load(
+                        "./row/" + tr.attr("id-row") + "/items",
+                        function(responseText, textStatus, jqXHR) {
+
+                            $("body").css("cursor", "default");
+
+                            if (textStatus !== 'error') {
+                                $("#rowText").html(d[1]);
+                                $("#tpPages").children().removeClass("active");
+                                $("#page2").toggleClass("active");
+                            } else {
+                                alert("Ошибка загрузки строки тарифной политики c id=" + tr.attr("id-row"));
+                            }
+
+                        }
+                    );
+
+                },
+                "rowCopy": function (tr) {
+
+/*
+                    TpData.documentModal.show({
+                        type: "row",
+                        id: tr.attr("id-row")
+                    });
+                    TpData.initDocumentModalTable();
+*/
+
+                    var row = rowTable.row(tr);
+                    var rowId = tr.attr("id-row");
+
+                    showYesNoModal("Копировать строку тарифной политики?",
+                        function () {
+                            console.log("Копирование строки тарифной политики с id=" + rowId);
+
+                            $.ajax({
+                                url: contextRoot + "api/tpol/row/" + rowId + "/copy",
+                                type: "GET",
+                                cache: false,
+                                success: function (msg) {
+                                    if (msg !== undefined && msg.id !== 0) {
+                                        console.log("created row id=" + msg.id);
+                                        TpData.documentTable.row({selected: true}).select();
+                                    } else {
+                                        console.log("no data reloading needed");
+                                    }
+                                }
+                            });
+
+                        },
+                        function () {
+                            console.log("Отмена копирования строки тарифной политики с id=" + rowId);
+                        }
+                    );
+
+                },
+                "rowDelete": function (tr) {
+
+                    var row = rowTable.row(tr);
+                    var rowId = tr.attr("id-row");
+
+                    showYesNoModal("Удалить строку тарифной политики?",
+                        function () {
+                            console.log("Удаление строки тарифной политики с id=" + rowId);
+
+                            $.ajax({
+                                url: contextRoot + "api/tpol/row/" + rowId,
+                                type: "DELETE",
+                                cache: false,
+                                success: function (msg) {
+                                    if (msg === true) {
+                                        row.remove().draw();
+                                    } else {
+                                        console.log("no data reloading needed");
+                                    }
+                                }
+                            });
+                        },
+                        function () {
+                            console.log("Отмена удаления строки тарифной политики с id=" + rowId);
+                        }
+                    );
+                }
+            });
+
+        }));
+    </script>
+
+    <table id="rowTable" class="table-condensed table-bordered" style="width:100%; font-size: 0.9em;">
+        <thead>
+        <tr>
+            <th style="width: 7%">№ строки</th>
+            <th style="width: 30%">Примечание</th>
+            <th style="width: 7%">Баз. тариф</th>
+            <th style="width: 7%">№ табл ВО</th>
+            <th style="width: 7%">№ табл конт</th>
+            <th style="width: 7%">№ табл расст</th>
+            <th style="width: 7%">Коэф/ставка</th>
+            <th style="width: 7%">Коэф собст</th>
+            <th style="width: 7%">Признак БС</th>
+            <th style="width: 7%">№ таблицы</th>
+            <th style="width: 10%">Колея</th>
+        </tr>
+        </thead>
+        <tbody>
+        <th:block th:each="row : ${tpolRows}">
+            <tr data-th-id-row="${row.getId()}">
+                <td th:text="${row.getnStr()}"></td>
+                <td th:text="${row.getPrim()}"></td>
+                <td th:text="${row.getTipTTar()}"></td>
+                <td th:text="${row.gettVes()}"></td>
+                <td th:text="${row.getKlas()}"></td>
+                <td th:text="${row.getVesNorm()}"></td>
+                <td th:text="${row.getKof()}"></td>
+                <td th:text="${row.getKof_sobst()}"></td>
+                <td th:text="${row.getBs_tab()}"></td>
+                <td th:text="${row.nTab}"></td>
+                <td>
+                    <div style="display: flex; width: 100%; height: 100%">
+                        <span style="flex-grow: 1; align-self: center;" th:text="${row.getKoleya()}"></span>
+                        <a id="rowEdit" class="invisible btn-success btn-sm" style="align-self: center; margin-right: 3px; padding: 1px 4px; cursor: pointer"><i class="fa fa-edit"></i></a>
+                        <a id="rowCopy" class="invisible btn-info btn-sm" style="align-self: center; margin-right: 3px; padding: 1px 5px; cursor: pointer"><i class="fa fa-clone"></i></a>
+                        <a id="rowDelete" class="invisible btn-danger btn-sm" style="align-self: center; padding: 1px 5px; cursor: pointer"><i class="fa fa-trash"></i></a>
+                    </div>
+                </td>
+            </tr>
+        </th:block>
+
+        </tbody>
+    </table>
+
+</th:block>
+
+<th:block th:fragment="items">
+
+    <script th:inline="javascript">
+        $(document).ready($(function () {
+
+            /*<![CDATA[*/
+            var rowId = [[${rowId}]];
+            /*]]>*/
+
+            $(".list-group-item").click(function(e){
+                $("#listGroup").children().removeClass("active");
+                $(this).toggleClass("active");
+
+                var item = $(this).attr("item");
+
+                $("#itemData").load(
+                    "./row/" + rowId + "/item/" + item
+                );
+            });
+
+            $("#backButton").click(function (e) {
+                $("#tpPages").children().removeClass("active");
+                $("#page1").toggleClass("active");
+            });
+
+        }));
+    </script>
+
+    <div class="row">
+        <span id="rowText" style="margin-left: 230px"></span>
+        <div class="side" style="width: 220px;">
+            <div style="position:relative;width:100%;height:100%;">
+                <div class="scroll-area">
+                    <div id="listGroup" class="list-group" style="width:100%;height:100%; font-size: 0.9em">
+                            <th:block th:each="item : ${items}">
+                                <a class="list-group-item" data-th-item="${item.getName()}">
+                                    [[${item.getButtonName()}]]<span th:class="${item.getItemDataSize() == 0} ? 'invisible badge' : 'badge'">[[${item.getItemDataSize()}]]</span>
+                                </a>
+                            </th:block>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div style="margin-left: 230px; height: calc(100vh - 210px)">
+                <div id="itemData">
+                </div>
+            </div>
+            <div class="display" style="width: 100%; text-align: right">
+                <button id="backButton" class="text-right btn btn-primary" type="button">
+                    Назад
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+</th:block>
+
+<th:block th:fragment="item">
+    <script th:inline="javascript">
+        $(document).ready($(function () {
+            /*<![CDATA[*/
+            var rowId = [[${rowId}]];
+            var item = [[${item}]];
+            /*]]>*/
+
+            var buttons;
+
+            if (item.name === 'Cargo') {
+                buttons = [
+                    {
+                        extend: 'collection',
+                        className: 'btn btn-sm btn-success',
+                        text: '<i class="fa fa-plus"></i>',
+                        buttons: [
+                            {
+                                text: 'Справочник ГНГ',
+                                action: function (e, dt, node, config) {
+                                    _getNsi(0);
+                                }
+                            },
+                            {
+                                text: 'Справочник ЕТСНГ',
+                                action: function (e, dt, node, config) {
+                                    _getNsi(1);
+                                }
+                            }
+                        ],
+                        dropup: true,
+                        fade: 0,
+                        autoClose: true
+                    }
+                ];
+            } else {
+                buttons = [
+                    {
+                        className: 'btn btn-sm btn-success',
+                        text: '<i class="fa fa-plus"></i>',
+                        action: function (e, dt, node, config) {
+                            _getNsi(0);
+                        }
+                    }
+                ];
+            }
+
+            var itemTable = $('#itemDataTable').DataTable({
+                scrollY: "calc(100vh - 300px)",
+                scrollCollapse: true,
+                paging: false,
+                data: item.itemData,
+                searching: false,
+                info: false,
+                language : {
+                    "zeroRecords": " "
+                },
+                select: { style: 'os'},
+                columnDefs: [
+                    {
+                        "searchable": false,
+                        "orderable": false,
+                        "targets": 0
+                    },
+                    {
+                        targets:   -1,
+                        render: function ( data, type, row ) {
+                            if ( type === 'display' ) {
+                                return '<div style="display: flex; width: 100%; height: 100%; vertical-align: center">' +
+                                    '<span style="flex-grow: 1; align-self: center;">' + data + '</span>' +
+                                    '<a id="dataDelete" class="invisible btn-danger btn-sm" style="align-self: center; padding: 2px 6px; cursor: pointer"><i class="fa fa-trash"></i></a>' +
+                                    '</div>';
+                            }
+                            return data;
+                        }
+                    }
+                ],
+                buttons: buttons,
+                dom: 't<"text-left"B>'
+            });
+
+            function _getNsi(set) {
+                if (item.name === 'ClassItem' || item.name === 'Distance') {
+                    $("#nsiModal").modal('show');
+                } else {
+                    var reinit = item.set !== set;
+                    item.set = set;
+                    getNsi(item, function (data) {
+                        $("#nsiModal").modal('show');
+                        if (nsiTable === undefined || reinit) {
+                            initNsiTable(data);
+                        } else {
+                            nsiTable.rows().deselect();
+                        }
+                    });
+                }
+            }
+
+            addCounterToDataTable(itemTable);
+
+            function setItemCount(count) {
+                var spanBadge = $("#listGroup").find("[item='" + item.name + "']").find("span");
+
+                if (spanBadge !== undefined) {
+                    if (count <= 0) {
+                        spanBadge.text("");
+                        if (!spanBadge.hasClass("invisible")) {
+                            spanBadge.toggleClass("invisible")
+                        }
+                    } else {
+                        spanBadge.text(count);
+                        if (spanBadge.hasClass("invisible")) {
+                            spanBadge.toggleClass("invisible")
+                        }
+                    }
+                }
+            }
+
+            addDataTableRowListener(itemTable,
+                {
+                    "dataDelete": function (tr, table) {
+                        showYesNoModal("Удалить данные?",
+                            function () {
+                                var rows = table.rows({'selected' : true});
+                                var data = rows.data();
+
+                                var params = {};
+
+                                params.set = item.set;
+                                if (data.length === 1) {
+                                    //params.data = Array.from(data);
+                                    params.data = data[0];
+                                } else {
+                                    //params.array = Array.from(data);
+                                    params.array = [];
+                                    for (var i = 0; i < data.length; i++) {
+                                        params.array.push(data[i])
+                                    }
+                                }
+
+                                $.ajax({
+                                    url: contextRoot + "api/tpol/row/" + rowId + "/item/" + item.name,
+                                    type: "DELETE",
+                                    data: params,
+                                    traditional: true,
+                                    cache: false,
+                                    success: function (msg) {
+                                        if (msg === true) {
+                                            reloadItemData();
+                                        } else {
+                                            console.log("no data reloading needed");
+                                        }
+                                    }
+                                });
+                            });
+                    }
+                }
+            );
+
+            setItemCount(item.itemDataSize);
+
+            var nsiTable;
+
+            function initNsiTable(data) {
+
+                if (nsiTable !== undefined) {
+                    nsiTable.clear().destroy(true);
+                    $('#tableHolder').append('<table id="nsiDataTable" class="table-condensed table-bordered" style="font-size: 0.9em"></table>')
+                }
+
+                var columns = [{ width: "20px", title: "№ п/п" }];
+
+                for (var i = 0; i < item.nsiColumns[item.set].length; i++) {
+                    var nsiColumn = item.nsiColumns[item.set][i];
+                    var column = {};
+                    column.width = nsiColumn.width + "px";
+                    column.title = nsiColumn.text;
+
+                    columns.push(column);
+                }
+
+                var order = [];
+                if (item.name === 'CountryCalculationItem' || item.name === 'CountryTargetItem' || item.name === 'CountrySourceItem') {
+                    order = [
+                        [3, 'desc'],
+                        [1, 'asc']
+                    ]
+                } else {
+                    order = [
+                        [1, 'asc']
+                    ]
+                }
+
+                nsiTable = $('#nsiDataTable').DataTable({
+                    scrollY: "50vh",
+                    scrollCollapse: false,
+                    paging: data.length > 1000,
+                    lengthChange: false,
+                    pageLength: 100,
+                    pagingType: "full_numbers",
+                    searching: true,
+                    data: data,
+                    info: false,
+                    deferRender: true,
+                    order: order,
+                    language: {
+                        "zeroRecords": " ",
+                        searchPlaceholder: "Поиск",
+                        "search": "Поиск:",
+                        paginate: {
+                            first:    '«',
+                            previous: '‹',
+                            next:     '›',
+                            last:     '»'
+                        }
+                    },
+                    select: {style: 'os'},
+                    columnDefs: [
+                        {
+                            "searchable": false,
+                            "orderable": false,
+                            "targets": 0
+                        }
+                    ],
+                    columns: columns
+                });
+
+                addCounterToDataTable(nsiTable);
+            }
+
+
+            addModalButtonsListener("#nsiModal", {
+                "addButton" : function () {
+                    // save data
+                    var params = {};
+
+                    if (item.name === 'ClassItem') {
+                        params.data = [$("#inputData").val()];
+                    } else if (item.name === 'Distance') {
+                        params.data = [$("#distanceFrom").val(), $("#distanceTo").val()];
+                    } else {
+                        var selected = nsiTable.rows({selected: true}).data();
+
+                        if (selected.length === 0) return;
+
+                        params.set = item.set;
+                        if (selected.length === 1) {
+                            //params.data = Array.from(selected);
+                            params.data = selected[0];
+                        } else {
+                            //params.array = Array.from(selected);
+                            params.array = [];
+                            for (var i = 0; i < selected.length; i++) {
+                                params.array.push(selected[i])
+                            }
+                        }
+                    }
+
+                    $.ajax({
+                        url: contextRoot + "api/tpol/row/" + rowId + "/item/" + item.name,
+                        type: "POST",
+                        data: params,
+                        traditional: true,
+                        cache: false,
+                        success: function (msg) {
+                            if (msg === true) {
+                                reloadItemData();
+                            } else {
+                                console.log("no data added");
+                            }
+                        }
+                    });
+
+                },
+                "cancelButton": function() {
+                    console.log("cancel button pressed");
+                }
+            });
+
+            function reloadItemData() {
+                var params = {};
+                params.set = 0;
+                $.ajax({
+                    url: contextRoot + "api/tpol/row/" + rowId + "/item/" + item.name,
+                    type: "get",
+                    data: params,
+                    cache: false,
+                    success: function (data) {
+                        item.itemData = data;
+                        item.itemDataSize = data.length;
+
+                        itemTable.rows().clear();
+                        itemTable.rows.add(data).draw();
+
+                        setItemCount(itemTable.rows().data().length);
+                    }
+                });
+            }
+
+        }));
+    </script>
+
+    <div id="nsiModal" class="modal" data-keyboard="true" data-backdrop="static" tabindex="-1">
+        <div th:class="'modal-dialog' + ${item.getName().equals('Distance') || item.getName().equals('ClassItem') ? '' : ' modal-lg'}">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" th:text="${item.getNsiHeader()}">Modal Title</h5>
+                </div>
+                <div class="modal-body" id="tableHolder">
+                    <th:block th:switch="${item.getName()}">
+                        <div th:case="ClassItem">
+                            <label th:text="${item.getNsiHeader() + ':'}"></label>
+                            <input type="text" oninput="this.value=this.value.replace(/[^0-9]/g,'');" maxlength="1" id="inputData" class="form-control" style="width: 100%"/>
+                        </div>
+                        <div th:case="Distance" th:style="'display: inline-flex; width: 100%'">
+                            <h5><span class="text-nowrap" style="margin-right: 5px;">Расстояние с</span></h5>
+                            <input type="text" oninput="this.value=this.value.replace(/[^0-9]/g,'');" maxlength="4" id="distanceFrom" class="form-control" style="flex-grow: 1"/>
+                            <h5><span style="margin-right: 5px; margin-left: 5px">по</span></h5>
+                            <input type="text" oninput="this.value=this.value.replace(/[^0-9]/g,'');" maxlength="4" id="distanceTo" class="form-control" style="flex-grow: 1"/>
+                        </div>
+                        <div th:case="*">
+                            <table id="nsiDataTable" class="table-condensed table-bordered" style="font-size: 0.9em">
+                            </table>
+                        </div>
+                    </th:block>
+                </div>
+                <div class="modal-footer">
+                    <button id="addButton" type="button" class="btn btn-success">Добавить</button>
+                    <button id="cancelButton" type="button" class="btn btn-danger">Отмена</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <table id="itemDataTable" class="table-condensed table-bordered" style="width:100%; font-size: 0.9em">
+        <thead>
+        <tr>
+            <th style="width: 20px">№ п/п</th>
+            <th:block th:each="column : ${item.getColumns()}">
+                <th th:style="'width: ' + ${column.width} + 'px'" th:text="${column.text}"></th>
+            </th:block>
+        </tr>
+        </thead>
+    </table>
+</th:block>
+
+</body>
+</html>

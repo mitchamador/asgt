@@ -29,6 +29,7 @@
             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
                aria-expanded="false">НСИ<span class="caret"></span></a>
             <ul class="dropdown-menu">
+                <li><a th:href="@{/user/nsi/tpol/index}">Тарифная политика</a></li>
                 <li><a th:href="@{/user/nsi/currency}">Курсы валют</a></li>
             </ul>
         </li>
@@ -59,6 +60,7 @@
             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
                aria-expanded="false">НСИ<span class="caret"></span></a>
             <ul class="dropdown-menu">
+                <li><a th:if="${#authentication.getPrincipal().getUsername().trim().equals('victor')}" th:href="@{/user/nsi/tpol/index}">Просмотр ТП</a></li>
                 <li><a th:href="@{/user/nsi/currency}">Курсы валют</a></li>
             </ul>
         </li>

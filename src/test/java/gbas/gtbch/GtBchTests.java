@@ -6,7 +6,8 @@ import gbas.gtbch.sapod.model.Currency;
 import gbas.gtbch.sapod.model.ExchangeRate;
 import gbas.gtbch.sapod.model.TPolDocument;
 import gbas.gtbch.sapod.model.TpImportDate;
-import gbas.gtbch.sapod.repository.TPolRepository;
+import gbas.gtbch.sapod.service.TPolService;
+import gbas.gtbch.sapod.service.TPolRowService;
 import gbas.gtbch.sapod.service.CalculationLogService;
 import gbas.gtbch.sapod.service.CurrencyService;
 import gbas.gtbch.sapod.service.ExchangeRateService;
@@ -16,6 +17,7 @@ import gbas.gtbch.web.request.KeyValue;
 import gbas.gtbch.websapod.ServicesImpl;
 import gbas.sapod.bridge.controllers.Services;
 import gbas.sapod.bridge.utilities.JsonBuilder;
+import gbas.tvk.tpol3.service.TPRow;
 import gbas.tvk.util.UtilDate;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -135,7 +137,7 @@ public class GtBchTests {
 	}
 
 	@Autowired
-	TPolRepository tpolRepository;
+	TPolService tpolService;
 
 	@Test
 	public void tpolRepositoryTest() throws ParseException {
@@ -155,13 +157,13 @@ public class GtBchTests {
 */
 
 
-		list = tpolRepository.getDocuments(null, null);
+		list = tpolService.getDocuments(null, null);
 		logger.info("getDocuments(null, null): " + (list == null ? "null" : ("list size = " + list.size())));
-		list = tpolRepository.getDocuments(getDate("01.01.2020"), null);
+		list = tpolService.getDocuments(getDate("01.01.2020"), null);
 		logger.info("getDocuments(date, null): " + (list == null ? "null" : ("list size = " + list.size())));
-		list = tpolRepository.getDocuments(null, getDate("01.01.2018"));
+		list = tpolService.getDocuments(null, getDate("01.01.2018"));
 		logger.info("getDocuments(null, date): " + (list == null ? "null" : ("list size = " + list.size())));
-		list = tpolRepository.getDocuments(getDate("01.01.2018"), getDate("01.01.2020"));
+		list = tpolService.getDocuments(getDate("01.01.2018"), getDate("01.01.2020"));
 		logger.info("getDocuments(date, date): " + (list == null ? "null" : ("list size = " + list.size())));
 	}
 
@@ -184,7 +186,7 @@ public class GtBchTests {
 
 	@Test
 	public void calculationLogTest1() {
-		CalculationLog calculationLog = new CalculationLog();
+		CalculationLog calculationLog = new CalculationLog(UUID.randomUUID().toString() + "1");
 		calculationLog.setNumber("1234");
 		calculationLog.setStation("150000");
 		calculationLog.setType(CalculationLog.Type.CARD);
@@ -280,6 +282,22 @@ public class GtBchTests {
 	public void utilDate8Tests() {
 		logger.info("UtilDate8.getDate(\"01.01.2020\") {}", UtilDate8.getDate("01.01.2020"));
 		logger.info("UtilDate8.getDate(\"01.01.2020 00:20\") {}", UtilDate8.getDate("01.01.2020 00:20"));
+	}
+
+	@Autowired
+	private TPolRowService tPolRowService;
+
+	@Test
+	public void copyTpRowTest() {
+		TPRow row = tPolRowService.copyRow(3482, 80);
+		if (row != null) {
+			tPolRowService.deleteRow(row.id);
+		}
+	}
+
+	@Test
+	public void deleteTpRowTest() {
+		tPolRowService.deleteRow(6256);
 	}
 
 }

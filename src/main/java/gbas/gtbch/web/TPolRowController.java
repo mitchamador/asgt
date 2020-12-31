@@ -59,9 +59,9 @@ public class TPolRowController {
      * @param documentId - destinatation documentId
      */
     @RequestMapping(value = "/{id}/copy", method = RequestMethod.GET)
-    public ResponseEntity<TPRow> copyRow(@PathVariable int id, @RequestParam(required = false, name = "doc_id") int documentId) {
+    public ResponseEntity<TPRow> copyRow(@PathVariable int id, @RequestParam(required = false, name = "doc_id") Integer documentId) {
         logger.info("copy source tp row with id = {} to tp document with id {}", id, documentId);
-        return new ResponseEntity<>(tpolRowService.copyRow(id, documentId), HttpStatus.OK);
+        return new ResponseEntity<>(tpolRowService.copyRow(id, documentId != null ? documentId : 0), HttpStatus.OK);
     }
 
     /**

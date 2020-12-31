@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{fragments/layout}">
+<head>
+    <title></title>
+</head>
+<body>
+
+<div layout:fragment="content" th:remove="tag">
+
+    <!--    <link rel="stylesheet" type="text/css" th:href="@{/webjars/datatables/css/jquery.dataTables.min.css}"/>-->
+    <link rel="stylesheet" type="text/css" th:href="@{/webjars/datatables/css/dataTables.bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/webjars/datatables-select/css/select.dataTables.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/webjars/datatables-select/css/select.bootstrap.min.css}"/>
+<!--    <link rel="stylesheet" type="text/css" th:href="@{/webjars/datatables-buttons/css/buttons.dataTables.min.css}"/>-->
+    <link rel="stylesheet" type="text/css" th:href="@{/webjars/datatables-buttons/css/buttons.bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/jquery.inputpicker.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/bootstrap-float-label.css}">
+
+    <script type="text/javascript" th:src="@{/js/jquery.treegrid.js}"></script>
+    <script type="text/javascript" th:src="@{/js/jquery.inputpicker.js}"></script>
+    <script type="text/javascript" th:src="@{/webjars/datatables/js/jquery.dataTables.min.js}"></script>
+    <script type="text/javascript" th:src="@{/webjars/datatables/js/dataTables.bootstrap.min.js}"></script>
+    <script type="text/javascript" th:src="@{/webjars/datatables-select/js/dataTables.select.min.js}"></script>
+    <script type="text/javascript" th:src="@{/webjars/datatables-buttons/js/dataTables.buttons.min.js}"></script>
+    <script type="text/javascript" th:src="@{/webjars/datatables-buttons/js/buttons.bootstrap.min.js}"></script>
+    <script type="text/javascript" th:src="@{/webjars/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js}"></script>
+    <script type="text/javascript" th:src="@{/webjars/bootstrap-datetimepicker/js/locales/bootstrap-datetimepicker.ru.js}"></script>
+
+    <script th:inline="javascript">
+        $(document).ready($(function () {
+
+            var currentDate = new Date();
+            var yearBeginDate = new Date(currentDate.getFullYear(), 0, 1);
+
+            $("#datetime_begin").datetimepicker({
+                todayHighlight: true,
+                format: "dd.mm.yyyy",
+                language: 'ru',
+                minView: 2,
+                autoclose: true,
+                weekStart: 1
+            });
+            $("#datetime_begin").datetimepicker('setDate', yearBeginDate);
+
+            $("#datetime_end").datetimepicker({
+                format: "dd.mm.yyyy",
+                language: 'ru',
+                minView: 2,
+                autoclose: true,
+                weekStart: 1
+            });
+            $("#datetime_end").datetimepicker('setDate', currentDate);
+
+            $("#loadButton").click(function (e) {
+                $("#divTableDocuments").load(
+                    "./documents"
+                );
+
+                $("#divTableRows").html("");
+            });
+
+        }));
+    </script>
+
+    <div class="display" style="height: calc(100vh - 190px)">
+
+        <div class="page-header-name">Тарифная политика</div>
+
+        <div id="tpPages" class="tab-content">
+
+            <div id="page1" class="tab-pane active" style="width: 100%">
+
+                <div style="display: flex; width: 100%">
+                    <h5><span class="text-nowrap" style="margin-right: 5px">Период с</span></h5>
+                    <div class="form-group" style="width: 20%">
+                        <div id="datetime_begin" class="input-group date">
+                            <input id="datetime_begin_text" type="text" class="form-control"/>
+                            <span class="input-group-addon">
+                                <i class="glyphicon glyphicon-calendar"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <h5><span style="margin-right: 5px; margin-left: 5px">по</span></h5>
+                    <div class="form-group" style="width: 20%">
+                        <div id="datetime_end" class="input-group date">
+                            <input  id="datetime_end_text" type="text" class="form-control"/>
+                            <span class="input-group-addon">
+                                <i class="glyphicon glyphicon-calendar"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <h5><span class="text-nowrap" style="margin-right: 5px; margin-left: 5px">Тип документа</span></h5>
+                    <select id="typeDocument" class="form-control" style="width: 30%">
+                        <th:block th:each="tpGroup : ${tpGroups}">
+                            <option th:value="${tpGroup.getCode()}" th:text="${tpGroup.getName()}"></option>
+                        </th:block>
+                    </select>
+                    <button id="loadButton" class="col-sm-2 btn btn-primary" type="button" style="margin-left: 5px; height: 50%">
+                        Загрузить
+                    </button>
+                </div>
+
+                <div class="display" style="width: 100%;">
+                    <div id="divTableDocuments">
+                    </div>
+
+                    <div id="divTableRows">
+                    </div>
+                </div>
+
+            </div>
+
+            <div id="page2" class="tab-pane" style="width: 100%; height: 100%">
+                <div class="row" style="width: 100%">
+                    <div id="divItems">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -29,7 +29,18 @@ public class TPolServiceImpl implements TPolService {
      */
     @Override
     public TPolDocument getDocument(int id) {
-        return tPolRepository.getDocument(id);
+        return getDocument(id, false);
+    }
+
+    /**
+     *
+     * @param id
+     * @param editorMode
+     * @return
+     */
+    @Override
+    public TPolDocument getDocument(int id, boolean editorMode) {
+        return tPolRepository.getDocument(id, editorMode);
     }
 
     /**
@@ -140,5 +151,10 @@ public class TPolServiceImpl implements TPolService {
     @Override
     public boolean deleteDocument(int id) {
         return tPolRepository.deleteDocument(id);
+    }
+
+    @Override
+    public Integer copyDocument(int sourceId, int destinationId) {
+        return tPolRepository.copyDocument(sourceId, destinationId);
     }
 }
