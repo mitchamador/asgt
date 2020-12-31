@@ -1,6 +1,7 @@
 package gbas.gtbch.sapod.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import gbas.gtbch.util.JpaTruncator;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
@@ -99,15 +100,13 @@ public class CalculationLog {
     /**
      * document number
      */
-    @Column(name = "docnumber")
-    @Size(max = 20)
+    @Column(name = "docnumber", length = 20)
     private String number;
 
     /**
      * station code
      */
-    @Column(name = "station")
-    @Size(max = 6)
+    @Column(name = "station", length = 6)
     private String station;
 
     /**
@@ -151,8 +150,7 @@ public class CalculationLog {
     @Column(name = "error_code")
     private int errorCode;
 
-    @Column(name = "jms_correlation_id")
-    @Size(max = 36)
+    @Column(name = "jms_correlation_id", length = 36)
     private String jmsCorrelationId;
 
     /**
@@ -178,7 +176,7 @@ public class CalculationLog {
      */
     public CalculationLog(String jmsCorrelationId) {
         this.source = Source.MQ;
-        this.jmsCorrelationId = jmsCorrelationId;
+        setJmsCorrelationId(jmsCorrelationId);
     }
 
     public int getId() {
@@ -202,7 +200,7 @@ public class CalculationLog {
     }
 
     public void setNumber(String number) {
-        this.number = number;
+        this.number = JpaTruncator.truncate(number);
     }
 
     public String getStation() {
@@ -210,7 +208,7 @@ public class CalculationLog {
     }
 
     public void setStation(String station) {
-        this.station = station;
+        this.station = JpaTruncator.truncate(station);
     }
 
     public Date getInboundTime() {
@@ -277,4 +275,7 @@ public class CalculationLog {
         this.durationText = durationText;
     }
 
+    public void setJmsCorrelationId(String jmsCorrelationId) {
+        this.jmsCorrelationId = JpaTruncator.truncate(jmsCorrelationId);
+    }
 }
