@@ -40,10 +40,11 @@ public class MQListener implements MessageListener {
      */
     private final MQJob mqJob;
 
-    public MQListener(JmsTemplate jmsTemplate, String outboundQueueName, MQJob mqJob) {
+    public MQListener(JmsTemplate jmsTemplate, String outboundQueueName, MQJob mqJob, CalcHandler calcHandler) {
         this.jmsTemplate = jmsTemplate;
         this.outboundQueueName = outboundQueueName;
         this.mqJob = mqJob;
+        this.calcHandler = calcHandler;
     }
 
     private void log(String s) {
@@ -70,15 +71,7 @@ public class MQListener implements MessageListener {
         }
     }
 
-    /**
-     * inject bean with prototype scope to singleton bean
-     */
-    @Autowired
-    private ObjectFactory<CalcHandler> calcHandlerObjectFactory;
-
-    private CalcHandler getCalcHandler() {
-        return calcHandlerObjectFactory.getObject();
-    }
+    private final CalcHandler calcHandler;
 
     private void processMessage(final TextMessage message) throws JMSException {
         log(String.format("message received: %s, messageId: %s, correlationId: %s", getCroppedString(message.getText()), message.getJMSMessageID(), message.getJMSCorrelationID()));
@@ -86,7 +79,7 @@ public class MQListener implements MessageListener {
         if (message.getJMSCorrelationID() != null) {
 
             jmsTemplate.send(outboundQueueName, session -> {
-                String response = getCalcHandler().calc(new CalcData(message.getText(), CalculationLog.Source.MQ)).getOutputXml();
+                String response = calcHandler.calc(new CalcData(message.getText(), CalculationLog.Source.MQ)).getOutputXml();
 
                 TextMessage answer = session.createTextMessage();
                 answer.setJMSCorrelationID(message.getJMSCorrelationID());
