@@ -81,7 +81,7 @@ a.disabled:hover {
 
 .side{
     position:fixed;
-    top:0;
+    top:75px;
     left:auto;
     height:100%;
     padding:2px;
@@ -90,7 +90,7 @@ a.disabled:hover {
 .scroll-area{
     width:100%;
     height:calc(100% - 150px);
-    margin-top:75px;
+    margin-top:0px;
     float:left;
     overflow-y:scroll;
 }
@@ -101,4 +101,56 @@ a.disabled:hover {
     font-weight: bold;
     //color: gray;
     text-align: center;
+}
+
+/*
+.modal {
+    text-align: center;
+}
+
+@media screen and (min-width: 768px) {
+    .modal:before {
+        display: inline-block;
+        vertical-align: middle;
+        content: " ";
+        height: 100%;
+    }
+}
+
+.modal-dialog {
+    display: inline-block;
+    text-align: left;
+    vertical-align: middle;
+}
+*/
+
+.margin-top-sm { margin-top: .5em; }
+
+.table-condensed-2 > thead > tr > th,
+.table-condensed-2 > tbody > tr > th,
+.table-condensed-2 > tfoot > tr > th,
+.table-condensed-2 > thead > tr > td,
+.table-condensed-2 > tbody > tr > td,
+.table-condensed-2 > tfoot > tr > td {
+    padding: 2px;
+}
+
+/* modal on modal */
+
+/*
+.modal + .modal {
+    z-index: 1060;
+}
+
+.modal-backdrop + .modal-backdrop {
+    z-index: 1050;
+}
+*/
+
+.modal-backdrop {
+    display: none;
+}
+
+.modal {
+    background: rgba(0, 0, 0, 0.5);
 }
