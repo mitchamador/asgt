@@ -28,7 +28,7 @@
             /*]]>*/
 
             var table = $('#calcLogTable').DataTable({
-                scrollY: "100%",
+                scrollY: "calc(60vh - 220px)",
                 scrollCollapse: true,
                 paging: false,
                 searching: false,
@@ -58,33 +58,37 @@
                 }
             });
 
-            table.on('order.dt search.dt', function () {
-                table.column(0, {search: 'applied', order: 'applied'}).nodes().each(function (cell, i) {
-                    cell.innerHTML = i + 1;
-                });
-            }).draw();
+            addDataTableRowListener(table,
+                {
+                    "select" : function (tr, t) {
+                        var d = t.row(tr).data();
+                        console.log("Загрузка лога расчета id=" + d.id);
+                        $.ajax({
+                            url: contextRoot + "api/calclog/" + d.id,
+                            method: 'get',
+                            headers: {
+                                "Accept" : "application/json"
+                            },
+                            success: function (result) {
 
-            $('.dataTables_scrollBody').css('height', '20vh');
+                                $("#logTabFolder").removeClass("invisible");
 
-
-            $('#calcLogTable tbody').on('click', 'tr', function () {
-                $(this).toggleClass('selected');
-                if ($(this).hasClass('selected')) {
-                    var d = table.row(this).data();
-                    $.ajax({
-                        url: contextRoot + "api/calclog/" + d.id,
-                        method: 'get',
-                        headers: {
-                              "Accept" : "application/json"
-                        },
-                        success: function (result) {
-                            $("#inXml").val(result.inboundXml);
-                            $("#outXml").val(result.outboundXml);
-                            $("#outText").val(result.outboundText);
+                                $("#inXml").val(result.inboundXml);
+                                $("#outXml").val(result.outboundXml);
+                                $("#outText").val(result.outboundText);
+                            }
+                        });
+                    },
+                    "deselect" : function(tr, t) {
+                        if (t.rows({selected: true}).count() === 0) {
+                            $("#logTabFolder").addClass("invisible");
                         }
-                    });
+                    }
                 }
-            });
+            );
+
+            addCounterToDataTable(table);
+
 
             $("#datetime_begin").datetimepicker({
                 todayHighlight: true,
@@ -107,12 +111,14 @@
             $("#datetime_end").datetimepicker('setDate', new Date());
 
             $("#loadButton").click(function (e) {
+
                 var data = {};
                 data.date_begin = $("#datetime_begin_text").val();
                 data.date_end = $("#datetime_end_text").val();
                 if ($("#typeDocument option:selected").val() !== "") {
                     data.type = $("#typeDocument option:selected").val();
                 }
+
                 $.ajax({
                     url: contextRoot + "api/calclog/",
                     method: 'get',
@@ -126,9 +132,9 @@
                                 result[i].type = t.value;
                             }
                         }
+
                         table.clear();
-                        table.rows.add(result);
-                        table.draw();
+                        table.rows.add(result).draw();
                     }
                 });
             });
@@ -171,7 +177,7 @@
         </div>
 
         <div style="height: 100%">
-            <div style="height: 35%">
+            <div>
                 <table id="calcLogTable" class="table-condensed table-bordered"
                        style="width:100%; font-size: 0.9em">
                     <thead>
@@ -189,34 +195,35 @@
                 </table>
             </div>
 
-            <div style="height: calc(65% - 10px); margin-top: 20px; display: flex; flex-direction: column;">
-                <ul id="calcLogTabFolder" class="nav nav-tabs" style="width: 100%;">
-                    <li class="active">
-                        <a id="inXmlTab" data-toggle="tab" href="#inXmlTabItem">Входной XML</a>
-                    </li>
-                    <li>
-                        <a id="outXmlTab" data-toggle="tab" href="#outXmlTabItem">Выходной XML</a>
-                    </li>
-                    <li>
-                        <a id="outTextTab" data-toggle="tab" href="#outTextTabItem">Выходной текст</a>
-                    </li>
-                </ul>
+            <div id="logTabFolder" class="invisible">
+                <div style="height: calc(40vh - 50px); margin-top: 5px">
+                    <ul class="nav nav-tabs" style="width: 100%;">
+                        <li class="active">
+                            <a id="inXmlTab" data-toggle="tab" href="#inXmlTabItem">Входной XML</a>
+                        </li>
+                        <li>
+                            <a id="outXmlTab" data-toggle="tab" href="#outXmlTabItem">Выходной XML</a>
+                        </li>
+                        <li>
+                            <a id="outTextTab" data-toggle="tab" href="#outTextTabItem">Выходной текст</a>
+                        </li>
+                    </ul>
 
-                <div class="tab-content" style="flex-grow: 1">
-                    <div id="inXmlTabItem" class="tab-pane active" style="height: 100%; width: 100%">
-                        <textarea id="inXml" class="form-control"
-                                  style="height: 100%; font-size: 0.9em; font-family: monospace"></textarea>
-                    </div>
-                    <div id="outXmlTabItem" class="tab-pane" style="height: 100%; width: 100%">
-                        <textarea id="outXml" class="form-control"
-                                  style="height: 100%; font-size: 0.9em; font-family: monospace"></textarea>
-                    </div>
-                    <div id="outTextTabItem" class="tab-pane" style="height: 100%; width: 100%">
-                        <textarea id="outText" class="form-control"
-                                  style="height: 100%; font-size: 0.9em; font-family: monospace"></textarea>
+                    <div class="tab-content" style="height: 100%">
+                        <div id="inXmlTabItem" class="tab-pane active" style="height: 100%; width: 100%">
+                            <textarea id="inXml" class="form-control"
+                                      style="height: 100%; font-size: 0.9em; font-family: monospace"></textarea>
+                        </div>
+                        <div id="outXmlTabItem" class="tab-pane" style="height: 100%; width: 100%">
+                            <textarea id="outXml" class="form-control"
+                                      style="height: 100%; font-size: 0.9em; font-family: monospace"></textarea>
+                        </div>
+                        <div id="outTextTabItem" class="tab-pane" style="height: 100%; width: 100%">
+                            <textarea id="outText" class="form-control"
+                                      style="height: 100%; font-size: 0.9em; font-family: monospace"></textarea>
+                        </div>
                     </div>
                 </div>
-
             </div>
         </div>
 
