@@ -125,22 +125,7 @@ public class CalcHandler {
                 PayTransportation payTransportation = new PayTransportation(connection);
 
                 if (obj instanceof CalcPlataData) {
-                    c = (CalcPlataData) obj;
-
-                    switch (c.mode) {
-                        case 1:
-                            c = payTransportation.countPlata(c);
-                            break;
-                        case 2:
-                            c = payTransportation.countPlata(c, c.strIsklTar, c.ssCurs);
-                            break;
-                        case 3:
-                            c = payTransportation.countPlataMarshrut(c);
-                            break;
-                        case 4:
-                            c = payTransportation.countPlataMarshrut(c, c.strIsklTar);
-                            break;
-                    }
+                    c = payTransportation.calcPlata((CalcPlataData) obj);
                     c.setXml(GZipUtils.object2Xml(c));
                 } else {
                     c = payTransportation.calcPlata((VagonOtprTransit) obj);
