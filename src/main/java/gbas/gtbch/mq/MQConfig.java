@@ -27,6 +27,7 @@ import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.naming.NamingException;
+import java.util.concurrent.TimeUnit;
 
 @Configuration
 @EnableJms
@@ -173,6 +174,8 @@ public class MQConfig {
         JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory);
         jmsTemplate.setConnectionFactory(connectionFactory);
         jmsTemplate.setDefaultDestinationName(outboundQueueName());
+        jmsTemplate.setExplicitQosEnabled(true);
+        jmsTemplate.setTimeToLive(TimeUnit.MINUTES.toMillis(60));
         return jmsTemplate;
     }
 
