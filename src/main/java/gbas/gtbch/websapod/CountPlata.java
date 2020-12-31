@@ -42,7 +42,7 @@ public class CountPlata {
     }
 
     private void plataTpServerMarshrut() throws Exception {
-        fillFromCalcPlatData(new PayTransportation(con).countPlataMarshrut(setCalcPlatData(3)));
+        fillFromCalcPlatData(new PayTransportation(con).calcPlata(setCalcPlatData(3)));
     }
 
     private CalcPlataData setCalcPlatData(int mode) {
