@@ -42,25 +42,23 @@ public class ApiController {
     }
 
     @RequestMapping(value = "/api/calc", method = RequestMethod.POST)
-    public ServerResponse calc(@RequestParam("data") String data) {
+    public ResponseEntity<String> calc(@RequestBody String data) {
 
-        ServerResponse response = new ServerResponse();
-        response.setMessage(calcHandler.calc(new CalcData(data, new CalculationLog(CalculationLog.Source.REST))).getTextResult());
+        String response = calcHandler.calc(new CalcData(data, new CalculationLog(CalculationLog.Source.REST))).getTextResult();
 
-        logger.info(String.format("/api/calc response: \"%s\"", getCroppedString(response.getMessage())));
+        logger.info(String.format("/api/calc response: \"%s\"", getCroppedString(response)));
 
-        return response;
+        return ResponseEntity.ok(response);
     }
 
     @RequestMapping(value = "/api/calcxml", method = RequestMethod.POST)
-    public ServerResponse calcxml(@RequestParam("data") String data) {
+    public ResponseEntity<String> calcxml(@RequestBody String data) {
 
-        ServerResponse response = new ServerResponse();
-        response.setMessage(calcHandler.calc(new CalcData(data, new CalculationLog(CalculationLog.Source.REST))).getOutputXml());
+        String response = calcHandler.calc(new CalcData(data, new CalculationLog(CalculationLog.Source.REST))).getOutputXml();
 
-        logger.info(String.format("/api/calcxml response: \"%s\"", getCroppedString(response.getMessage())));
+        logger.info(String.format("/api/calcxml response: \"%s\"", getCroppedString(response)));
 
-        return response;
+        return ResponseEntity.ok(response);
     }
 
     @RequestMapping(value = "/api/tpdate", method = RequestMethod.GET)
