@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -53,15 +54,6 @@ public class NsiTpolController {
     }
 
     /**
-     * tp documents fragment
-     * @return
-     */
-    @GetMapping("documents")
-    public ModelAndView adminTpDocuments() {
-        return new ModelAndView("fragments/tpol :: documents");
-    }
-
-    /**
      * tp rows framgent
      * @param id
      * @return
@@ -83,8 +75,31 @@ public class NsiTpolController {
     public ModelAndView getDocumentEditor(@PathVariable int id) {
         ModelAndView model = new ModelAndView("fragments/tpol :: documentEditor");
 
-        model.addObject("document", tPolService.getDocument(id, true));
+        TPolDocument tPolDocument;
+        if (id == 0) {
+            tPolDocument = new TPolDocument();
+
+            Calendar c = Calendar.getInstance();
+            c.set(Calendar.MONTH, 0);
+            c.set(Calendar.DAY_OF_MONTH, 1);
+            c.set(Calendar.HOUR_OF_DAY, 0);
+            c.clear(Calendar.MINUTE);
+            c.clear(Calendar.SECOND);
+            c.clear(Calendar.MILLISECOND);
+            tPolDocument.date_begin = c.getTime();
+
+            c.add(Calendar.YEAR, 1);
+            c.add(Calendar.DAY_OF_YEAR, -1);
+            tPolDocument.date_end = c.getTime();
+
+            tPolDocument.sobstList = tPolService.getSobstList(0, true);
+        } else {
+            tPolDocument = tPolService.getDocument(id, true);
+        }
+
+        model.addObject("document", tPolDocument);
         model.addObject("tarif", tPolService.getBaseTarifList());
+        model.addObject("groups", tPolService.getGroups());
 
         return model;
     }

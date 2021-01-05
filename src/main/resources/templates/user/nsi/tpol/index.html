@@ -34,6 +34,7 @@
 
             var currentDate = new Date();
             var yearBeginDate = new Date(currentDate.getFullYear(), 0, 1);
+            var yearEndDate = new Date(currentDate.getFullYear(), 11, 31);
 
             $("#datetime_begin").datetimepicker({
                 todayHighlight: true,
@@ -52,14 +53,15 @@
                 autoclose: true,
                 weekStart: 1
             });
-            $("#datetime_end").datetimepicker('setDate', currentDate);
+            $("#datetime_end").datetimepicker('setDate', yearEndDate);
 
             $("#loadButton").click(function (e) {
+/*
                 $("#divTableDocuments").load(
                     "./documents"
                 );
-
-                $("#divTableRows").html("");
+*/
+                TpData.documentTable.reloadTable();
             });
 
         }));
@@ -105,6 +107,7 @@
 
                 <div class="display" style="width: 100%;">
                     <div id="divTableDocuments">
+                        <div th:insert="fragments/tpol :: documents"></div>
                     </div>
 
                     <div id="divTableRows">

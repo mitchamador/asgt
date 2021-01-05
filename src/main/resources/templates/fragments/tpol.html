@@ -7,15 +7,6 @@
     <script type="application/javascript">
         $(document).ready($(function () {
 
-            var data = {};
-            data.date_begin = $("#datetime_begin_text").val();
-            data.date_end = $("#datetime_end_text").val();
-
-            var type = "";
-            if ($("#typeDocument option:selected").val() !== "") {
-                type = "/" + $("#typeDocument option:selected").val();
-            }
-
             var documentTable = $('#documentTable').DataTable({
                 scrollY: "calc(100vh - 280px)",
                 scrollCollapse: true,
@@ -60,11 +51,6 @@
                         }
                     }
                 ],
-                ajax : {
-                    url : contextRoot + "api/tpol/documents" + type,
-                    data: data,
-                    dataSrc: ""
-                },
                 rowId: "id",
                 columns: [
                     { "data": "id" },
@@ -80,13 +66,50 @@
                 ]
             });
 
-            function setTableHeight(count) {
+            documentTable.setTableHeight = function(count) {
+                debugger;
                 if (count === 0) {
-                    $('.dataTables_scrollBody').css('height', "calc(100vh - 280px)");
+                    $(this.table().container()).find('.dataTables_scrollBody').css('height', "calc(100vh - 280px)");
                 } else {
-                    $('.dataTables_scrollBody').css('height', "calc(50vh - 180px)");
+                    $(this.table().container()).find('.dataTables_scrollBody').css('height', "calc(50vh - 180px)");
                 }
-            }
+            };
+
+            documentTable.reloadTable = function(id) {
+                var data = {};
+                data.date_begin = $("#datetime_begin_text").val();
+                data.date_end = $("#datetime_end_text").val();
+
+                var type = "";
+                if ($("#typeDocument option:selected").val() !== "") {
+                    type = "/" + $("#typeDocument option:selected").val();
+                }
+
+                $.ajax({
+                    url: contextRoot + "api/tpol/documents" + type,
+                    type: "get",
+                    data: data,
+                    cache: false,
+                    success: function (data) {
+                        documentTable.rows().clear();
+                        documentTable.rows.add(data).draw();
+
+                        documentTable.setTableHeight(0);
+
+                        $("#divTableRows").html("");
+
+                        documentTable.selectRow(id);
+                    }
+                });
+            };
+
+            documentTable.selectRow = function(id) {
+                this.row("#" + id).select();
+                var rowElement = $('#documentTable').find("[id=" + id + "]").get(0);
+                if (rowElement !== undefined) {
+                    rowElement.scrollIntoViewIfNeeded();
+                }
+            };
 
             addCounterToDataTable(documentTable);
 
@@ -116,7 +139,7 @@
                                         if (msg === true) {
                                             row.remove().draw();
                                             $("#divTableRows").html("");
-                                            setTableHeight(0);
+                                            documentTable.setTableHeight(0);
                                         } else {
                                             console.log("no data reloading needed");
                                         }
@@ -138,32 +161,11 @@
                             id: d.id
                         });
                         TpData.initDocumentModalTable();
-
-/*
-                        showYesNoModal("Копировать документ тарифной политики?",
-                            function() {
-                                var d = row.data();
-                                console.log("Копирование документа тарифной политики с id=" + d.id);
-
-                                var newDocumentId = 0;
-                                documentTable.row("#" + newDocumentId).select();
-
-                            },
-                            function() {
-                                var d = row.data();
-                                console.log("Отмена копирования документа тарифной политики с id=" + d.id);
-
-                                var newDocumentId = 0;
-                                documentTable.row("#" + newDocumentId).select();
-
-                            }
-                        );
-*/
                     },
                     "select" : function (tr) {
                         var row = documentTable.row(tr).data();
                         console.log("Загрузка строк тарифной политики для документа с id=" + row.id);
-                        setTableHeight(1);
+                        documentTable.setTableHeight(1);
 
                         $("body").css("cursor", "progress");
 
@@ -171,119 +173,132 @@
                             "./document/" + row.id + "/rows",
                             function( response, status, xhr ) {
                                 $("body").css("cursor", "default");
+                                tr[0].scrollIntoViewIfNeeded();
                             }
                         );
                     },
                     "deselect" : function(tr) {
                         if (documentTable.rows({selected: true}).count() === 0) {
                             $("#divTableRows").html("");
-                            setTableHeight(0);
+                            documentTable.setTableHeight(0);
                         }
                     }
                 }
             );
 
-            setTableHeight(0);
+            documentTable.setTableHeight(0);
+
+            var documentModal = initModal("#documentModal", {
+                "copyButton" : function(p) {
+                    var row = TpData.documentModalTable.row({'selected' : true}).data();
+
+                    var destinationDocumentId = row !== undefined ? row.id : undefined;
+
+                    if (p.type === 'row') {
+                        var sourceRowId = p.id;
+                        if (sourceRowId !== undefined) {
+
+                            console.log("copy row, source id=" + sourceRowId + ", destination document id=" + destinationDocumentId);
+
+                            $.ajax({
+                                url: contextRoot + "api/tpol/row/" + sourceRowId + "/copy",
+                                data: {
+                                    doc_id: destinationDocumentId
+                                },
+                                type: "GET",
+                                cache: false,
+                                success: function (msg) {
+                                    if (msg !== undefined && msg.id !== 0) {
+                                        console.log("created row id=" + msg.id);
+                                        TpData.documentTable.selectRow(destinationDocumentId);
+                                    } else {
+                                        console.log("no data reloading needed");
+                                    }
+                                }
+                            });
+
+                        }
+                    } else if (p.type === 'document') {
+                        var sourceDocumentId = p.id;
+                        if (sourceDocumentId !== undefined ) {
+                            console.log("copy all rows, source document id=" + sourceDocumentId + ", destination document id=" + destinationDocumentId);
+
+                            $.ajax({
+                                url: contextRoot + "api/tpol/document/" + sourceDocumentId + "/copy",
+                                data: {
+                                    doc_id: destinationDocumentId
+                                },
+                                type: "GET",
+                                cache: false,
+                                success: function (id) {
+                                    if (id !== undefined && id !== 0) {
+                                        console.log("copied rows to id=" + id);
+                                        TpData.documentTable.selectRow(id);
+                                    } else {
+                                        console.log("no data reloading needed");
+                                    }
+                                }
+                            });
+
+                        }
+                    }
+                },
+                "cancelCopyButton" : function (p) {
+                    console.log("cancel copy");
+                }
+            });
+
+            var initDocumentModalTable = function() {
+                if (this.documentModalTable === undefined) {
+                    this.documentModalTable = $('#documentModalTable').DataTable({
+                        scrollY: "50vh",
+                        scrollCollapse: true,
+                        paging: false,
+                        searching: true,
+                        info: false,
+                        language : {
+                            "zeroRecords": " ",
+                            searchPlaceholder: "Поиск",
+                            "search": "Поиск:"
+                        },
+                        select: { style: 'single'},
+                        columnDefs: [
+                            {
+                                "searchable": false,
+                                "orderable": false,
+                                "targets": 0
+                            }
+                        ],
+                        data: TpData.documentTable.data(),
+                        columns: [
+                            { "data": "id" },
+                            { "data": "n_contract" },
+                            { "data": "date_begin" },
+                            { "data": "date_end" },
+                            { "data": "name" }
+                        ]
+                    });
+
+                    addCounterToDataTable(this.documentModalTable);
+                }
+            };
 
             window.TpData = {
                 documentModalTable: undefined,
-                initDocumentModalTable: function() {
-                    if (this.documentModalTable === undefined) {
-
-                        this.documentModalTable = $('#documentModalTable').DataTable({
-                            scrollY: "50vh",
-                            scrollCollapse: true,
-                            paging: false,
-                            searching: true,
-                            info: false,
-                            language : {
-                                "zeroRecords": " ",
-                                searchPlaceholder: "Поиск",
-                                "search": "Поиск:"
-                            },
-                            select: { style: 'single'},
-                            columnDefs: [
-                                {
-                                    "searchable": false,
-                                    "orderable": false,
-                                    "targets": 0
-                                }
-                            ],
-                            data: TpData.documentTable.data(),
-                            columns: [
-                                { "data": "id" },
-                                { "data": "n_contract" },
-                                { "data": "date_begin" },
-                                { "data": "date_end" },
-                                { "data": "name" }
-                            ]
-                        });
-
-                        addCounterToDataTable(this.documentModalTable);
-                    }
-                },
+                initDocumentModalTable: initDocumentModalTable,
                 documentTable : documentTable,
-                documentModal : initModal("#documentModal", {
-                    "copyButton" : function(p) {
-                        var row = TpData.documentModalTable.row({'selected' : true}).data();
-
-                        var destinationDocumentId = row !== undefined ? row.id : undefined;
-
-                        if (p.type === 'row') {
-                            var sourceRowId = p.id;
-                            if (sourceRowId !== undefined) {
-
-                                console.log("copy row, source id=" + sourceRowId + ", destination document id=" + destinationDocumentId);
-
-                                $.ajax({
-                                    url: contextRoot + "api/tpol/row/" + sourceRowId + "/copy",
-                                    data: {
-                                        doc_id: destinationDocumentId
-                                    },
-                                    type: "GET",
-                                    cache: false,
-                                    success: function (msg) {
-                                        if (msg !== undefined && msg.id !== 0) {
-                                            console.log("created row id=" + msg.id);
-                                            TpData.documentTable.row("#" + destinationDocumentId).select();
-                                        } else {
-                                            console.log("no data reloading needed");
-                                        }
-                                    }
-                                });
-
-                            }
-                        } else if (p.type === 'document') {
-                            var sourceDocumentId = p.id;
-                            if (sourceDocumentId !== undefined ) {
-                                console.log("copy all rows, source document id=" + sourceDocumentId + ", destination document id=" + destinationDocumentId);
-
-                                $.ajax({
-                                    url: contextRoot + "api/tpol/document/" + sourceDocumentId + "/copy",
-                                    data: {
-                                        doc_id: destinationDocumentId
-                                    },
-                                    type: "GET",
-                                    cache: false,
-                                    success: function (id) {
-                                        if (id !== undefined && id !== 0) {
-                                            console.log("copied rows to id=" + id);
-                                            TpData.documentTable.row("#" + id).select();
-                                        } else {
-                                            console.log("no data reloading needed");
-                                        }
-                                    }
-                                });
-
-                            }
-                        }
-                    },
-                    "cancelCopyButton" : function (p) {
-                        console.log("cancel copy");
-                    }
-                })
+                documentModal : documentModal
             };
 
+            $("#documentCreate").click(function (e) {
+
+                $("#documentEditor").load(
+                    "./document/0/editor"
+                );
+
+                //e.preventDefault();
+                //e.stopPropagation();
+            });
 
         }));
 
@@ -322,11 +337,26 @@
     <table id="documentTable" class="table-condensed table-bordered" style="width:100%; font-size: 0.9em">
         <thead>
         <tr>
-            <th style="width: 5%">№ п/п</th>
+            <th class="text-nowrap" style="width: 5%">
+                <!--                № п/п-->
+                <div style="display: flex; width: 100%; height: 100%">
+                    <a id="documentCreate" class="btn-success btn-sm" style="align-self: center; margin-right: 3px; padding: 1px 5px; cursor: pointer"><i class="fa fa-plus"></i></a>
+                    <span class="text-nowrap" style="flex-grow: 1; align-self: center;">№ п/п</span>
+                </div>
+            </th>
+
             <th style="width: 20%">№ документа</th>
             <th style="width: 10%">Дата начала</th>
             <th style="width: 10%">Дата окончания</th>
-            <th style="width: 55%">Примечание</th>
+            <th style="width: 55%;">
+                Примечание
+<!--
+                <div style="display: flex; width: 100%; height: 100%">
+                    <span class="text-nowrap" style="flex-grow: 1; align-self: center;">Примечание</span>
+                    <a id="documentCreate" class="btn-success btn-sm" style="align-self: center; margin-right: 3px; padding: 1px 5px; cursor: pointer"><i class="fa fa-plus"></i></a>
+                </div>
+-->
+            </th>
         </tr>
         </thead>
     </table>
@@ -387,9 +417,11 @@
             var modalDocumentEditor = initModal("#documentEditModal", {
                 "okDocumentButton" : function (document) {
 
-                    debugger;
-
                     document.n_contract = $("#nContract").val();
+
+                    if ($("#typeDocumentEditor option:selected").val() !== "") {
+                        document.type_code = $("#typeDocumentEditor option:selected").val();
+                    }
 
                     document.name = $("#name").val();
 
@@ -443,12 +475,13 @@
                         },
                         complete: function ( jqXHR, textStatus) {
                             if (textStatus === 'success') {
+                                TpData.documentTable.reloadTable(documentId);
                                 console.log("Сохранение документа тарифной политики с id=" + documentId);
                             } else {
+                                alert("Ошибка сохранения документа");
                                 if (documentId === undefined || documentId === 0) {
                                     console.log("Ошибка при сохранении нового документа тарифной политики");
                                 } else {
-                                    alert("Ошибка сохранения документа");
                                     console.log("Ошибка при сохранении документа тарифной политики с id=" + documentId);
                                 }
                             }
@@ -480,6 +513,17 @@
                     <div class="row">
 
                         <div class="col-sm-6" style="width: 50%;">
+
+                            <div class="form-group" style="width: 100%">
+                                <span class="has-float-label">
+                                    <label for="typeDocumentEditor">Тип документа</label>
+                                    <select id="typeDocumentEditor" class="form-control">
+                                        <th:block th:each="g, ix : ${groups}">
+                                            <option th:value="${g.getCode()}" th:selected="${g.getCode() == document.getTypeCode()}" th:text="${g.getName()}"></option>
+                                        </th:block>
+                                    </select>
+                                </span>
+                            </div>
 
                             <div class="form-group" style="width: 100%;">
                                 <span class="has-float-label">
@@ -541,7 +585,7 @@
                         <div class="col-sm-6">
                             <span class="has-float-label">
                                 <label for="sobstTable">Админстрации действия документа</label>
-                                <table id="sobstTable" class="form-control table-condensed table-bordered" style="display: block; height: 60vh; max-height: 400px; overflow-y: scroll; width: 100%; font-size: 0.9em">
+                                <table id="sobstTable" class="form-control table-condensed table-bordered" style="display: block; height: 65vh; overflow-y: scroll; width: 100%; font-size: 0.9em">
                                     <thead>
                                     <tr>
                                         <th class="text-center" scope="col" style="width: 10%;">
@@ -768,7 +812,8 @@
                     <div id="listGroup" class="list-group" style="width:100%;height:100%; font-size: 0.9em">
                             <th:block th:each="item : ${items}">
                                 <a class="list-group-item" data-th-item="${item.getName()}">
-                                    [[${item.getButtonName()}]]<span th:class="${item.getItemDataSize() == 0} ? 'invisible badge' : 'badge'">[[${item.getItemDataSize()}]]</span>
+                                    [[${item.getButtonName()}]]
+                                    <span th:class="${item.getItemDataSize() == 0} ? 'invisible badge' : 'badge'">[[${item.getItemDataSize()}]]</span>
                                 </a>
                             </th:block>
                     </div>
