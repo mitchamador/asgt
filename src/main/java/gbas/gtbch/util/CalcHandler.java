@@ -2,6 +2,10 @@ package gbas.gtbch.util;
 
 import gbas.eds.gtbch.fdu92.GtFdu92Converter;
 import gbas.eds.gtbch.fdu92.calc.CardCalculator;
+import gbas.eds.gtbch.gu23.convert.ConvertXmlGtToGu23Gt;
+import gbas.eds.gtbch.gu23.obj.Gu23ObjGt;
+import gbas.eds.gtbch.gu23.parser.GtGu23Xml;
+import gbas.eds.gtbch.gu23.server.PayGu23;
 import gbas.eds.gtbch.invoice.ConvertXmlToVagonOtprTransit;
 import gbas.eds.rw.isc.typeexchange.Tm;
 import gbas.eds.soap.obj.DocEP;
@@ -89,12 +93,6 @@ public class CalcHandler {
                 obj = GZipUtils.xml2Object(data.getInputXml());
             }
 
-/*
-            if (obj == null && checkTags(data, "<CompleteDocument type=\"gbas.tvk.otpravka.object.VagonOtprTransit\">", "</CompleteDocument>")) {
-                obj = XML2Object.parse(new ByteArrayInputStream(data.getBytes()));
-            }
-*/
-
             if (obj == null && checkTags(data.getInputXml(), "<table name=\"gu46\"", "</table>")) {
                 calculationLog.setType(CalculationLog.Type.GU46);
                 ConvertXmlGtToGu46 docEC = new ConvertXmlGtToGu46(connection);
@@ -113,6 +111,17 @@ public class CalcHandler {
                         ConstantsParameters.NO_SYSTEM, null);
 
                 if(string != null) {
+                    obj = docEC.getObject();
+                }
+            }
+
+            if (obj == null && checkTags(data.getInputXml(), "<table name=\"gu23\"", "</table>")) {
+                calculationLog.setType(CalculationLog.Type.GU23);
+                ConvertXmlGtToGu23Gt docEC = new ConvertXmlGtToGu23Gt(connection);
+                String string = docEC.parse(data.getInputXml(), ConstantsParameters.VERIFY,
+                        ConstantsParameters.NO_SYSTEM, null);
+
+                if (string != null) {
                     obj = docEC.getObject();
                 }
             }
@@ -163,7 +172,13 @@ public class CalcHandler {
 
                 calculationLog.setNumber(ccd.n_contract);
                 calculationLog.setStation(ccd.code_station);
+            } else if (obj instanceof Gu23ObjGt) {
+                Gu23ObjGt aktGu23 = new PayGu23(connection).calcGu23((Gu23ObjGt) obj);
+                data.setTextResult(aktGu23.toString());
+                data.setOutputXml(GtGu23Xml.getXml(aktGu23));
 
+                calculationLog.setNumber(aktGu23.getNomAkt());
+                calculationLog.setStation(aktGu23.getStationtc());
             } else {
                 data.setTextResult(String.format("Неверный объект расчета: \"%s\"", data.getInputXml()));
                 data.setError(CalcError.UNKNOWN_OBJECT.getCode());
