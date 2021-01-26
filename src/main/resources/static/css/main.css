@@ -154,3 +154,18 @@ a.disabled:hover {
 .modal {
     background: rgba(0, 0, 0, 0.5);
 }
+
+/* show dropdown over table*/
+.dropdown-menu {
+    overflow: overlay !important;
+    overflow-x: overlay !important;
+    overflow-y: overlay !important;
+}
+.dataTables_scrollHead {
+    position: relative;
+    width: 100%;
+    overflow: initial !important;
+    overflow-x: initial !important;
+    overflow-y: initial !important;
+    min-height: 0
+}

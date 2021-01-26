@@ -67,7 +67,6 @@
             });
 
             documentTable.setTableHeight = function(count) {
-                debugger;
                 if (count === 0) {
                     $(this.table().container()).find('.dataTables_scrollBody').css('height', "calc(100vh - 280px)");
                 } else {
@@ -328,7 +327,7 @@
                 </div>
                 <div class="modal-footer">
                     <button id="copyButton" type="button" class="btn btn-success">Копировать</button>
-                    <button id="cancelCopyButton" type="button" class="btn btn-danger">Отмена</button>
+                    <button id="cancelCopyButton" type="button" class="btn btn-default">Отмена</button>
                 </div>
             </div>
         </div>
@@ -728,13 +727,35 @@
                 }
             });
 
+            $("#rowCreate").click(function (e) {
+
+                $("#divItems").load(
+                    "./row/0/items"
+                );
+
+                // $("#documentEditor").load(
+                //     "./document/0/editor"
+                // );
+
+                //e.preventDefault();
+                e.stopPropagation();
+            });
+
+
         }));
     </script>
 
     <table id="rowTable" class="table-condensed table-bordered" style="width:100%; font-size: 0.9em;">
         <thead>
         <tr>
-            <th style="width: 7%">№ строки</th>
+<!--            <th style="width: 7%">№ строки</th>-->
+            <th class="text-nowrap" style="width: 7%">
+                <!--                № п/п-->
+                <div style="display: flex; width: 100%; height: 100%">
+                    <a id="rowCreate" class="btn-success btn-sm" style="align-self: center; margin-right: 3px; padding: 1px 5px; cursor: pointer"><i class="fa fa-plus"></i></a>
+                    <span class="text-nowrap" style="flex-grow: 1; align-self: center;">№ строки</span>
+                </div>
+            </th>
             <th style="width: 30%">Примечание</th>
             <th style="width: 7%">Баз. тариф</th>
             <th style="width: 7%">№ табл ВО</th>
@@ -801,6 +822,10 @@
                 $("#page1").toggleClass("active");
             });
 
+            $("#saveButton").click(function (e) {
+                alert("save button pressed")
+            });
+
         }));
     </script>
 
@@ -826,6 +851,9 @@
                 </div>
             </div>
             <div class="display" style="width: 100%; text-align: right">
+                <button id="saveButton" class="text-right btn btn-success" type="button">
+                    Сохранить
+                </button>
                 <button id="backButton" class="text-right btn btn-primary" type="button">
                     Назад
                 </button>
@@ -843,45 +871,6 @@
             var rowId = [[${rowId}]];
             var item = [[${item}]];
             /*]]>*/
-
-            var buttons;
-
-            if (item.name === 'Cargo') {
-                buttons = [
-                    {
-                        extend: 'collection',
-                        className: 'btn btn-sm btn-success',
-                        text: '<i class="fa fa-plus"></i>',
-                        buttons: [
-                            {
-                                text: 'Справочник ГНГ',
-                                action: function (e, dt, node, config) {
-                                    _getNsi(0);
-                                }
-                            },
-                            {
-                                text: 'Справочник ЕТСНГ',
-                                action: function (e, dt, node, config) {
-                                    _getNsi(1);
-                                }
-                            }
-                        ],
-                        dropup: true,
-                        fade: 0,
-                        autoClose: true
-                    }
-                ];
-            } else {
-                buttons = [
-                    {
-                        className: 'btn btn-sm btn-success',
-                        text: '<i class="fa fa-plus"></i>',
-                        action: function (e, dt, node, config) {
-                            _getNsi(0);
-                        }
-                    }
-                ];
-            }
 
             var itemTable = $('#itemDataTable').DataTable({
                 scrollY: "calc(100vh - 300px)",
@@ -912,9 +901,7 @@
                             return data;
                         }
                     }
-                ],
-                buttons: buttons,
-                dom: 't<"text-left"B>'
+                ]
             });
 
             function _getNsi(set) {
@@ -1135,6 +1122,16 @@
                 });
             }
 
+            $("#nsiAdd").click(function (e) {
+                if (item.name !== 'Cargo') {
+                    _getNsi(0);
+                }
+            });
+
+            $("#nsiCargoDropdown ul a").click(function() {
+                _getNsi($(this).attr("value"));
+            });
+
         }));
     </script>
 
@@ -1164,7 +1161,7 @@
                 </div>
                 <div class="modal-footer">
                     <button id="addButton" type="button" class="btn btn-success">Добавить</button>
-                    <button id="cancelButton" type="button" class="btn btn-danger">Отмена</button>
+                    <button id="cancelButton" type="button" class="btn btn-default">Отмена</button>
                 </div>
             </div>
         </div>
@@ -1173,7 +1170,25 @@
     <table id="itemDataTable" class="table-condensed table-bordered" style="width:100%; font-size: 0.9em">
         <thead>
         <tr>
-            <th style="width: 20px">№ п/п</th>
+<!--            <th style="width: 20px">№ п/п</th>-->
+            <th:block th:switch="${item.getName()}">
+                <th th:case="Cargo" class="text-nowrap" style="width: 5%">
+                    <div id="nsiCargoDropdown" class="dropdown" style="display: flex; width: 100%; height: 100%">
+                        <a class="btn-success btn-sm" data-toggle="dropdown" style="align-self: center; margin-right: 3px; padding: 1px 5px; cursor: pointer"><i class="fa fa-plus"></i></a>
+                        <span class="text-nowrap" style="flex-grow: 1; align-self: center;">№ п/п</span>
+                        <ul class="dropdown-menu" aria-labelledby="nsiAdd">
+                            <li><a th:value="0">Справочник ГНГ</a></li>
+                            <li><a th:value="1">Справочник ЕТСНГ</a></li>
+                        </ul>
+                    </div>
+                </th>
+                <th th:case="*" class="text-nowrap" style="width: 5%">
+                    <div style="display: flex; width: 100%; height: 100%">
+                        <a id="nsiAdd" class="btn-success btn-sm" style="align-self: center; margin-right: 3px; padding: 1px 5px; cursor: pointer"><i class="fa fa-plus"></i></a>
+                        <span class="text-nowrap" style="flex-grow: 1; align-self: center;">№ п/п</span>
+                    </div>
+                </th>
+            </th:block>
             <th:block th:each="column : ${item.getColumns()}">
                 <th th:style="'width: ' + ${column.width} + 'px'" th:text="${column.text}"></th>
             </th:block>
