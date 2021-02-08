@@ -730,14 +730,15 @@
             $("#rowCreate").click(function (e) {
 
                 $("#divItems").load(
-                    "./row/0/items"
+                    "./row/0/items",
+                    function(responseText, textStatus, jqXHR) {
+                        if (textStatus !== 'error') {
+                            $("#tpPages").children().removeClass("active");
+                            $("#page2").toggleClass("active");
+                        }
+                    }
                 );
 
-                // $("#documentEditor").load(
-                //     "./document/0/editor"
-                // );
-
-                //e.preventDefault();
                 e.stopPropagation();
             });
 
