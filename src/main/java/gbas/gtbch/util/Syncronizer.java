@@ -3,9 +3,10 @@ package gbas.gtbch.util;
 import gbas.gtbch.sapod.model.TpImportDate;
 import gbas.gtbch.sapod.service.TpImportDateService;
 import gbas.tvk.nsi.cash.Func;
-import gbas.tvk.util.UtilDate;
 import gbas.tvk.util.synchronizator.Syncronizator;
-import gbas.tvk.util.synchronizator.synchroObjects.*;
+import gbas.tvk.util.synchronizator.entity.InsertMode;
+import gbas.tvk.util.synchronizator.synchroObjects.SynDist;
+import gbas.tvk.util.synchronizator.synchroObjects.SynStyck;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -110,7 +111,7 @@ public class Syncronizer extends ServerJob {
             s.setFullInsertMerge(fullInsertMerge);
             s.setCacheable(cacheable);
             try {
-                s.setInsertMode(NsiOperations.InsertMode.valueOf(insertMode.toUpperCase()));
+                s.setInsertMode(InsertMode.valueOf(insertMode.toUpperCase()));
             } catch (IllegalArgumentException ignored) {
             }
 
