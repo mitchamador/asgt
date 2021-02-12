@@ -278,4 +278,8 @@ public class CalculationLog {
     public void setJmsCorrelationId(String jmsCorrelationId) {
         this.jmsCorrelationId = JpaTruncator.truncate(jmsCorrelationId);
     }
+
+    public String getJmsCorrelationId() {
+        return jmsCorrelationId;
+    }
 }

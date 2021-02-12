@@ -29,16 +29,17 @@
 
             var table = $('#calcLogTable').DataTable({
                 scrollY: "calc(60vh - 220px)",
-                scrollCollapse: true,
+                scrollCollapse: false,
                 paging: false,
-                searching: false,
+                searching: true,
                 info: false,
                 columns: [
                     {"defaultContent": "", "width": "10%"},
-                    {"data": "type", "width": "40%"},
+                    {"data": "type", "width": "22%"},
                     // {"data": "number", "width": "15%"},
                     // {"data": "station", "width": "15%"},
-                    {"data": "inboundTime", "width": "35%"},
+                    {"data": "jmsCorrelationId", "width": "38%"},
+                    {"data": "inboundTime", "width": "15%"},
                     {"data": "durationText", "width": "15%"}
                 ],
                 columnDefs: [{
@@ -47,15 +48,18 @@
                     "targets": 0
                 }],
                 language : {
-                     "zeroRecords": " "
+                     "zeroRecords": " ",
+                    "searchPlaceholder": "Поиск",
+                    "search": "Поиск:"
                 },
+                dom: 't<"row col-sm-1 margin-top-sm"f>',
                 style: 'single',
                 select: true,
                 "createdRow": function(row, data, dataIndex){
                     if (data.errorCode !== 0) {
                         $(row).css("color", "red");
                     }
-                }
+                },
             });
 
             addDataTableRowListener(table,
@@ -126,7 +130,7 @@
                     success: function (result) {
                         for (var i = 0, ien = result.length; i < ien; i++) {
                             var t = types.find(function (x) {
-                                return x.key === result[i].type
+                                return x.key === result[i].type;
                             });
                             if (t !== undefined) {
                                 result[i].type = t.value;
@@ -188,6 +192,7 @@
                         <th>Номер документа</th>
                         <th>Станция</th>
 -->
+                        <th>JMS CorrelationID</th>
                         <th>Дата расчета</th>
                         <th>Время обработки</th>
                     </tr>
@@ -196,7 +201,7 @@
             </div>
 
             <div id="logTabFolder" class="invisible">
-                <div style="height: calc(40vh - 50px); margin-top: 5px">
+                <div style="height: calc(40vh - 95px); margin-top: 50px">
                     <ul class="nav nav-tabs" style="width: 100%;">
                         <li class="active">
                             <a id="inXmlTab" data-toggle="tab" href="#inXmlTabItem">Входной XML</a>

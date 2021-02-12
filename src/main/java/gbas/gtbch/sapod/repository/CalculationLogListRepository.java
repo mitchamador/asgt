@@ -77,7 +77,7 @@ public class CalculationLogListRepository {
             }
         }
 
-        sql = "select id, sourcetype, doctype, docnumber, station, inbound_time, outbound_time, error_code\n" +
+        sql = "select id, sourcetype, doctype, docnumber, station, inbound_time, outbound_time, error_code, jms_correlation_id\n" +
                 "from calculation_log\n"
                 + sql;
 
@@ -94,6 +94,7 @@ public class CalculationLogListRepository {
             calculationLog.setInboundTime(rs.getTimestamp("inbound_time"));
             calculationLog.setOutboundTime(rs.getTimestamp("outbound_time"));
             calculationLog.setErrorCode(rs.getInt("error_code"));
+            calculationLog.setJmsCorrelationId(rs.getString("jms_correlation_id"));
 
             return calculationLog;
         });
