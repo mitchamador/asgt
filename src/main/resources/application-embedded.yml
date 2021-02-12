@@ -1,4 +1,4 @@
-# embedded profile configuration
+# embedded profile configuration (change url from GTTEST to GTDB for use main database)
 
 spring:
   main:
@@ -13,9 +13,9 @@ app:
   sapod:
     datasource:
       jndi-name: "jdbc/GTMAIN"
-#      url: jdbc:db2://10.4.253.43:50000/TEST:currentSchema=GTMAIN;
-#      username: dbgtuser
-#      password: 123qwe
+#        url: jdbc:db2://10.4.253.43:50000/TEST:currentSchema=GTMAIN;
+#        username: dbgtuser
+#        password: 123qwe
       url: jdbc:db2://10.4.253.161:50000/GTTEST:currentSchema=GTMAIN;
       username: u352gtdb
       password: 165#z15fa3&
