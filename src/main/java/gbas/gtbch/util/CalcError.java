@@ -3,8 +3,9 @@ package gbas.gtbch.util;
 public enum CalcError {
     NO_ERROR(0, "Без ошибок"),
     UNKNOWN_OBJECT(1, "Неверный объект расчета"),
-    EXCEPTION(2, "Исключение при расчете"),
-    NULL(3, "Null or empty object")
+    EXCEPTION(2, "Ошибка при расчете"),
+    NULL(3, "Пустой объект"),
+    UNKNOWN_ERROR(4, "Неизвестная ошибка");
     ;
 
 
@@ -16,6 +17,15 @@ public enum CalcError {
         this.name = name;
     }
 
+    public static CalcError getCalcError(int errorCode) {
+        for (CalcError calcError : values()) {
+            if (calcError.getCode() == errorCode) {
+                return calcError;
+            }
+        }
+        return UNKNOWN_ERROR;
+    }
+
     public int getCode() {
         return code;
     }
@@ -23,4 +33,5 @@ public enum CalcError {
     public String getName() {
         return name;
     }
+
 }
