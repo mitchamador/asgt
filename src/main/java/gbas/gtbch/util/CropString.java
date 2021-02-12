@@ -22,8 +22,11 @@ public class CropString {
      * @return
      */
     public static String getCroppedString(String s, int length) {
-        if (s != null && s.length() > length - 3) {
-            s = s.replaceAll("(\n|\\s+)", " ").substring(0, length - 3) + "...";
+        if (s != null) {
+            s = s.replaceAll("(\n|\\s+)", " ");
+            if (s.length() > length - 3) {
+                s = s.substring(0, length - 3) + "...";
+            }
         }
         return s;
     }
