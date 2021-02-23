@@ -50,6 +50,35 @@
                 <spring-boot.profile>production</spring-boot.profile>
                 <spring-boot.repackage.skip>true</spring-boot.repackage.skip>
             </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-clean-plugin</artifactId>
+                        <version>3.1.0</version>
+                        <executions>
+                            <execution>
+                                <id>auto-clean</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>clean</goal>
+                                </goals>
+                                <configuration>
+                                    <filesets>
+                                        <fileset>
+                                            <directory>${project.build.outputDirectory}</directory>
+                                            <includes>
+                                                <include>application-embedded.yml</include>
+                                                <include>application-test.yml</include>
+                                            </includes>
+                                        </fileset>
+                                    </filesets>
+                                    <excludeDefaultDirectories>true</excludeDefaultDirectories>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
         <profile>
             <id>war-shared</id>
@@ -78,7 +107,6 @@
                                         <fileset>
                                             <directory>${project.build.outputDirectory}</directory>
                                             <includes>
-                                                <include>application.yml</include>
                                                 <include>application-embedded.yml</include>
                                                 <include>application-test.yml</include>
                                             </includes>
@@ -272,7 +300,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
             <optional>true</optional>
-            <scope>${package-shared.scope}</scope>
         </dependency>
 
         <!-- testing -->
