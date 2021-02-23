@@ -217,6 +217,56 @@ function initModal(modal, functions) {
     return m;
 }
 
+/**
+ * create modal with button listeners
+ * @param modal
+ * @param functions
+ * @return m
+ */
+
+function initModal2(modal, functions) {
+    var buttonId, params;
+
+    var _modal = $(modal);
+
+    _modal.on('click', 'button', function(e) {
+        buttonId = $(e.target).attr("id");
+        if (buttonId !== undefined && functions !== undefined && functions[buttonId] !== undefined) {
+            functions[buttonId](params, _modal);
+        }
+        if ($(e.target).data("hide") !== 'no') {
+            _modal.modal('hide');
+        }
+    });
+
+    _modal.on('hidden.bs.modal', function (e) {
+        if (functions !== undefined && functions['onclose'] !== undefined) {
+            functions['onclose'](params, _modal);
+        }
+    });
+
+    var m = {};
+    m.show = function(p, f) {
+        buttonId = undefined;
+        params = p;
+        if (functions === undefined && f !== undefined) {
+            functions = f;
+        }
+        if (f !== undefined && f["before"] !== undefined) {
+            f["before"](params, _modal);
+        }
+        _modal.modal('show');
+        if (f !== undefined && f["after"] !== undefined) {
+            f["after"](params, _modal);
+        }
+    };
+    m.close = function() {
+        _modal.modal('hide');
+    };
+
+    return m;
+}
+
 function calc(params) {
     params.e.preventDefault();
 

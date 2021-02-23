@@ -26,4 +26,12 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     @Modifying
     @Query("update User u set u.loggedInDate = :date where u.id = :id")
     void updateLoggedInDate(@Param("date") Date loggedInDate, @Param("id") int id);
+
+    /**
+     *
+     * @param id
+     */
+    @Modifying
+    @Query("delete from Role where user.id = :id")
+    void deleteUserRoles(@Param("id") int id);
 }

@@ -1,6 +1,8 @@
 package gbas.gtbch.sapod.model;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,6 +18,7 @@ import java.util.stream.Collectors;
 @Entity
 @Table(name = "users")
 @Cacheable(false)
+@JsonIgnoreProperties(value = {"enabled", "username", "authorities", "accountNonExpired", "credentialsNonExpired", "accountNonLocked"})
 public class User implements UserDetails, Serializable {
 
     @Id
@@ -36,6 +39,7 @@ public class User implements UserDetails, Serializable {
     private String position;
 
     @Column(name = "last_time")
+    @JsonFormat(pattern="dd.MM.yyyy HH:mm:ss")
     private Date loggedInDate;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
@@ -106,15 +110,9 @@ public class User implements UserDetails, Serializable {
      * @return
      */
     public String getAuthoritiesString() {
-        return getAuthorities().stream().map(o -> {
-            switch (o.getAuthority()) {
-                case "ROLE_ADMIN":
-                    return "Администратор";
-                case "ROLE_USER":
-                    return "Пользователь";
-            }
-            return "Не определена";
-        }).sorted().collect(Collectors.joining(";"));
+        return getAuthorities().stream()
+                .map(o -> UserRole.getRoleName(o.getAuthority()))
+                .sorted().collect(Collectors.joining(";"));
     }
 
     public String getPassword() {

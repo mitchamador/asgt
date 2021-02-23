@@ -1,6 +1,8 @@
 package gbas.gtbch.web;
 
+import gbas.gtbch.sapod.model.Role;
 import gbas.gtbch.sapod.model.User;
+import gbas.gtbch.sapod.model.UserRole;
 import gbas.gtbch.sapod.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,9 +13,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@RestController
 @Controller
 public class UsersController {
 
@@ -49,13 +53,47 @@ public class UsersController {
         return users;
     }
 
+    @GetMapping("/admin/user/{id:[\\d]+}/editor")
+    public ModelAndView userEditor(@PathVariable int id) {
+        ModelAndView userEditor = new ModelAndView("fragments/users :: editor");
+        User u = id == 0 ? new User() : userService.findUserById(id);
+        List<Role> roles = UserRole.getAllRoles();
+        for (Role r : roles) {
+            for (Role uR : u.getRoles()) {
+                if (uR.getMnemo().equals(r.getMnemo())) {
+                    r.setChecked(true);
+                    break;
+                }
+            }
+        }
+        userEditor.addObject("user", u);
+        userEditor.addObject("roles", roles);
+        return userEditor;
+    }
+
+
+    @GetMapping("/admin/users/all")
+    public ModelAndView usersAll() {
+        ModelAndView users = new ModelAndView("fragments/users :: allusers");
+        users.addObject("allUsers", userService.findAll());
+        return users;
+    }
+
+    @GetMapping("/admin/users/active")
+    public ModelAndView usersActive() {
+        ModelAndView users = new ModelAndView("fragments/users :: activeusers");
+        users.addObject("activeUsers", getUsersFromSessionRegistry());
+        return users;
+    }
+
+
     /**
      * get all users
      * @return
      */
     @RequestMapping(value = "/api/users", method = RequestMethod.GET)
-    public ResponseEntity<List<User>> getUsers() {
-        return new ResponseEntity<>(userService.findAll(), HttpStatus.OK);
+    public ResponseEntity<List<User>> getUsers(@RequestParam(required = false) boolean active) {
+        return new ResponseEntity<>(active ? getUsersFromSessionRegistry() : userService.findAll(), HttpStatus.OK);
     }
 
     /**
@@ -63,9 +101,28 @@ public class UsersController {
      * @param id
      * @return
      */
-    @RequestMapping(value = "/api/users/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/api/user/{id:[\\d]+}", method = RequestMethod.GET)
     public ResponseEntity<User> getUser(@PathVariable int id) {
-        return new ResponseEntity<>(userService.findUserById(id), HttpStatus.OK);
+        User u = userService.findUserById(id);
+        if (u == null) {
+            u = new User();
+        } else {
+            for (Role uRole : u.getRoles()) {
+                uRole.setChecked(true);
+            }
+        }
+        return new ResponseEntity<>(u, HttpStatus.OK);
+    }
+
+    /**
+     * create user
+     * @param user
+     * @return
+     */
+    @RequestMapping(value = "/api/user", method = RequestMethod.POST)
+    public ResponseEntity<Integer> createUser(@RequestBody User user) {
+        user = userService.saveUser(user);
+        return user != null ? ResponseEntity.created(URI.create("/api/user/" + user.getId())).body(user.getId()) : ResponseEntity.notFound().build();
     }
 
     /**
@@ -73,9 +130,10 @@ public class UsersController {
      * @param user
      * @return
      */
-    @RequestMapping(value = "/api/users", method = RequestMethod.POST)
-    public ResponseEntity<User> saveUser(@RequestBody User user) {
-        return new ResponseEntity<>(userService.saveUser(user), HttpStatus.OK);
+    @RequestMapping(value = "/api/user/{id:[\\d]+}", method = RequestMethod.PUT)
+    public ResponseEntity<Integer> saveUser(@PathVariable int id, @RequestBody User user) {
+        user.setId(id);
+        return userService.saveUser(user) != null ? ResponseEntity.ok().body(user.getId()) : ResponseEntity.notFound().build();
     }
 
     /**
@@ -83,10 +141,15 @@ public class UsersController {
      * @param id
      * @return
      */
-    @RequestMapping(value = "/api/users/{id}/delete", method = RequestMethod.GET)
-    public ResponseEntity deleteUser(@PathVariable int id) {
+    @RequestMapping(value = "/api/user/{id:[\\d]+}", method = RequestMethod.DELETE)
+    public ResponseEntity<Boolean> deleteUser(@PathVariable int id) {
         userService.deleteUserById(id);
-        return new ResponseEntity(HttpStatus.OK);
+        return new ResponseEntity<>(true, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/api/user/roles", method = RequestMethod.GET)
+    public List<Role> getUserRoles() {
+        return UserRole.getAllRoles();
     }
 
 }

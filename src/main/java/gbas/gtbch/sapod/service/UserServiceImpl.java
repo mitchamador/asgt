@@ -2,6 +2,8 @@ package gbas.gtbch.sapod.service;
 
 import gbas.gtbch.sapod.model.User;
 import gbas.gtbch.sapod.repository.UserRepository;
+import gbas.gtbch.security.SapodPasswordEncoder;
+import gbas.tvk.nsi.cash.Func;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -89,6 +91,24 @@ public class UserServiceImpl implements UserService, UserDetailsService {
      */
     @Override
     public User saveUser(User u) {
+        // check login duplicate
+        User checkLoginUser = userRepository.findByLogin(u.getLogin());
+        if (checkLoginUser != null && checkLoginUser.getId() != u.getId()) {
+            return null;
+        }
+        if (u.getId() != 0) {
+            // delete all roles
+            userRepository.deleteUserRoles(u.getId());
+            // reload last logged in date
+            userRepository.findById(u.getId()).ifPresent(oldUser -> u.setLoggedInDate(oldUser.getLoggedInDate()));
+        }
+        if (Func.isEmpty(u.getPassword()) && u.getId() != 0) {
+            // reload user's password
+            userRepository.findById(u.getId()).ifPresent(oldUser -> u.setPassword(oldUser.getPassword()));
+        } else {
+            // encode password (assume password is unencoded)
+            u.setPassword(new SapodPasswordEncoder().encode(u.getPassword()));
+        }
         return userRepository.save(u);
     }
 }

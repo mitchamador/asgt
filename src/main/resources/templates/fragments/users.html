@@ -1,0 +1,251 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<th:block th:fragment="activeusers">
+    <table id="activeUsersTable" class="table-condensed table-bordered text-nowrap">
+        <thead>
+        <tr>
+            <th class="text-left" scope="col" style="width: 80px">№ п/п</th>
+            <th class="text-left" scope="col">Логин</th>
+            <th class="text-left" scope="col">ФИО</th>
+            <th class="text-left" scope="col">Должность</th>
+            <th class="text-left" scope="col">Дата входа в систему</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <th:block th:each="user, it : ${activeUsers}">
+            <tr>
+                <td th:text="${it.count}"></td>
+                <td th:text="${user.getUsername()}"></td>
+                <td th:text="${user.getFio()}"></td>
+                <td th:text="${user.getPosition()}"></td>
+                <td th:text="${#dates.format(user.getLoggedInDate(), 'dd.MM.yyyy HH:mm:ss')}"></td>
+            </tr>
+        </th:block>
+        </tbody>
+    </table>
+</th:block>
+
+<th:block th:fragment="allusers">
+    <table id="allUsersTable" class="table-condensed table-bordered text-nowrap">
+        <thead>
+        <tr>
+            <th class="text-nowrap" style="width: 80px">
+                <!--                № п/п-->
+                <div style="display: flex; width: 100%; height: 100%">
+                    <a id="userCreate" class="btn-success btn-sm"
+                       style="align-self: center; margin-right: 3px; padding: 1px 5px; cursor: pointer"><i
+                            class="fa fa-plus"></i></a>
+                    <span class="text-nowrap" style="flex-grow: 1; align-self: center;">№ п/п</span>
+                </div>
+            </th>
+            <th style="width: 10%">Логин</th>
+            <th style="width: 20%">ФИО</th>
+            <th style="width: 25%">Должность</th>
+            <th style="width: 25%">Роль</th>
+            <th style="width: 20%">Последняя дата входа в систему</th>
+        </tr>
+        </thead>
+
+<!--
+        <tbody>
+        <th:block th:each="user, it : ${allUsers}">
+            <tr th:data-id="${user.getId()}" th:class="clickable-row">
+                <td th:text="${it.count}"></td>
+                <td th:text="${user.getUsername()}"></td>
+                <td th:text="${user.getFio()}"></td>
+                <td th:text="${user.getPosition()}"></td>
+                <td th:text="${user.getAuthoritiesString()}"></td>
+                <td th:text="${#dates.format(user.getLoggedInDate(), 'dd.MM.yyyy HH:mm:ss')}"></td>
+            </tr>
+        </th:block>
+        </tbody>
+-->
+    </table>
+</th:block>
+
+<th:block th:fragment="editor">
+
+    <script th:inline="javascript">
+        $(document).ready($(function () {
+
+            /*<![CDATA[*/
+            var user = [[${user}]];
+            /*]]>*/
+
+            $('#checkColumn').click(function () {
+                $("#rolesTable tr").find("input:checkbox").prop("checked", $("#rolesTable tr").find("input:checkbox").length !== $("#rolesTable tr td input:checked").length);
+            });
+
+            var modalUserEditor = initModal2("#userEditModal", {
+                "okUserButton" : function (user) {
+                    user.login = $("#username").val();
+                    user.fio = $("#fio").val();
+                    user.position = $("#position").val();
+
+                    var password = $("#password").val();
+                    var password2 = $("#password2").val();
+
+                    if (password === '') {
+                        alert("Не введен пароль");
+                        return;
+                    }
+
+                    if (password !== password2) {
+                        alert("Пароли не совпадают");
+                        return;
+                    }
+
+                    if (user.password === password && user.password === password2) {
+                        user.password = '';
+                    } else {
+                        user.password = password;
+                    }
+
+                    // clear all checked
+                    user.roles = [];
+
+                    // set checked
+                    var trList = $("#rolesTable tr td :checked").closest('tr');
+                    for (var i = 0; i < trList.length; i++) {
+                        var role = {};
+                        role.mnemo = $(trList[i]).data("mnemo");
+                        user.roles.push(role);
+                    }
+
+                    var userId = user.id;
+
+                    $.ajax({
+                        url: contextRoot + "api/user/" + (user.id !== 0 ? user.id : ""),
+                        type: user.id !== 0 ? 'PUT' : 'POST',
+                        data: JSON.stringify(user),
+                        cache: false,
+                        contentType: "application/json",
+                        success: function(msg) {
+                            userId = msg;
+                        },
+                        complete: function ( jqXHR, textStatus) {
+                            if (textStatus === 'success') {
+                                console.log("Сохранение пользователя с id=" + userId);
+                                modalUserEditor.close();
+                                UserData.allUsersDataTable.reloadTable(userId);
+                            } else {
+                                alert("Ошибка сохранения пользователя");
+                                if (userId === undefined || userId === 0) {
+                                    console.log("Ошибка при сохранении нового пользователя");
+                                } else {
+                                    console.log("Ошибка при сохранении пользователя с id=" + userId);
+                                }
+                            }
+                        }
+                    });
+                },
+                "cancelUserButton": function (user) {
+                    console.log("Отмена сохранения пользователя с id=" + user.id);
+                }
+            });
+
+            modalUserEditor.show(user);
+
+        }));
+    </script>
+
+    <div id="userEditModal" class="modal" data-keyboard="true" data-backdrop="static" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Редактирование информации о пользователе</h5>
+                </div>
+
+                <div class="modal-body" style="margin-left: 10px; margin-right: 10px">
+
+                    <div class="row">
+
+                        <div class="col-sm-6" style="width: 50%;">
+                            <div class="form-group" style="width: 100%;">
+                                <span class="has-float-label">
+                                    <input class="form-control" id="username" type="text"
+                                           placeholder=""
+                                           th:value="${user.getLogin()}"/>
+                                    <label for="username">Логин</label>
+                                </span>
+                            </div>
+
+                            <div class="form-group" style="width: 100%;">
+                                <span class="has-float-label">
+                                    <input class="form-control" id="fio" type="text"
+                                           placeholder=""
+                                           th:value="${user.getFio()}"/>
+                                    <label for="fio">Фамилия Имя Отчество</label>
+                                </span>
+                            </div>
+
+                            <div class="form-group" style="width: 100%;">
+                                <span class="has-float-label">
+                                    <input class="form-control" id="position" type="text"
+                                           placeholder=""
+                                           th:value="${user.getPosition()}"/>
+                                    <label for="position">Должность</label>
+                                </span>
+                            </div>
+
+                            <div class="form-group" style="width: 100%;">
+                                <span class="has-float-label">
+                                    <input class="form-control" id="password" type="password"
+                                           placeholder=""
+                                           th:value="${user.getPassword()}"/>
+                                    <label for="password">Пароль</label>
+                                </span>
+                            </div>
+
+                            <div class="form-group" style="width: 100%;">
+                                <span class="has-float-label">
+                                    <input class="form-control" id="password2" type="password"
+                                           placeholder=""
+                                           th:value="${user.getPassword()}"/>
+                                    <label for="password2">Пароль повторно</label>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <span class="has-float-label">
+                                <label for="rolesTable">Роли пользователя</label>
+                                <table id="rolesTable" class="form-control table-condensed table-bordered" style="display: block; height: 30vh; overflow-y: scroll; width: 100%; font-size: 0.9em">
+                                    <thead>
+                                    <tr>
+                                        <th class="text-center" scope="col" style="width: 20%;">
+                                            <span id="checkColumn" class="glyphicon glyphicon-check"></span>
+                                        </th>
+                                        <th style="width: 30%" scope="col">Мнемокод</th>
+                                        <th style="width: 50%" scope="col">Наименование</th>
+                                    </tr>
+                                    </thead>
+                                    <th:block th:each="r : ${roles}">
+                                        <tr th:data-mnemo="${r.getMnemo()}">
+                                            <td style="padding: 2px" class="text-center">
+                                                <input type="checkbox" th:checked="${r.isChecked()}">
+                                            </td>
+                                            <td style="padding: 2px" th:text="${r.getMnemo()}"></td>
+                                            <td style="padding: 2px" th:text="${r.getName()}"></td>
+                                        </tr>
+                                    </th:block>
+                                </table>
+                            </span>
+                        </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button id="okUserButton" type="button" data-hide="no" class="btn btn-success">Сохранить</button>
+                    <button id="cancelUserButton" type="button" class="btn btn-default">Выход</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</th:block>
+
+</body>
+</html>

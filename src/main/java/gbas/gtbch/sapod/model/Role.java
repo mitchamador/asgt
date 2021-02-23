@@ -1,6 +1,7 @@
 package gbas.gtbch.sapod.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -12,15 +13,22 @@ public class Role implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
+    @JsonIgnore
     private int id;
 
     @Column(name = "mnemo")
     private String mnemo;
 
+    @Transient
+    private String name;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="id_user", nullable=false)
     @JsonBackReference
     private User user;
+
+    @Transient
+    private boolean isChecked;
 
     public int getId() {
         return id;
@@ -44,5 +52,25 @@ public class Role implements Serializable {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public String getName() {
+        return UserRole.getRoleName(mnemo);
+    }
+
+    public boolean isChecked() {
+        return isChecked;
+    }
+
+    public void setChecked(boolean checked) {
+        isChecked = checked;
+    }
+
+    public Role(String mnemo, String name) {
+        this.mnemo = mnemo;
+        this.name = name;
+    }
+
+    public Role() {
     }
 }
