@@ -11,22 +11,23 @@ public class TPolDocument extends TpolDocument {
         return name;
     }
 
-    public String getNContract() {
+    public String getN_contract() {
         return n_contract;
     }
 
-    public int getNPol() {
+    public int getN_pol() {
         return n_pol;
     }
-    public String getTypeCode() {
+
+    public String getType_code() {
         return type_code;
     }
 
-    public Date getDateBegin() {
+    public Date getDate_begin() {
         return date_begin;
     }
 
-    public Date getDateEnd() {
+    public Date getDate_end() {
         return date_end;
     }
 
@@ -42,4 +43,8 @@ public class TPolDocument extends TpolDocument {
      * checked {@link TPolSobst} list
      */
     public List<TPolSobst> sobstList;
+
+    public List<TPolSobst> getSobstList() {
+        return sobstList;
+    }
 }

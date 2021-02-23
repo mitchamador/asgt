@@ -518,7 +518,7 @@
                                     <label for="typeDocumentEditor">Тип документа</label>
                                     <select id="typeDocumentEditor" class="form-control">
                                         <th:block th:each="g, ix : ${groups}">
-                                            <option th:value="${g.getCode()}" th:selected="${g.getCode() == document.getTypeCode()}" th:text="${g.getName()}"></option>
+                                            _c<option th:value="${g.getCode()}" th:selected="${g.getCode() == document.getType_code()}" th:text="${g.getName()}"></option>
                                         </th:block>
                                     </select>
                                 </span>
@@ -528,7 +528,7 @@
                                 <span class="has-float-label">
                                     <input class="form-control" id="nContract" type="text"
                                            placeholder=""
-                                           th:value="${document.getNContract()}"/>
+                                           th:value="${document.getN_contract()}"/>
                                     <label for="nContract">Номер документа</label>
                                 </span>
                             </div>
@@ -594,7 +594,7 @@
                                         <th style="width: 70%">Наименование</th>
                                     </tr>
                                     </thead>
-                                    <th:block th:each="s : ${document.sobstList}">
+                                    <th:block th:each="s : ${document.getSobstList()}">
                                         <tr th:data-kadm="${s.getkAdm()}">
                                             <td style="padding: 2px" class="text-center">
                                                 <input type="checkbox" th:checked="${s.isChecked()}">
