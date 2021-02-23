@@ -86,9 +86,7 @@ public class TPolTVesRepository {
     public int saveVO(TvkTVes tVes) {
         Integer id = jdbcTemplate.query("select id from tvk_group_t_ves where n_tab = ?",
                 new Object[]{tVes.nTab},
-                resultSet -> {
-                    return resultSet.getInt("id");
-                });
+                resultSet -> resultSet.next() ? resultSet.getInt("id") : null);
 
         if (id == null) {
             // todo (check if need to insert)
@@ -105,7 +103,7 @@ public class TPolTVesRepository {
         tVes.id_group_t_ves = id;
 
         {
-            id = jdbcTemplate.query("select id_tab, min_v from tvk_t_ves where id_tab = ? and min_v = ?",
+            id = jdbcTemplate.query("select id, id_tab, min_v from tvk_t_ves where id_tab = ? and min_v = ?",
                     new Object[]{tVes.id_group_t_ves, tVes.minV},
                     resultSet -> resultSet.next() ? resultSet.getInt("id") : null);
 
@@ -143,7 +141,6 @@ public class TPolTVesRepository {
 
         if (tVes.id == 0) {
             tVes.id = (int) (keyHolder.getKey() != null ? keyHolder.getKey() : 0);
-            ;
         }
 
         return tVes.id;
