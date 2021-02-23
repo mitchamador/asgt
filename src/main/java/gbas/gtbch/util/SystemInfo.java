@@ -73,8 +73,8 @@ public class SystemInfo {
 
         String[] version = new Version().getVersion();
 
-        info.add(new KeyValue("Сборка", (buildProperties == null ? "local" : ("версия: " + buildProperties.getVersion() + "; время сборки: " + UtilDate8.getStringDateTime(new java.util.Date(buildProperties.getTime().toEpochMilli())))
-                + "; core: " + version[0] + " от " + version[1])));
+        info.add(new KeyValue("Сборка", (buildProperties == null ? "local" : ("версия: " + buildProperties.getVersion() + "; время сборки: " + UtilDate8.getStringDateTime(new java.util.Date(buildProperties.getTime().toEpochMilli()))))
+                + "; core: " + version[0] + " от " + version[1]));
 
         return info;
     }
