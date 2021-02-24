@@ -108,8 +108,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         if (u.getId() != 0) {
             // delete all roles
             userRepository.deleteUserRoles(u.getId());
-            // reload last logged in date
-            userRepository.findById(u.getId()).ifPresent(oldUser -> u.setLoggedInDate(oldUser.getLoggedInDate()));
         }
         if (Func.isEmpty(u.getPassword()) && u.getId() != 0) {
             // reload user's password

@@ -4,6 +4,7 @@ package gbas.gtbch.sapod.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import org.hibernate.Hibernate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -38,13 +39,13 @@ public class User implements UserDetails, Serializable {
     @Column(name = "position")
     private String position;
 
-    @Column(name = "last_time")
+    @Column(name = "last_time", updatable = false)
     @JsonFormat(pattern="dd.MM.yyyy HH:mm:ss")
     private Date loggedInDate;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonManagedReference
-    private Set<Role> roles = new HashSet<Role>();
+    private Set<Role> roles = new HashSet<>();
 
     public int getId() {
         return id;
