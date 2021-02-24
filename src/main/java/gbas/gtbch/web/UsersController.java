@@ -47,10 +47,7 @@ public class UsersController {
 
     @GetMapping("/admin/users")
     public ModelAndView users() {
-        ModelAndView users = new ModelAndView("admin/users");
-        users.addObject("activeUsers", getUsersFromSessionRegistry());
-        users.addObject("allUsers", userService.findAll());
-        return users;
+        return new ModelAndView("admin/users");
     }
 
     @GetMapping("/admin/user/{id:[\\d]+}/editor")
@@ -70,22 +67,6 @@ public class UsersController {
         userEditor.addObject("roles", roles);
         return userEditor;
     }
-
-
-    @GetMapping("/admin/users/all")
-    public ModelAndView usersAll() {
-        ModelAndView users = new ModelAndView("fragments/users :: allusers");
-        users.addObject("allUsers", userService.findAll());
-        return users;
-    }
-
-    @GetMapping("/admin/users/active")
-    public ModelAndView usersActive() {
-        ModelAndView users = new ModelAndView("fragments/users :: activeusers");
-        users.addObject("activeUsers", getUsersFromSessionRegistry());
-        return users;
-    }
-
 
     /**
      * get all users

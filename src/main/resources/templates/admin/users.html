@@ -21,31 +21,24 @@
     <script type="application/javascript">
         $(document).ready($(function () {
             // сохранение выбранной вкладки
-            $('a[data-toggle="tab"]').on('show.bs.tab', function(e) {
+            $('a[data-toggle="tab"]').on('show.bs.tab', function (e) {
                 localStorage.setItem('activeUsersTab', $(e.target).attr('href'));
             });
 
-            // показ сохраненной вкладки
-            var activeTab = localStorage.getItem('activeUsersTab');
-            if(activeTab){
-                $('#usersTab a[href="' + activeTab + '"]').tab('show');
-            }
-
-            $('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
-                var currentTab = $(e.target).attr("id");
+            var reloadTables = function (currentTab) {
                 if (currentTab === "allTab") {
+                    allUsersDatatable.reloadTable();
                     $('#allUsersTable').DataTable().columns.adjust().draw();
                 } else if (currentTab === "activeTab") {
+                    activeUsersDatatable.reloadTable();
                     $('#activeUsersTable').DataTable().columns.adjust().draw();
                 }
-            });
+            };
 
-            // $(".clickable-row").click(function(){
-            //     if($(this).hasClass("success"))
-            //         $(this).removeClass('success');
-            //     else
-            //         $(this).addClass('success').siblings().removeClass('success');
-            // });
+            $('a[data-toggle="tab"]').on('click', function (e) {
+                $('#usersTab a[href="' + $(e.target).attr("href") + '"]').tab('show');
+                reloadTables($(e.target).attr("id"));
+            });
 
             var allUsersDatatable = $('#allUsersTable').DataTable({
                 "order": [
@@ -53,13 +46,13 @@
                 ],
                 dom: 't<"row col-sm-1 margin-top-sm"f>',
                 style: 'single',
-                select: { style: 'single'},
+                select: {style: 'single'},
                 "paging": false,
                 "info": false,
                 "searching": true,
                 "scrollY": "50vh",
                 "scrollCollapse": true,
-                "language" : {
+                "language": {
                     "zeroRecords": " ",
                     "searchPlaceholder": "Поиск",
                     "search": "Поиск:"
@@ -71,11 +64,11 @@
                         "targets": 0
                     },
                     {
-                        targets:   -1,
-                        render: function ( data, type, row ) {
-                            if ( type === 'display' ) {
+                        targets: -1,
+                        render: function (data, type, row) {
+                            if (type === 'display') {
                                 return '<div style="display: flex; max-width: 350px; width: 100%; height: 100%; vertical-align: center">' +
-                                    '<span style="flex-grow: 1; align-self: center;">' + (data === null ? "" : data) + '</span>'+
+                                    '<span style="flex-grow: 1; align-self: center;">' + (data === null ? "" : data) + '</span>' +
                                     '<a id="userEdit" class="invisible btn-success btn-sm" style="align-self: center; margin-right: 3px; padding: 1px 4px; cursor: pointer"><i class="fa fa-edit"></i></a>' +
                                     '<a id="userDelete" class="invisible btn-danger btn-sm" style="align-self: center; padding: 1px 5px; cursor: pointer"><i class="fa fa-trash"></i></a>' +
                                     '</div>';
@@ -84,9 +77,9 @@
                         }
                     },
                     {
-                        targets:   [1, 2, 3, 4],
-                        render: function ( data, type, row ) {
-                            if ( type === 'display' ) {
+                        targets: [1, 2, 3, 4],
+                        render: function (data, type, row) {
+                            if (type === 'display') {
                                 return '<span class="text-nowrap">' + (data === null ? "" : data) + '</span>';
                             }
                             return data;
@@ -95,19 +88,19 @@
                 ],
                 rowId: "id",
                 columns: [
-                    { "data": "id" },
-                    { "data": "login"},
-                    { "data": "fio" },
-                    { "data": "position" },
-                    { "data": "authoritiesString" },
-                    { "data": "loggedInDate" }
+                    {"data": "id"},
+                    {"data": "login"},
+                    {"data": "fio"},
+                    {"data": "position"},
+                    {"data": "authoritiesString"},
+                    {"data": "loggedInDate"}
                 ]
 
             });
 
             var activeUsersDatatable = $('#activeUsersTable').DataTable({
                 "order": [
-                    [ 2, "desc" ]
+                    [2, "desc"]
                 ],
                 "paging": false,
                 "info": false,
@@ -124,6 +117,14 @@
                         "orderable": false,
                         "targets": 0
                     }
+                ],
+                rowId: "id",
+                columns: [
+                    {"data": "id"},
+                    {"data": "login"},
+                    {"data": "fio"},
+                    {"data": "position"},
+                    {"data": "loggedInDate"}
                 ]
             });
 
@@ -132,7 +133,7 @@
 
             addDataTableRowListener(allUsersDatatable,
                 {
-                    "userEdit" : function(tr) {
+                    "userEdit": function (tr) {
                         var row = allUsersDatatable.row(tr);
                         //var id = tr.data('id');
                         var id = row.id();
@@ -145,7 +146,7 @@
                             contextRoot + "admin/user/" + id + "/editor"
                         );
                     },
-                    "userDelete" : function(tr) {
+                    "userDelete": function (tr) {
                         var row = allUsersDatatable.row(tr);
                         //var id = tr.data('id');
                         var id = row.id();
@@ -153,7 +154,7 @@
                         if (id === undefined) return;
 
                         showYesNoModal("Удалить пользователя " + row.data().fio + "?",
-                            function() {
+                            function () {
                                 console.log("Удаление пользователя с id=" + id);
 
                                 $.ajax({
@@ -169,7 +170,7 @@
                                     }
                                 });
                             },
-                            function() {
+                            function () {
                                 console.log("Отмена удаления пользователя с id=" + id);
                             }
                         );
@@ -189,7 +190,7 @@
                 allUsersDataTable: allUsersDatatable
             };
 
-            allUsersDatatable.reloadTable = function(id) {
+            allUsersDatatable.reloadTable = function (id) {
                 // $("#all").load(
                 //     contextRoot + "admin/users/all", function() {
                 //         allUsersDatatable.draw();
@@ -208,7 +209,23 @@
                 });
             };
 
-            allUsersDatatable.selectRow = function(id) {
+            activeUsersDatatable.reloadTable = function (id) {
+                $.ajax({
+                    url: contextRoot + "api/users",
+                    type: "get",
+                    data: {
+                        active: true
+                    },
+                    cache: false,
+                    success: function (data) {
+                        activeUsersDatatable.rows().clear();
+                        activeUsersDatatable.rows.add(data).draw();
+                        activeUsersDatatable.selectRow(id);
+                    }
+                });
+            };
+
+            allUsersDatatable.selectRow = function (id) {
                 this.row("#" + id).select();
                 var rowElement = $('#allUsersTable').find("[id=" + id + "]").get(0);
                 if (rowElement !== undefined) {
@@ -216,7 +233,19 @@
                 }
             };
 
-            allUsersDatatable.reloadTable();
+            activeUsersDatatable.selectRow = function (id) {
+                this.row("#" + id).select();
+                var rowElement = $('#activeUsersDatatable').find("[id=" + id + "]").get(0);
+                if (rowElement !== undefined) {
+                    rowElement.scrollIntoViewIfNeeded();
+                }
+            };
+
+            //activeUsersDatatable.reloadTable();
+            //allUsersDatatable.reloadTable();
+
+            // показ сохраненной вкладки
+            $('#usersTab a[href="' + (localStorage.getItem('activeUsersTab') === "#all" ? "#all" : "#active") + '"]').trigger('click');
 
         }));
     </script>
@@ -234,11 +263,40 @@
 
     <div class="tab-content row">
         <div id="active" class="tab-pane active">
-            <th:block th:replace="fragments/users :: activeusers"/>
+            <table id="activeUsersTable" class="table-condensed table-bordered text-nowrap">
+                <thead>
+                <tr>
+                    <th class="text-left" scope="col" style="width: 10%">№ п/п</th>
+                    <th class="text-left" scope="col" style="width: 15%">Логин</th>
+                    <th class="text-left" scope="col" style="width: 30%">ФИО</th>
+                    <th class="text-left" scope="col" style="width: 30%">Должность</th>
+                    <th class="text-left" scope="col" style="width: 15%">Дата входа в систему</th>
+                </tr>
+                </thead>
+            </table>
         </div>
 
         <div id="all" class="tab-pane">
-            <th:block th:replace="fragments/users :: allusers"/>
+            <table id="allUsersTable" class="table-condensed table-bordered text-nowrap">
+                <thead>
+                <tr>
+                    <th class="text-nowrap" style="width: 10%">
+                        <!--                № п/п-->
+                        <div style="display: flex; width: 100%; height: 100%">
+                            <a id="userCreate" class="btn-success btn-sm"
+                               style="align-self: center; margin-right: 3px; padding: 1px 5px; cursor: pointer"><i
+                                    class="fa fa-plus"></i></a>
+                            <span class="text-nowrap" style="flex-grow: 1; align-self: center;">№ п/п</span>
+                        </div>
+                    </th>
+                    <th style="width: 10%">Логин</th>
+                    <th style="width: 16%">ФИО</th>
+                    <th style="width: 22%">Должность</th>
+                    <th style="width: 22%">Роль</th>
+                    <th style="width: 20%">Последняя дата входа в систему</th>
+                </tr>
+                </thead>
+            </table>
         </div>
 
     </div>
