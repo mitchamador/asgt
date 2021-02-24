@@ -27,13 +27,13 @@ spring:
 #      max-request-size: 32MB
 #      max-file-size: 16MB
 
-
 logging:
   level:
     root: INFO
     by.mitchamador: INFO
     org.springframework.web: INFO
     org.springframework.security: INFO
+#    org.springframework.boot.context.web.ErrorPageFilter: OFF
 
 app:
   defferedtimeout: 60

@@ -20,6 +20,8 @@ app:
       username: u352gtdb
       password: 165#z15fa3&
       driverClassName: com.ibm.db2.jcc.DB2Driver
+    jpa:
+      show-sql: true
   pensi:
     datasource:
       jndi-name: "jdbc/GTPENSI"
@@ -30,6 +32,8 @@ app:
       username: u352gtdb
       password: 165#z15fa3&
       driverClassName: com.ibm.db2.jcc.DB2Driver
+    jpa:
+      show-sql: true
   mq:
     #enable: true
     queue-manager:
@@ -48,7 +52,4 @@ app:
 
 logging:
   level:
-    org:
-      springframework:
-        transaction:
-          interceptor: trace
+    org.springframework.transaction.interceptor: trace
