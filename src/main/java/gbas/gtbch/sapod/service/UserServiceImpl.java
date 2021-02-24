@@ -4,6 +4,8 @@ import gbas.gtbch.sapod.model.User;
 import gbas.gtbch.sapod.repository.UserRepository;
 import gbas.gtbch.security.SapodPasswordEncoder;
 import gbas.tvk.nsi.cash.Func;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -21,6 +23,8 @@ import java.util.List;
 @Service("userService")
 @Transactional(transactionManager = "sapodTransactionManager")
 public class UserServiceImpl implements UserService, UserDetailsService {
+
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
     private UserRepository userRepository;
@@ -71,7 +75,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return findUserByLogin(username);
+        User u = findUserByLogin(username);
+        if (u == null) {
+            logger.info("User [ {} ] not found", username);
+            throw new UsernameNotFoundException("User not found");
+        }
+        return u;
     }
 
 
