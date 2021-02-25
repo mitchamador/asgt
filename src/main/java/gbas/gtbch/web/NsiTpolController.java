@@ -130,7 +130,7 @@ public class NsiTpolController {
             items.add(item);
         }
         model.addObject("items", items);
-        model.addObject("rowId", id);
+        model.addObject("row", tPolRowService.getRow(id));
 
         return model;
     }
@@ -158,7 +158,7 @@ public class NsiTpolController {
             //item.setNsiData(tPolItemsRepository.getNsi(item));
         }
         model.addObject("item", item);
-        model.addObject("rowId", id);
+        model.addObject("row", tPolRowService.getRow(id));
 
         return model;
     }

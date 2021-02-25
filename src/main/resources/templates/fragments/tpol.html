@@ -155,11 +155,13 @@
                         var row = documentTable.row(tr);
 
                         var d = row.data();
+
+                        TpData.initDocumentModalTable();
+
                         TpData.documentModal.show({
                             type: "document",
                             id: d.id
                         });
-                        TpData.initDocumentModalTable();
                     },
                     "select" : function (tr) {
                         var row = documentTable.row(tr).data();
@@ -268,7 +270,11 @@
                                 "targets": 0
                             }
                         ],
-                        data: TpData.documentTable.data(),
+                        //data: TpData.documentTable.data(),
+                        ajax: {
+                            url: contextRoot + "api/tpol/documents",
+                            dataSrc: ""
+                        },
                         columns: [
                             { "data": "id" },
                             { "data": "n_contract" },
@@ -649,7 +655,6 @@
                             $("body").css("cursor", "default");
 
                             if (textStatus !== 'error') {
-                                $("#rowText").html(d[1]);
                                 $("#tpPages").children().removeClass("active");
                                 $("#page2").toggleClass("active");
                             } else {
@@ -776,12 +781,12 @@
                 <td th:text="${row.getPrim()}"></td>
                 <td th:text="${row.getTipTTar()}"></td>
                 <td th:text="${row.gettVes()}"></td>
-                <td th:text="${row.getKlas()}"></td>
                 <td th:text="${row.getVesNorm()}"></td>
+                <td th:text="${row.getnTab()}"></td>
                 <td th:text="${row.getKof()}"></td>
                 <td th:text="${row.getKof_sobst()}"></td>
+                <td th:text="${row.getSkid()}"></td>
                 <td th:text="${row.getBs_tab()}"></td>
-                <td th:text="${row.nTab}"></td>
                 <td>
                     <div style="display: flex; width: 100%; height: 100%">
                         <span style="flex-grow: 1; align-self: center;" th:text="${row.getKoleya()}"></span>
@@ -804,7 +809,7 @@
         $(document).ready($(function () {
 
             /*<![CDATA[*/
-            var rowId = [[${rowId}]];
+            var row = [[${row}]];
             /*]]>*/
 
             $(".list-group-item").click(function(e){
@@ -814,7 +819,7 @@
                 var item = $(this).attr("item");
 
                 $("#itemData").load(
-                    "./row/" + rowId + "/item/" + item
+                    "./row/" + row.id + "/item/" + item
                 );
             });
 
@@ -831,7 +836,7 @@
     </script>
 
     <div class="row">
-        <span id="rowText" style="margin-left: 230px"></span>
+        <span id="rowText" style="margin-left: 230px" th:text="${row.prim}"></span>
         <div class="side" style="width: 220px;">
             <div style="position:relative;width:100%;height:100%;">
                 <div class="scroll-area">
@@ -869,7 +874,7 @@
     <script th:inline="javascript">
         $(document).ready($(function () {
             /*<![CDATA[*/
-            var rowId = [[${rowId}]];
+            var row = [[${row}]];
             var item = [[${item}]];
             /*]]>*/
 
@@ -965,7 +970,7 @@
                                 }
 
                                 $.ajax({
-                                    url: contextRoot + "api/tpol/row/" + rowId + "/item/" + item.name,
+                                    url: contextRoot + "api/tpol/row/" + row.id + "/item/" + item.name,
                                     type: "DELETE",
                                     data: params,
                                     traditional: true,
@@ -1083,7 +1088,7 @@
                     }
 
                     $.ajax({
-                        url: contextRoot + "api/tpol/row/" + rowId + "/item/" + item.name,
+                        url: contextRoot + "api/tpol/row/" + row.id + "/item/" + item.name,
                         type: "POST",
                         data: params,
                         traditional: true,
@@ -1107,7 +1112,7 @@
                 var params = {};
                 params.set = 0;
                 $.ajax({
-                    url: contextRoot + "api/tpol/row/" + rowId + "/item/" + item.name,
+                    url: contextRoot + "api/tpol/row/" + row.id + "/item/" + item.name,
                     type: "get",
                     data: params,
                     cache: false,
