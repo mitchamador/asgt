@@ -1,11 +1,8 @@
 package gbas.gtbch.web;
 
-import gbas.gtbch.sapod.model.CodeName;
 import gbas.gtbch.sapod.model.TpolItem;
-import gbas.gtbch.sapod.service.*;
-import gbas.tvk.tpol3.TvkKof;
-import gbas.tvk.tpol3.TvkTOsr;
-import gbas.tvk.tpol3.TvkTVes;
+import gbas.gtbch.sapod.service.TPolItemsService;
+import gbas.gtbch.sapod.service.TPolRowService;
 import gbas.tvk.tpol3.service.TPItem;
 import gbas.tvk.tpol3.service.TPItems;
 import gbas.tvk.tpol3.service.TPRow;
@@ -28,19 +25,11 @@ public class TPolRowController {
     private static final Logger logger = LoggerFactory.getLogger(TPolRowController.class);
 
     private final TPolRowService tpolRowService;
-    private final TPolKofService tpolKofService;
-    private final TPolTVesService tpolTVesService;
-    private final TPolTOsrService tpolTOsrService;
-    private final TPolService tpolService;
     private final TPolItemsService tPolItemsService;
 
 
-    public TPolRowController(TPolRowService tPolRowService, TPolKofService tpolKofService, TPolTVesService tpolTVesService, TPolTOsrService tpolTOsrService, TPolService tpolService, TPolItemsService tPolItemsService) {
+    public TPolRowController(TPolRowService tPolRowService, TPolItemsService tPolItemsService) {
         this.tpolRowService = tPolRowService;
-        this.tpolKofService = tpolKofService;
-        this.tpolTVesService = tpolTVesService;
-        this.tpolTOsrService = tpolTOsrService;
-        this.tpolService = tpolService;
         this.tPolItemsService = tPolItemsService;
     }
 
@@ -92,46 +81,6 @@ public class TPolRowController {
     public ResponseEntity<Boolean> deleteRow(@PathVariable int id) {
         logger.info("delete tp row with id = {}", id);
         return new ResponseEntity<>(tpolRowService.deleteRow(id), HttpStatus.OK);
-    }
-
-    /**
-     *
-     * @param id
-     * @return
-     */
-    @RequestMapping(value = "/{id}/kof", method = RequestMethod.GET)
-    public ResponseEntity<List<TvkKof>> getRowKof(@PathVariable int id) {
-        return new ResponseEntity<>(tpolKofService.getKofList(id), HttpStatus.OK);
-    }
-
-    /**
-     *
-     * @param id
-     * @return
-     */
-    @RequestMapping(value = "/{id}/tves", method = RequestMethod.GET)
-    public ResponseEntity<List<TvkTVes>> getRowTVes(@PathVariable int id) {
-        return new ResponseEntity<>(tpolTVesService.getVOList(id), HttpStatus.OK);
-    }
-
-    /**
-     *
-     * @param id
-     * @return
-     */
-    @RequestMapping(value = "/{id}/tosr", method = RequestMethod.GET)
-    public ResponseEntity<List<TvkTOsr>> getRowTOsr(@PathVariable int id) {
-        return new ResponseEntity<>(tpolTOsrService.getContList(id), HttpStatus.OK);
-    }
-
-    /**
-     *
-     * @param id
-     * @return
-     */
-    @RequestMapping(value = "/{id}/ttar", method = RequestMethod.GET)
-    public ResponseEntity<List<CodeName>> getRowTTar(@PathVariable int id) {
-        return new ResponseEntity<>(tpolService.getBaseTarifList(id), HttpStatus.OK);
     }
 
     /**
