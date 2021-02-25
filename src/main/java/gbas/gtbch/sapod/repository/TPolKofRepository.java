@@ -65,7 +65,7 @@ public class TPolKofRepository {
      * @return
      */
     public List<TvkKof> getKofList() {
-        return getKofList(0);
+        return _getKofList(0, null);
     }
 
     /**
@@ -73,11 +73,23 @@ public class TPolKofRepository {
      * @return
      */
     public List<TvkKof> getKofList(int idTPol) {
+        return _getKofList(idTPol, "id_tab_kof");
+    }
+
+    /**
+     * @param idTPol
+     * @return
+     */
+    public List<TvkKof> getKofBsList(int idTPol) {
+        return _getKofList(idTPol, "id_tab_kofbs");
+    }
+
+    private List<TvkKof> _getKofList(int idTPol, String columnName) {
         return jdbcTemplate.query("select a.id, b.n_tab, a.min_rast, a.max_rast, a.min_ves, a.max_ves, a.kof, a.id_tab, a.nz\n" +
                         "from tvk_kof a\n" +
                         "left outer join tvk_group_t_kof b\n" +
                         "on a.id_tab = b.id\n" +
-                        (idTPol == 0 ? "" : "where a.id_tab in (select id_tab_kof from tvk_t_pol where id = ?)\n") +
+                        (idTPol == 0 ? "" : "where a.id_tab in (select " + columnName + " from tvk_t_pol where id = ?)\n") +
                         "order by 1",
                 idTPol == 0 ? null : new Object[]{idTPol},
                 TPolKofRepository::mapRasstRow);

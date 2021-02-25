@@ -44,6 +44,16 @@ public class TPolKofServiceImpl implements TPolKofService {
     }
 
     /**
+     *
+     * @param idTPol
+     * @return
+     */
+    @Override
+    public List<TvkKof> getKofBsList(int idTPol) {
+        return tPolKofRepository.getKofBsList(idTPol);
+    }
+
+    /**
      * @param kof
      * @return
      */

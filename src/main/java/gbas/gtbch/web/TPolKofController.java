@@ -44,7 +44,7 @@ public class TPolKofController {
     @RequestMapping(value = "", method = RequestMethod.POST)
     public ResponseEntity saveKof(@RequestBody TvkKof obj) {
         int id = tPolKofService.saveKof(obj);
-        return id != 0 ? ResponseEntity.created(URI.create("/api/tpol/obj/" + id)).build() : ResponseEntity.notFound().build();
+        return id != 0 ? ResponseEntity.created(URI.create("/api/tpol/kof/" + id)).build() : ResponseEntity.notFound().build();
     }
 
     /**

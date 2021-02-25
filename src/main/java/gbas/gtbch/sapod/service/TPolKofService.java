@@ -11,6 +11,8 @@ public interface TPolKofService {
 
     List<TvkKof> getKofList(int idTPol);
 
+    List<TvkKof> getKofBsList(int idTPol);
+
     int saveKof(TvkKof kof);
 
     boolean deleteKof(int id);
