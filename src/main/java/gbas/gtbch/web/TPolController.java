@@ -69,8 +69,8 @@ public class TPolController {
      * @param id - tvk_tarif.id
      */
     @RequestMapping(value = "/document/{id:[\\d]+}", method = RequestMethod.GET)
-    public ResponseEntity<TPolDocument> getDocument(@PathVariable int id) {
-        return new ResponseEntity<>(tpolService.getDocument(id), HttpStatus.OK);
+    public ResponseEntity<TPolDocument> getDocument(@PathVariable int id, @RequestParam(name = "editor", defaultValue = "false", required = false) boolean editorMode) {
+        return new ResponseEntity<>(tpolService.getDocument(id, editorMode), HttpStatus.OK);
     }
 
     /**
