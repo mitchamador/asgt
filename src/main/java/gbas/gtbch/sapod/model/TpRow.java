@@ -41,8 +41,8 @@ public class TpRow extends TPRow {
         return tPol;
     }
 
-    public String getnStr() {
-        return df.format(nStr);
+    public int getnStr() {
+        return nStr;
     }
 
     public String getPrim() {
