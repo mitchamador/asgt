@@ -95,7 +95,7 @@ public class CalcHandler {
                 String string = convertXmlToVagonOtprTransit.parse(data.getInputXml(), ConstantsParameters.VERIFY,
                         ConstantsParameters.NO_SYSTEM, null);
                 if (string != null) {
-                    obj = convertXmlToVagonOtprTransit.getObject(VagonOtpr.OPER_DEPARTURE);
+                    obj = convertXmlToVagonOtprTransit.getObject();
                 }
             }
 
