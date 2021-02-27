@@ -4,10 +4,15 @@
 
 <th:block th:fragment="rates">
 
-    <script type="application/javascript">
+    <script th:inline="javascript">
         $(document).ready($(function () {
 
-            var table = $('#exchangeRateTable').DataTable({
+            /*<![CDATA[*/
+            var rates = [[${rates}]];
+            var requestDate = [[${requestDate}]];
+            /*]]>*/
+
+            var currencyTable = $('#exchangeRateTable').DataTable({
                 scrollY: "",
                 scrollCollapse: true,
                 paging: false,
@@ -19,9 +24,78 @@
                     "search": "Поиск:"
                 },
                 style: 'single',
-                select: true
+                select: { style: 'single' },
+                columnDefs: [
+                    {
+                        targets:   -1,
+                        render: function ( data, type, row ) {
+                            if ( type === 'display' ) {
+                                return '<div style="display: flex; max-width: 250px; width: 100%; height: 100%; vertical-align: center">' +
+                                    '<span style="flex-grow: 1; align-self: center;">' + data + '</span>'+
+                                    '<a id="currencyEdit" class="invisible btn-success btn-sm" style="align-self: center; margin-right: 3px; padding: 1px 4px; cursor: pointer"><i class="fa fa-edit"></i></a>' +
+                                    '<a id="currencyClear" class="invisible btn-danger btn-sm" style="align-self: center; padding: 1px 5px; cursor: pointer"><i class="fa fa-trash"></i></a>' +
+                                    '</div>';
+                            }
+                            return data;
+                        }
+                    }
+                ]
             });
 
+            addDataTableRowListener(currencyTable, {
+                "currencyEdit" : function(tr, table) {
+                    var id = tr.attr('data-id');
+                    var rate = findRate(id);
+                    if (rate !== undefined) {
+                        var currencyDateString = new Date(rate.fromDate).getStringDate();
+                        var requestDateString = new Date(requestDate).getStringDate()
+                        if (currencyDateString !== requestDateString) {
+                            rate.id = 0;
+                            rate.fromDate = requestDate;
+                            CurrencyData.openCurrencyEditor(rate);
+                        } else {
+                            CurrencyData.openCurrencyEditor(rate);
+                        }
+                    }
+                },
+                "currencyClear" : function(tr, table) {
+                    var id = tr.attr('data-id');
+                    var rate = findRate(id);
+                    if (rate !== undefined) {
+                        var currencyDateString = new Date(rate.fromDate).getStringDate();
+                        var requestDateString = new Date(requestDate).getStringDate()
+                        if (currencyDateString !== requestDateString) {
+                            showInfoModal("Отсутствует информация по обменному курсу " + rate.currency.shortName + " на дату " + requestDateString);
+                            console.log("No exchange rate for " + rate.currency.shortName + " at " + requestDateString);
+                        } else {
+                            showYesNoModal("Удалить информацию по обменному курсу " + rate.currency.shortName + " на дату " + requestDateString + "?",
+                                function () {
+                                    $.ajax({
+                                        url: contextRoot + "api/currency/rate/" + rate.id,
+                                        type: 'DELETE',
+                                        cache: false,
+                                        contentType: "application/json",
+                                        complete: function (jqXHR, textStatus) {
+                                            if (textStatus === 'success') {
+                                                console.log("Удаление курсов валют " + rate.currency.shortName + " => " + rate.baseCurrency.shortName + " на дату " + new Date(rate.fromDate).getStringDate());
+                                                CurrencyData.loadTable(rate.currency.shortName);
+                                            } else {
+                                                alert("Ошибка удаления курсов валют");
+                                            }
+                                        }
+                                    });
+                                }
+                            );
+                        }
+                    }
+                }
+            });
+
+            var findRate = function(id) {
+                return rates.find(function (r) {
+                    return r.id === parseInt(id);
+                });
+            }
 
         }));
     </script>
@@ -38,7 +112,7 @@
         <tbody>
 
         <th:block th:each="rate : ${rates}">
-            <tr>
+            <tr th:data-id="${rate.getId()}" th:data-mnemo="${rate.getCurrency().getShortName()}">
                 <td>
                     <div>
                         <th:block th:switch="${rate.getCurrency().getShortName()}">
@@ -52,7 +126,7 @@
                     </div>
                 </td>
                 <td th:text="${#numbers.formatDecimal(rate.getHowMuch(), 1, 0) + ' ' + rate.getCurrency().getShortName()}"></td>
-                <td style="text-align: end" th:text="${rate.getRate()}"></td>
+                <td th:text="${#numbers.formatDecimal(rate.getRate(), 1, 4)}"></td>
             </tr>
         </th:block>
         </tbody>

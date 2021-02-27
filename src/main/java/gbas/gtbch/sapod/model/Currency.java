@@ -11,19 +11,19 @@ public class Currency {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "code")
-    int id;
+    private int id;
 
     @Column(name = "name", length = 20)
     @Convert(converter = StringTrimConverter.class)
-    String name;
+    private String name;
 
     @Column(name = "short_name", length = 10)
     @Convert(converter = StringTrimConverter.class)
-    String shortName;
+    private String shortName;
 
     @Column(name = "symbol", length = 3)
     @Convert(converter = StringTrimConverter.class)
-    String symbol;
+    private String symbol;
 
     public int getId() {
         return id;

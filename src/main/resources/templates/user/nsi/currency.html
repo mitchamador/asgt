@@ -25,15 +25,61 @@
     <script th:inline="javascript">
         $(document).ready($(function () {
 
-            function loadTable() {
+            function loadTable(mnemo) {
                 var data = {};
                 data.date = $("#date_text").val();
 
                 $("#exchangeRateFragment").load(
                     "./currency/rates",
-                    $.param(data)
+                    $.param(data),
+                    function() {
+                        if (mnemo !== undefined) {
+                            $('#exchangeRateTable').DataTable().row("[data-mnemo='" + mnemo + "']").select();
+                        }
+                    }
                 );
             }
+
+            var currencyEditor = initModal2("#currencyEditorModal", {
+                "okCurrencyButton" : function (rate) {
+
+                    var _howMuch = parseInt($("#howMuch").val());
+                    if (isNaN(_howMuch)) {
+                        alert("Ошибка");
+                        return;
+                    }
+
+                    var _rate = parseFloat($("#rate").val());
+                    if (isNaN(_rate)) {
+                        alert("Ошибка");
+                        return;
+                    }
+
+                    rate.howMuch = _howMuch;
+                    rate.rate = _rate;
+
+                    $.ajax({
+                        url: contextRoot + "api/currency/rate/" + (rate.id !== 0 ? rate.id : ""),
+                        type: rate.id !== 0 ? 'PUT' : 'POST',
+                        data: JSON.stringify(rate),
+                        cache: false,
+                        contentType: "application/json",
+                        complete: function (jqXHR, textStatus) {
+                            if (textStatus === 'success') {
+                                console.log("Сохранение курсов валют " + rate.currency.shortName + " => " + rate.baseCurrency.shortName + " на дату " + new Date(rate.fromDate).getStringDate());
+                                loadTable(rate.currency.shortName);
+                                currencyEditor.close();
+                            } else {
+                                alert("Ошибка сохранения курсов валют");
+                            }
+                        }
+                    });
+
+                },
+                "cancelCurrencyButton": function (rate) {
+                    console.log("cancel");
+                },
+            });
 
             var currentDate = new Date();
 
@@ -55,6 +101,33 @@
 
             loadTable();
 
+            var openCurrencyEditor = function(rate) {
+                $("#fromDate").val(new Date(rate.fromDate).getStringDate());
+                $("#howMuch").val(rate.howMuch);
+                $("#currencyName").text(rate.currency.name + " = ");
+                $("#rate").val(rate.rate);
+                $("#baseCurrencyName").text(rate.baseCurrency.name);
+                currencyEditor.show(rate);
+            };
+
+            $("#howMuch").on('keypress', function(e) {
+                var value = $(this).val() + e.key;
+                if (!value.match("^[0-9]+$")) {
+                    e.preventDefault();
+                }
+            });
+
+            $("#rate").on('keypress', function(e) {
+                var value = $(this).val() + e.key;
+                if (!value.match("^([0-9]+(\.[0-9]{0,4})?)$")) {
+                    e.preventDefault();
+                }
+            });
+
+            window.CurrencyData = {
+                loadTable : loadTable,
+                openCurrencyEditor: openCurrencyEditor
+            };
         }));
     </script>
 
@@ -73,6 +146,41 @@
     </div>
 
     <div id="exchangeRateFragment">
+    </div>
+
+    <div id="currencyEditorModal" class="modal" data-keyboard="true" data-backdrop="static" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Редактирование информации о курсах валют</h5>
+                </div>
+
+                <div class="modal-body" style="margin-left: 10px; margin-right: 10px">
+
+                    <div style="display: inline-flex; width: 100%" >
+                        <h5><span class="text-nowrap" style="margin-right: 15px">Курс валют, действующий на дату</span></h5>
+                        <div class="form-group" style="flex-grow: 1">
+                            <div id="fromDateDiv" class="input-group date">
+                                <input id="fromDate" type="text" class="form-control" readonly/>
+                                <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" style="display: inline-flex; width: 100%" >
+                        <input class="form-control" type="text" id="howMuch">
+                        <h5><span id="currencyName" class="text-nowrap" style="margin-left: 15px; margin-right: 15px"></span></h5>
+                        <input class="form-control" type="text" id="rate">
+                        <h5><span id="baseCurrencyName" class="text-nowrap" style="margin-left: 15px"></span></h5>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button id="okCurrencyButton" type="button" data-hide="no" class="btn btn-success">Сохранить
+                    </button>
+                    <button id="cancelCurrencyButton" type="button" class="btn btn-default">Выход</button>
+                </div>
+            </div>
+        </div>
     </div>
 
 </div>

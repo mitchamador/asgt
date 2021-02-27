@@ -36,7 +36,7 @@ public class NbrbCurrencyDownloaderJob extends ServerJob {
                     Currency c2 = currencyService.findCurrencyByShortName(currencyRate.baseSymbol);
 
                     if (c1 != null && c2 != null) {
-                        exchangeRateService.delete(exchangeRateService.findAllExchangeRateByCurrencyAndBaseCurrencyAndFromDate(c1, c2, currencyRate.date));
+                        exchangeRateService.delete(exchangeRateService.getRates(c1.getShortName(), c2.getShortName(), currencyRate.date));
 
                         ExchangeRate exchangeRate = new ExchangeRate();
                         exchangeRate.setCurrency(c1);

@@ -1,9 +1,7 @@
 package gbas.gtbch.sapod.service;
 
-import gbas.gtbch.sapod.model.Currency;
 import gbas.gtbch.sapod.model.ExchangeRate;
 import gbas.gtbch.sapod.repository.ExchangeRateRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -26,18 +24,6 @@ public class ExchangeRateServiceImpl implements ExchangeRateService {
     @Override
     public ExchangeRate findExchangeRateById(Integer id) {
         return exchangeRateRepository.findById(id).orElse(null);
-    }
-
-    /**
-     *
-     * @param currency
-     * @param baseCurrency
-     * @param fromDate
-     * @return
-     */
-    @Override
-    public List<ExchangeRate> findAllExchangeRateByCurrencyAndBaseCurrencyAndFromDate(Currency currency, Currency baseCurrency, Date fromDate) {
-        return exchangeRateRepository.findAllByCurrencyAndBaseCurrencyAndFromDate(currency, baseCurrency, fromDate);
     }
 
     /**
@@ -120,5 +106,17 @@ public class ExchangeRateServiceImpl implements ExchangeRateService {
     @Override
     public ExchangeRate getRate(String shortName, Date date) {
         return exchangeRateRepository.findFirstByCurrency_ShortNameAndFromDateLessThanEqualOrderByFromDateDesc(shortName, date);
+    }
+
+    /**
+     *
+     * @param shortName
+     * @param baseShortName
+     * @param date
+     * @return
+     */
+    @Override
+    public List<ExchangeRate> getRates(String shortName, String baseShortName, Date date) {
+        return exchangeRateRepository.findAllByCurrency_ShortNameAndBaseCurrency_ShortNameAndFromDate(shortName, baseShortName, date);
     }
 }

@@ -1,6 +1,5 @@
 package gbas.gtbch.sapod.repository;
 
-import gbas.gtbch.sapod.model.Currency;
 import gbas.gtbch.sapod.model.ExchangeRate;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -10,14 +9,6 @@ import java.util.List;
 
 @Repository
 public interface ExchangeRateRepository extends JpaRepository<ExchangeRate, Integer> {
-    /**
-     *
-     * @param currency
-     * @param baseCurrency
-     * @param fromDate
-     * @return
-     */
-    List<ExchangeRate> findAllByCurrencyAndBaseCurrencyAndFromDate(Currency currency, Currency baseCurrency, Date fromDate);
 
     /**
      *
@@ -44,4 +35,13 @@ public interface ExchangeRateRepository extends JpaRepository<ExchangeRate, Inte
      */
     ExchangeRate findFirstByCurrency_ShortNameAndFromDateLessThanEqualOrderByFromDateDesc(String symbol, Date date);
 
+
+    /**
+     * get all {@link ExchangeRate}
+     * @param shortName
+     * @param baseShortName
+     * @param date
+     * @return
+     */
+    List<ExchangeRate> findAllByCurrency_ShortNameAndBaseCurrency_ShortNameAndFromDate(String shortName, String baseShortName, Date date);
 }

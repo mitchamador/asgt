@@ -17,15 +17,6 @@ public interface ExchangeRateService {
 
     /**
      *
-     * @param currency
-     * @param baseCurrency
-     * @param fromDate
-     * @return
-     */
-    List<ExchangeRate> findAllExchangeRateByCurrencyAndBaseCurrencyAndFromDate(Currency currency, Currency baseCurrency, Date fromDate);
-
-    /**
-     *
      * @param rate
      * @return
      */
@@ -81,4 +72,13 @@ public interface ExchangeRateService {
      * @return
      */
     ExchangeRate getRate(String shortName, Date date);
+
+    /**
+     * get {@link ExchangeRate}
+     * @param shortName
+     * @param baseShortName
+     * @param date
+     * @return
+     */
+    List<ExchangeRate> getRates(String shortName, String baseShortName, Date date);
 }
