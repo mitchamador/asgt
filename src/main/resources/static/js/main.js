@@ -73,6 +73,29 @@ function addModalButtonsListener(modal, functions) {
 }
 
 /**
+ * show ok modal diallog
+ * @param message
+ */
+function showInfoModal(message, ok) {
+    showDynamicModal( {
+        //header: "Внимание!",
+        body : message,
+        buttons : [
+            {
+                id : "ok",
+                class : "btn btn-success",
+                text : "ОК",
+                action: function () {
+                    if (ok !== undefined) {
+                        ok();
+                    }
+                }
+            }
+        ]
+    });
+}
+
+/**
  * show yes/no modal diallog
  * @param message
  * @param param event function params
@@ -89,7 +112,9 @@ function showYesNoModal(message, yes, no) {
                 class : "btn btn-success",
                 text : "Да",
                 action : function() {
-                    yes()
+                    if (yes !== undefined) {
+                        yes();
+                    }
                 }
             },
             {
@@ -97,7 +122,9 @@ function showYesNoModal(message, yes, no) {
                 class : "btn btn-danger",
                 text : "Нет",
                 action : function() {
-                    no()
+                    if (no !== undefined) {
+                        no();
+                    }
                 }
             }
         ]
@@ -144,8 +171,6 @@ function showDynamicModal(p) {
     $('body').append(modalHtml);
 
     var modal = $("#dynamicModal");
-    modal.modal();
-    modal.modal('show');
 
     var buttonId;
 
@@ -158,7 +183,11 @@ function showDynamicModal(p) {
         for (var i = 0; i < p.buttons.length; i++) {
             var b = p.buttons[i];
             if (buttonId === b.id) {
-                b.action();
+                try {
+                    b.action();
+                } catch (e) {
+                    console.log(e);
+                }
             }
         }
         $(this).remove();
@@ -554,3 +583,14 @@ if (!Element.prototype.scrollIntoViewIfNeeded) {
         }
     };
 }
+
+Date.prototype.getStringDate = function(format) {
+    var mm = this.getMonth() + 1; // getMonth() is zero-based
+    var dd = this.getDate();
+
+    return [
+        (dd > 9 ? '' : '0') + dd,
+        (mm > 9 ? '' : '0') + mm,
+        this.getFullYear()
+    ].join('.');
+};
