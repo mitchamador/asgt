@@ -104,7 +104,7 @@ function showInfoModal(message, ok) {
  */
 function showYesNoModal(message, yes, no) {
     showDynamicModal( {
-        //header: "Внимание!",
+        header: "Внимание",
         body : message,
         buttons : [
             {
