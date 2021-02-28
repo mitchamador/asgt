@@ -50,9 +50,10 @@
                         var currencyDateString = new Date(rate.fromDate).getStringDate();
                         var requestDateString = new Date(requestDate).getStringDate()
                         if (currencyDateString !== requestDateString) {
-                            rate.id = 0;
-                            rate.fromDate = requestDate;
-                            CurrencyData.openCurrencyEditor(rate);
+                            var r = Object.assign({}, rate);
+                            r.id = 0;
+                            r.fromDate = requestDate;
+                            CurrencyData.openCurrencyEditor(r);
                         } else {
                             CurrencyData.openCurrencyEditor(rate);
                         }
