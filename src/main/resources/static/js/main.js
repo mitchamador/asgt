@@ -75,6 +75,7 @@ function addModalButtonsListener(modal, functions) {
 /**
  * show ok modal diallog
  * @param message
+ * @param ok - function
  */
 function showInfoModal(message, ok) {
     showDynamicModal( {
@@ -98,7 +99,6 @@ function showInfoModal(message, ok) {
 /**
  * show yes/no modal diallog
  * @param message
- * @param param event function params
  * @param yes yes event function(param)
  * @param no no event function(param)
  */
