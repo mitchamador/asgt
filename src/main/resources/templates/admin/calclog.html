@@ -93,26 +93,29 @@
 
             addCounterToDataTable(table);
 
+            var currentDate = new Date();
+            var dateTimeEnd = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDay(), currentDate.getHours() + 1);
+            var dateTimeBegin = new Date(dateTimeEnd.getTime() - 24 * 60 * 60 * 1000);
 
             $("#datetime_begin").datetimepicker({
                 todayHighlight: true,
                 format: "dd.mm.yyyy hh:ii",
                 language: 'ru',
-                minView: 0,
+                minView: 1,
                 autoclose: true,
                 weekStart: 1
             });
-            $("#datetime_begin").datetimepicker('setDate', new Date(new Date().getTime() - 24 * 60 * 60 * 1000));
+            $("#datetime_begin").datetimepicker('setDate', dateTimeBegin);
 
             $("#datetime_end").datetimepicker({
                 format: "dd.mm.yyyy hh:ii",
                 language: 'ru',
-                minView: 0,
+                minView: 1,
                 autoclose: true,
                 weekStart: 1
             });
 
-            $("#datetime_end").datetimepicker('setDate', new Date());
+            $("#datetime_end").datetimepicker('setDate', dateTimeEnd);
 
             $("#loadButton").click(function (e) {
 
