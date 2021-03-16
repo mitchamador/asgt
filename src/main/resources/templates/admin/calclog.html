@@ -62,6 +62,8 @@
                 },
             });
 
+            var filename;
+
             addDataTableRowListener(table,
                 {
                     "select" : function (tr, t) {
@@ -76,6 +78,8 @@
                             success: function (result) {
 
                                 $("#logTabFolder").removeClass("invisible");
+
+                                filename = getFileName(new Date(result.inboundTime + " UTC"));
 
                                 $("#inXml").val(result.inboundXml);
                                 $("#outXml").val(result.outboundXml);
@@ -94,7 +98,7 @@
             addCounterToDataTable(table);
 
             var currentDate = new Date();
-            var dateTimeEnd = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDay(), currentDate.getHours() + 1);
+            var dateTimeEnd = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), currentDate.getHours() + 1);
             var dateTimeBegin = new Date(dateTimeEnd.getTime() - 24 * 60 * 60 * 1000);
 
             $("#datetime_begin").datetimepicker({
@@ -144,6 +148,49 @@
                         table.rows.add(result).draw();
                     }
                 });
+            });
+
+            var saveXml = function(e) {
+                var id = $(e.target).attr("id");
+                var data;
+                var sFileName;
+
+                if (id === "inXmlButton") {
+                    data = $("#inXml").val();
+                    sFileName = filename + "_in.xml";
+                } else if (id === "outXmlButton") {
+                    data = $("#outXml").val();
+                    sFileName = filename + "_out.xml";
+                } else {
+                    return;
+                }
+
+                // Convert the text to BLOB.
+                var textToBLOB = new Blob([data], { type: 'text/plain' });
+
+                var newLink = document.createElement("a");
+                newLink.download = sFileName;
+
+                if (window.webkitURL != null) {
+                    newLink.href = window.webkitURL.createObjectURL(textToBLOB);
+                }
+                else {
+                    newLink.href = window.URL.createObjectURL(textToBLOB);
+                    newLink.style.display = "none";
+                    document.body.appendChild(newLink);
+                }
+
+                newLink.click();
+
+                e.stopPropagation();
+            };
+
+            $("#inXmlButton").click(function (e) {
+                saveXml(e);
+            });
+
+            $("#outXmlButton").click(function (e) {
+                saveXml(e);
             });
 
         }));
@@ -205,12 +252,12 @@
 
             <div id="logTabFolder" class="invisible">
                 <div style="height: calc(40vh - 95px); margin-top: 50px">
-                    <ul class="nav nav-tabs" style="width: 100%;">
+                    <ul class="nav nav-tabs" style="width: 100%; align-content: center;">
                         <li class="active">
-                            <a id="inXmlTab" data-toggle="tab" href="#inXmlTabItem">Входной XML</a>
+                            <a id="inXmlTab" data-toggle="tab" href="#inXmlTabItem"><i id="inXmlButton" class="fa fa-save" style="margin-right: 3px; padding: 3px 3px; cursor: pointer"></i>Входной XML</a>
                         </li>
                         <li>
-                            <a id="outXmlTab" data-toggle="tab" href="#outXmlTabItem">Выходной XML</a>
+                            <a id="outXmlTab" data-toggle="tab" href="#outXmlTabItem"><i id="outXmlButton" class="fa fa-save" style="margin-right: 3px; padding: 3px 3px; cursor: pointer"></i>Выходной XML</a>
                         </li>
                         <li>
                             <a id="outTextTab" data-toggle="tab" href="#outTextTabItem">Выходной текст</a>
