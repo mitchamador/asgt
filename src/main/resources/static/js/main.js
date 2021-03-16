@@ -593,36 +593,4 @@ Date.prototype.getStringDate = function(format) {
         (mm > 9 ? '' : '0') + mm,
         this.getFullYear()
     ].join('.');
-
-    if (format === "full") {
-        var hh = this.getHours();
-        var MM = this.getMinutes();
-        var ss = this.getSeconds();
-
-        s = s + ' ' + [(hh > 9 ? '' : '0') + hh, (MM > 9 ? '' : '0') + MM, (ss > 9 ? '' : '0') + ss].join(':')
-    }
 };
-
-/**
- * get file name from date ('yyyyMMdd_HHmmss')
- * @param date
- */
-function getFileName(date) {
-
-    var MM = date.getMonth() + 1; // getMonth() is zero-based
-    var dd = date.getDate();
-    var HH = date.getHours();
-    var mm = date.getMinutes();
-    var ss = date.getSeconds();
-
-    return [
-        date.getFullYear(),
-        (MM > 9 ? '' : '0') + MM,
-        (dd > 9 ? '' : '0') + dd,
-        '_',
-        (HH > 9 ? '' : '0') + HH,
-        (mm > 9 ? '' : '0') + mm,
-        (ss > 9 ? '' : '0') + ss
-    ].join('');
-
-}

@@ -14,6 +14,7 @@
     <link rel="stylesheet" type="text/css" th:href="@{/webjars/datatables-select/css/select.bootstrap.min.css}"/>
     <link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css}"/>
 
+    <script type="text/javascript" th:src="@{/js/filesaver.js}"></script>
     <script th:src="@{/webjars/datatables/js/jquery.dataTables.min.js}"></script>
     <script th:src="@{/webjars/datatables/js/dataTables.bootstrap.min.js}"></script>
     <script th:src="@{/webjars/datatables-select/js/dataTables.select.min.js}"></script>
@@ -79,7 +80,7 @@
 
                                 $("#logTabFolder").removeClass("invisible");
 
-                                filename = getFileName(new Date(result.inboundTime + " UTC"));
+                                filename = result.fileName;
 
                                 $("#inXml").val(result.inboundXml);
                                 $("#outXml").val(result.outboundXml);
@@ -168,19 +169,7 @@
                 // Convert the text to BLOB.
                 var textToBLOB = new Blob([data], { type: 'text/plain' });
 
-                var newLink = document.createElement("a");
-                newLink.download = sFileName;
-
-                if (window.webkitURL != null) {
-                    newLink.href = window.webkitURL.createObjectURL(textToBLOB);
-                }
-                else {
-                    newLink.href = window.URL.createObjectURL(textToBLOB);
-                    newLink.style.display = "none";
-                    document.body.appendChild(newLink);
-                }
-
-                newLink.click();
+                saveAs(textToBLOB, sFileName);
 
                 e.stopPropagation();
             };
@@ -202,7 +191,7 @@
 
         <div style="display: inline-flex; width: 100%; margin-bottom: -10px">
             <h5><span class="text-nowrap" style="margin-right: 5px">Период с</span></h5>
-            <div class="form-group" style="flex-grow: 1">
+            <div class="form-group" style="flex-grow: 1; max-width: 300px">
                 <div id="datetime_begin" class="input-group date">
                     <input id="datetime_begin_text" type="text" class="form-control"/>
                     <span class="input-group-addon">
@@ -211,7 +200,7 @@
                 </div>
             </div>
             <h5><span style="margin-right: 5px; margin-left: 5px">по</span></h5>
-            <div class="form-group" style="flex-grow: 1">
+            <div class="form-group" style="flex-grow: 1; max-width: 300px">
                 <div id="datetime_end" class="input-group date">
                     <input  id="datetime_end_text" type="text" class="form-control"/>
                     <span class="input-group-addon">
