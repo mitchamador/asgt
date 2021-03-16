@@ -159,6 +159,12 @@ public class CalculationLog {
     @Transient
     private String durationText;
 
+    /**
+     * filename
+     */
+    @Transient
+    private String fileName;
+
     public CalculationLog() {
     }
 
@@ -281,5 +287,13 @@ public class CalculationLog {
 
     public String getJmsCorrelationId() {
         return jmsCorrelationId;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 }
