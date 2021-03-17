@@ -296,40 +296,6 @@ function initModal2(modal, functions) {
     return m;
 }
 
-function calc(params) {
-    params.e.preventDefault();
-
-    var text = params.text;
-    var button = params.button;
-    var message = params.message;
-
-    if ($(button).prop("disabled")) {
-        return;
-    }
-
-    $(button).button('loading');
-
-    //Disable submit button
-    $(button).prop("disabled", true);
-
-    $.ajax({
-        url: contextRoot + "api/calc",
-        type: "POST",
-        contentType: "application/xml",
-        data: $(text).val(),
-        cache: false,
-        success: function (msg) {
-            $(message).text(msg);
-            $(button).prop("disabled", false);
-            $(button).button('reset');
-        },
-        error: function(jqXHR) {
-            $(button).prop("disabled", false);
-            $(button).button('reset');
-        }
-    });
-}
-
 function upload(params) {
     params.e.preventDefault();
 

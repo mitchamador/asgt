@@ -9,27 +9,64 @@
 <body>
 <div layout:fragment="content" th:remove="tag">
 
+    <script type="text/javascript" th:src="@{/js/filesaver.js}"></script>
+
     <script type="application/javascript">
         $(document).ready($(function () {
+
+            var filename;
+
             $("#calcButton").click(function (e) {
-                var params = {
-                    e: e,
-                    text: "#calcData",
-                    button: "#calcButton",
-                    message: "#calcResult"
-                };
-                calc(params);
+
+                e.preventDefault();
+
+                var button = "#calcButton";
+
+                if ($(button).prop("disabled")) {
+                    return;
+                }
+
+                $(button).button('loading');
+
+                //Disable submit button
+                $(button).prop("disabled", true);
+
+                $.ajax({
+                    url: contextRoot + "api/calcdata",
+                    type: "POST",
+                    contentType: "application/xml",
+                    data: $("#calcData").val(),
+                    cache: false,
+                    success: function (msg) {
+                        filename = msg.calculationLog.fileName;
+                        $("#calcResultText").text(msg.textResult);
+                        $("#calcResultXml").text(msg.outputXml);
+                    },
+                    complete: function(msg) {
+                        $(button).prop("disabled", false);
+                        $(button).button('reset');
+                    }
+                });
+
             });
-            $("#calcResult").contextmenu(function (e) {
+
+            $("#calcResultText").contextmenu(function (e) {
                 $(this).text("");
                 e.preventDefault();
             });
+
+            $("#calcResultXml").contextmenu(function (e) {
+                $(this).text("");
+                e.preventDefault();
+            });
+
             $("#uploadButton").click(function (e) {
                 $("#calcData").val("");
                 $("#xmlFileName").text("");
                 $(this).blur();
                 $("#xmlButton").click();
             });
+
             $("#xmlButton").change(function (e) {
                 var file = e.target.files[0];
                 if (file.type !== "text/xml") {
@@ -43,6 +80,18 @@
                 reader.readAsText(file);
                 $("#xmlButton").val("");
             })
+
+            $("#outXmlButton").click(function (e) {
+                debugger;
+
+                var data = $("#calcResultXml").val();
+                if (filename === undefined || data === "") {
+                    return;
+                }
+                saveAs(new Blob([data], { type: 'text/plain' }), filename + "_out.xml");
+
+                e.stopPropagation();
+            });
         }));
     </script>
 
@@ -51,7 +100,7 @@
         <div class="page-header-name">Расчет</div>
 
         <div style="height: 100%">
-            <div class="row form-group" style="height: 50%">
+            <div class="form-group" style="height: 50%; width: 100%;">
                 <input id="xmlButton" type="file" accept=".xml, text/xml" style="display: none;">
                 <div style="display: inline-flex; align-items: center; width: 100%">
                     <label for="calcData">XML данные</label>
@@ -67,11 +116,36 @@
                 </button>
             </div>
 
-            <div class="row form-group" style="height: 50%">
-                <label for="calcResult">Результат</label>
-                <textarea id="calcResult" class="form-control"
-                          style="height: 100%; font-size: 0.9em; font-family: monospace" readonly></textarea>
+<!--            <div class="row form-group" style="height: 50%">-->
+<!--                <label for="calcResult">Результат</label>-->
+<!--                <textarea id="calcResult" class="form-control"-->
+<!--                          style="height: 100%; font-size: 0.9em; font-family: monospace" readonly></textarea>-->
+<!--            </div>-->
+
+            <div id="tabCalcResult" style="width: 100%">
+                <div style="height: calc(45vh - 75px)">
+                    <ul class="nav nav-tabs" style="width: 100%; align-content: center;">
+                        <li class="active">
+                            <a id="calcResultTextTab" data-toggle="tab" href="#calcResultTextItem">Выходной текст</a>
+                        </li>
+                        <li>
+                            <a id="calcResultXmlTab" data-toggle="tab" href="#calcResultXmlItem"><i id="outXmlButton" class="fa fa-save" style="margin-right: 3px; padding: 3px 3px; cursor: pointer"></i>Выходной XML</a>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" style="height: 100%">
+                        <div id="calcResultTextItem" class="tab-pane active" style="height: 100%; width: 100%">
+                            <textarea id="calcResultText" class="form-control"
+                                      style="height: 100%; font-size: 0.9em; font-family: monospace" readonly></textarea>
+                        </div>
+                        <div id="calcResultXmlItem" class="tab-pane" style="height: 100%; width: 100%">
+                            <textarea id="calcResultXml" class="form-control"
+                                      style="height: 100%; font-size: 0.9em; font-family: monospace" readonly></textarea>
+                        </div>
+                    </div>
+                </div>
             </div>
+
         </div>
 
 
