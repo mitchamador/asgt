@@ -52,6 +52,19 @@ public class ApiController {
         return ResponseEntity.ok(response);
     }
 
+    @RequestMapping(value = "/api/calcdata", method = RequestMethod.POST)
+    public ResponseEntity<CalcData> calcdata(@RequestBody String data) {
+
+        CalcData calcData = calcHandler.calc(new CalcData(data, new CalculationLog(CalculationLog.Source.REST)));
+        if (calcData.getCalculationLog() != null) {
+            calcData.getCalculationLog().setFileName(UtilDate8.getStringDate(calcData.getCalculationLog().getInboundTime(), "yyyyMMdd_HHmmss"));
+        }
+
+        logger.info(String.format("/api/calc response: \"%s\"", getCroppedString(calcData.getTextResult())));
+
+        return ResponseEntity.ok(calcData);
+    }
+
     @RequestMapping(value = "/api/calcxml", method = RequestMethod.POST)
     public ResponseEntity<String> calcxml(@RequestBody String data) {
 
