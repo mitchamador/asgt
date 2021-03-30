@@ -11,6 +11,7 @@ import gbas.gtbch.util.CalcData;
 import gbas.gtbch.util.CalcHandler;
 import gbas.gtbch.util.UtilDate8;
 import gbas.gtbch.web.request.KeyValue;
+import gbas.tvk.nsi.cash.Func;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -113,6 +114,9 @@ public class ApiController {
             for (CalculationLog log : calculationLogs) {
                 if (log.getInboundTime() != null && log.getOutboundTime() != null) {
                     log.setDurationText(String.format("%.1f c", (double) (log.getOutboundTime().getTime() - log.getInboundTime().getTime()) / TimeUnit.SECONDS.toMillis(1)));
+                }
+                if (Func.isEmpty(log.getJmsCorrelationId())) {
+                    log.setJmsCorrelationId(String.valueOf(log.getId()));
                 }
             }
         }
