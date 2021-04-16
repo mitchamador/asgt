@@ -29,7 +29,7 @@
             /*]]>*/
 
             var table = $('#calcLogTable').DataTable({
-                scrollY: "calc(60vh - 220px)",
+                scrollY: "calc(60vh - 240px)",
                 scrollCollapse: false,
                 paging: false,
                 searching: true,
@@ -63,6 +63,29 @@
                 },
             });
 
+            var loadCalculationLog = function(d) {
+                $.ajax({
+                    url: contextRoot + "api/calclog/" + d.id,
+                    method: 'get',
+                    data: {
+                        format: $("#formatXml").is(":checked")
+                    },
+                    headers: {
+                        "Accept" : "application/json"
+                    },
+                    success: function (result) {
+
+                        $("#logTabFolder").removeClass("invisible");
+
+                        filename = result.fileName;
+
+                        $("#inXml").val(result.inboundXml);
+                        $("#outXml").val(result.outboundXml);
+                        $("#outText").val(result.outboundText);
+                    }
+                });
+            };
+
             var filename;
 
             addDataTableRowListener(table,
@@ -70,23 +93,7 @@
                     "select" : function (tr, t) {
                         var d = t.row(tr).data();
                         console.log("Загрузка лога расчета id=" + d.id);
-                        $.ajax({
-                            url: contextRoot + "api/calclog/" + d.id,
-                            method: 'get',
-                            headers: {
-                                "Accept" : "application/json"
-                            },
-                            success: function (result) {
-
-                                $("#logTabFolder").removeClass("invisible");
-
-                                filename = result.fileName;
-
-                                $("#inXml").val(result.inboundXml);
-                                $("#outXml").val(result.outboundXml);
-                                $("#outText").val(result.outboundText);
-                            }
-                        });
+                        loadCalculationLog(d);
                     },
                     "deselect" : function(tr, t) {
                         if (t.rows({selected: true}).count() === 0) {
@@ -182,6 +189,13 @@
                 saveXml(e);
             });
 
+            $("#formatXml").change(function() {
+                var d = table.row( { selected: true } ).data();
+                if (d !== undefined) {
+                    loadCalculationLog(d);
+                }
+            });
+
         }));
     </script>
 
@@ -217,6 +231,12 @@
             <button id="loadButton" class="col-sm-2 btn btn-primary" type="button" style="margin-left: 5px; height: 50%">
                 Загрузить
             </button>
+        </div>
+
+        <div style="text-align: right; width: 100%; margin: -5px">
+            <label style="font-size: 0.8em; font-style: normal;">Форматирование XML
+                <input id="formatXml" type="checkbox" style="vertical-align: -2px;">
+            </label>
         </div>
 
         <div style="height: 100%">

@@ -10,6 +10,7 @@ import gbas.gtbch.sapod.service.TpImportDateService;
 import gbas.gtbch.util.CalcData;
 import gbas.gtbch.util.CalcHandler;
 import gbas.gtbch.util.UtilDate8;
+import gbas.gtbch.util.XmlFormatter;
 import gbas.gtbch.web.request.KeyValue;
 import gbas.tvk.nsi.cash.Func;
 import org.slf4j.Logger;
@@ -130,9 +131,17 @@ public class ApiController {
      * @return
      */
     @RequestMapping(value = "/api/calclog/{id}", method = RequestMethod.GET)
-    public ResponseEntity getCalculationLog(HttpServletRequest request, @PathVariable int id) throws JsonProcessingException {
+    public ResponseEntity getCalculationLog(
+            HttpServletRequest request,
+            @PathVariable int id,
+            @RequestParam(value = "format", required = false) boolean prettyPrint) throws JsonProcessingException {
         CalculationLog log = calculationLogService.findById(id);
         if (log != null) {
+
+            if (prettyPrint && log.getInboundXml() != null) {
+                log.setInboundXml(XmlFormatter.formatXml(log.getInboundXml()));
+            }
+
             log.setFileName(UtilDate8.getStringDate(log.getInboundTime(), "yyyyMMdd_HHmmss"));
         }
         return GzippedResponseEntity.getGzippedResponseEntity(request, new ObjectMapper().writeValueAsString(log));
