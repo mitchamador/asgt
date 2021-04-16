@@ -23,26 +23,30 @@ public class XmlFormatter {
     public static String formatXml(String xml) {
 
         try {
-            final XMLStreamReader xmlStreamReader = XMLInputFactory.newInstance().createXMLStreamReader(new ByteArrayInputStream(xml.getBytes()));
-            String encoding = xmlStreamReader.getCharacterEncodingScheme();
-            if (encoding == null) {
-                encoding = StandardCharsets.UTF_8.name();
+            if (xml != null) {
+
+                String mXml = xml.replaceAll("\r?\n", "");
+
+                final XMLStreamReader xmlStreamReader = XMLInputFactory.newInstance().createXMLStreamReader(new ByteArrayInputStream(mXml.getBytes()));
+                String encoding = xmlStreamReader.getCharacterEncodingScheme();
+                if (encoding == null) {
+                    encoding = StandardCharsets.UTF_8.name();
+                }
+
+                Transformer serializer = SAXTransformerFactory.newInstance().newTransformer();
+
+                serializer.setOutputProperty(OutputKeys.INDENT, "yes");
+                serializer.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC, "yes");
+                serializer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+
+                Source xmlSource = new SAXSource(new InputSource(
+                        new ByteArrayInputStream(mXml.getBytes(Charset.forName(encoding)))));
+                StreamResult res = new StreamResult(new ByteArrayOutputStream());
+
+                serializer.transform(xmlSource, res);
+
+                return new String(((ByteArrayOutputStream) res.getOutputStream()).toByteArray(), Charset.forName(encoding));
             }
-
-            Transformer serializer = SAXTransformerFactory.newInstance().newTransformer();
-
-            serializer.setOutputProperty(OutputKeys.INDENT, "yes");
-            serializer.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC, "yes");
-            serializer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-
-            Source xmlSource = new SAXSource(new InputSource(
-                    new ByteArrayInputStream(xml.getBytes(Charset.forName(encoding)))));
-            StreamResult res = new StreamResult(new ByteArrayOutputStream());
-
-            serializer.transform(xmlSource, res);
-
-            xml = new String(((ByteArrayOutputStream) res.getOutputStream()).toByteArray(), Charset.forName(encoding));
-
         } catch (Exception e) {
             e.printStackTrace();
         }
