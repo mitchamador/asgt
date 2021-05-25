@@ -84,10 +84,11 @@ public class EmbeddedConfig {
         resource.setProperty("url", dataSourceProperties.getUrl());
         resource.setProperty("username", dataSourceProperties.getUsername());
         resource.setProperty("password", dataSourceProperties.getPassword());
-        resource.setProperty("testOnIdle", "true");
         resource.setProperty("removeAbandoned", "true");
         resource.setProperty("removeAbandonedTimeout", String.valueOf(TimeUnit.MINUTES.toSeconds(30)));
+        resource.setProperty("testOnBorrow", "true");
         resource.setProperty("validationQuery", dataSourceProperties.getUrl().startsWith("jdbc:db2") ? "SELECT 1 FROM SYSIBM.SYSDUMMY1" : "SELECT 1");
+        resource.setProperty("validationInterval", String.valueOf(TimeUnit.SECONDS.toMillis(30)));
 
         return resource;
     }
