@@ -81,7 +81,11 @@ public class CalcHandler {
                 calculationLog.setInboundXml(data.getInputXml());
                 calculationLog.setType(CalculationLog.Type.UNKNOWN);
 
-                calculationLog = calculationLogService.save(calculationLog);
+                try {
+                    calculationLog = calculationLogService.save(calculationLog);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
 
 
@@ -232,9 +236,15 @@ public class CalcHandler {
                 calculationLog.setOutboundXml(data.getOutputXml());
                 calculationLog.setOutboundText(data.getTextResult());
                 calculationLog.setErrorCode(data.getErrorCode());
-                calculationLogService.save(calculationLog);
+
+                try {
+                    calculationLogService.save(calculationLog);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
             } else {
-                logger.info("Calculation log is null");
+                logger.info("calculation log is null");
             }
 
         }
