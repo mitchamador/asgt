@@ -1,4 +1,4 @@
-package gbas.gtbch.util;
+package gbas.gtbch.util.calc;
 
 public enum CalcError {
     NO_ERROR(0, "Без ошибок"),

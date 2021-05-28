@@ -1,4 +1,4 @@
-package gbas.gtbch.util;
+package gbas.gtbch.util.calc;
 
 import gbas.gtbch.sapod.model.CalculationLog;
 
@@ -35,6 +35,10 @@ public class CalcData {
      */
     private final CalculationLog calculationLog;
 
+    /**
+     * calculation object
+     */
+    private Object calculationObject;
 
     public String getInputXml() {
         return inputXml;
@@ -68,4 +72,11 @@ public class CalcData {
         return calculationLog;
     }
 
+    public Object getCalculationObject() {
+        return calculationObject;
+    }
+
+    public void setCalculationObject(Object calculationObject) {
+        this.calculationObject = calculationObject;
+    }
 }

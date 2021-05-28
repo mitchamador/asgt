@@ -1,5 +1,7 @@
 package gbas.gtbch.util;
 
+import gbas.gtbch.util.calc.CalcData;
+import gbas.gtbch.util.calc.CalcHandler;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;

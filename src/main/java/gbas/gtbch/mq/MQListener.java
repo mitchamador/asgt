@@ -1,8 +1,8 @@
 package gbas.gtbch.mq;
 
 import gbas.gtbch.sapod.model.CalculationLog;
-import gbas.gtbch.util.CalcData;
-import gbas.gtbch.util.CalcHandler;
+import gbas.gtbch.util.calc.CalcData;
+import gbas.gtbch.util.calc.CalcHandler;
 import gbas.gtbch.util.MQJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,5 +1,7 @@
 package gbas.gtbch.util;
 
+import gbas.gtbch.util.calc.CalcError;
+
 /**
  * create xml with error
  */
