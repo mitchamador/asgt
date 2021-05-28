@@ -138,8 +138,10 @@ public class ApiController {
         CalculationLog log = calculationLogService.findById(id);
         if (log != null) {
 
-            if (prettyPrint && log.getInboundXml() != null) {
-                log.setInboundXml(XmlFormatter.formatXml(log.getInboundXml()));
+            String inboundXml = log.getInboundXml();
+
+            if (prettyPrint && inboundXml != null) {
+                log.setInboundXml(XmlFormatter.formatXml(inboundXml));
             }
 
             log.setFileName(UtilDate8.getStringDate(log.getInboundTime(), "yyyyMMdd_HHmmss"));

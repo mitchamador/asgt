@@ -2,9 +2,10 @@ package gbas.gtbch.sapod.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import gbas.gtbch.util.JpaTruncator;
+import gbas.tvk.util.GZipUtils;
 
 import javax.persistence.*;
-import javax.validation.constraints.Size;
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 
 @Entity
@@ -117,11 +118,11 @@ public class CalculationLog {
     private Date inboundTime;
 
     /**
-     * inbound xml object
+     * gzipped inbound xml object
      */
-    @Column(name = "inbound_xml")
+    @Column(name = "inbound_xml_gz")
     @Lob
-    private String inboundXml;
+    private byte[] inboundXml;
 
     /**
      * outbound time
@@ -131,18 +132,18 @@ public class CalculationLog {
     private Date outboundTime;
 
     /**
-     * outbound xml object
+     * gzipped outbound xml object
      */
-    @Column(name = "outbound_xml")
+    @Column(name = "outbound_xml_gz")
     @Lob
-    private String outboundXml;
+    private byte[] outboundXml;
 
     /**
-     * outbound text object
+     * gzipped outbound text object
      */
-    @Column(name = "outbound_text")
+    @Column(name = "outbound_text_gz")
     @Lob
-    private String outboundText;
+    private byte[] outboundText;
 
     /**
      * error
@@ -226,11 +227,20 @@ public class CalculationLog {
     }
 
     public String getInboundXml() {
-        return inboundXml;
+        try {
+            return GZipUtils.gZippedBytes2String(inboundXml);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public void setInboundXml(String inboundXml) {
-        this.inboundXml = inboundXml;
+        try {
+            this.inboundXml = GZipUtils.string2GZippedBytes(inboundXml);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
     }
 
     public Date getOutboundTime() {
@@ -242,19 +252,37 @@ public class CalculationLog {
     }
 
     public String getOutboundXml() {
-        return outboundXml;
+        try {
+            return GZipUtils.gZippedBytes2String(outboundXml);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public void setOutboundXml(String outboundXml) {
-        this.outboundXml = outboundXml;
+        try {
+            this.outboundXml = GZipUtils.string2GZippedBytes(outboundXml);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
     }
 
     public String getOutboundText() {
-        return outboundText;
+        try {
+            return GZipUtils.gZippedBytes2String(outboundText);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public void setOutboundText(String outboundText) {
-        this.outboundText = outboundText;
+        try {
+            this.outboundText = GZipUtils.string2GZippedBytes(outboundText);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
     }
 
     public Source getSource() {
