@@ -554,7 +554,7 @@ Date.prototype.getStringDate = function(format) {
     var mm = this.getMonth() + 1; // getMonth() is zero-based
     var dd = this.getDate();
 
-    var s = [
+    return [
         (dd > 9 ? '' : '0') + dd,
         (mm > 9 ? '' : '0') + mm,
         this.getFullYear()
