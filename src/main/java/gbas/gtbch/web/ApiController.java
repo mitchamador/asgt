@@ -7,10 +7,10 @@ import gbas.gtbch.sapod.model.CalculationLog;
 import gbas.gtbch.sapod.model.TpImportDate;
 import gbas.gtbch.sapod.service.CalculationLogService;
 import gbas.gtbch.sapod.service.TpImportDateService;
-import gbas.gtbch.util.calc.CalcData;
-import gbas.gtbch.util.calc.CalcHandler;
 import gbas.gtbch.util.UtilDate8;
 import gbas.gtbch.util.XmlFormatter;
+import gbas.gtbch.util.calc.CalcData;
+import gbas.gtbch.util.calc.CalcHandler;
 import gbas.gtbch.web.request.KeyValue;
 import gbas.tvk.nsi.cash.Func;
 import org.slf4j.Logger;
@@ -59,7 +59,7 @@ public class ApiController {
 
         CalcData calcData = calcHandler.calc(new CalcData(data, new CalculationLog(CalculationLog.Source.REST)));
         if (calcData.getCalculationLog() != null) {
-            calcData.getCalculationLog().setFileName(UtilDate8.getStringDate(calcData.getCalculationLog().getInboundTime(), "yyyyMMdd_HHmmss"));
+            calcData.setFileName(UtilDate8.getStringDate(calcData.getCalculationLog().getInboundTime(), "yyyyMMdd_HHmmss"));
         }
 
         logger.info(String.format("/api/calc response: \"%s\"", getCroppedString(calcData.getTextResult())));

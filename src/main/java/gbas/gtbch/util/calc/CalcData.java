@@ -1,5 +1,6 @@
 package gbas.gtbch.util.calc;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import gbas.gtbch.sapod.model.CalculationLog;
 
 /**
@@ -30,14 +31,21 @@ public class CalcData {
     private String textResult;
 
     /**
+     * name of file
+     */
+    private String fileName;
+
+    /**
      * CalculationLog
      * @see CalculationLog
      */
+    @JsonIgnore
     private final CalculationLog calculationLog;
 
     /**
      * calculation object
      */
+    @JsonIgnore
     private Object calculationObject;
 
     public String getInputXml() {
@@ -78,5 +86,13 @@ public class CalcData {
 
     public void setCalculationObject(Object calculationObject) {
         this.calculationObject = calculationObject;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 }

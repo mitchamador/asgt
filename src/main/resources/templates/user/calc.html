@@ -38,7 +38,7 @@
                     data: $("#calcData").val(),
                     cache: false,
                     success: function (msg) {
-                        filename = msg.calculationLog.fileName;
+                        filename = msg.fileName;
                         $("#calcResultText").text(msg.textResult);
                         $("#calcResultXml").text(msg.outputXml);
                     },
