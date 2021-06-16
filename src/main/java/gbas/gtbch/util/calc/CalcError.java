@@ -5,7 +5,8 @@ public enum CalcError {
     UNKNOWN_OBJECT(1, "Неверный объект расчета"),
     EXCEPTION(2, "Ошибка при расчете"),
     NULL(3, "Пустой объект"),
-    UNKNOWN_ERROR(4, "Неизвестная ошибка");
+    EMPTY_RESULT(4, "Не заполнен результат расчета"),
+    UNKNOWN_ERROR(-1, "Неизвестная ошибка"),
     ;
 
 

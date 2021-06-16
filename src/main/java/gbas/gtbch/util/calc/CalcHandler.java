@@ -92,6 +92,10 @@ public class CalcHandler {
         } finally {
             SQLUtils.close(connection);
 
+            if (Func.isEmpty(data.getTextResult())) {
+                data.setErrorCode(CalcError.EMPTY_RESULT.getCode());
+            }
+
             if (Func.isEmpty(data.getOutputXml())) {
                 data.setOutputXml(ErrorXml.getErrorXml(data.getErrorCode()));
             }
