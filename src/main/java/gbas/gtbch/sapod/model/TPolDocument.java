@@ -39,6 +39,10 @@ public class TPolDocument extends TpolDocument {
         return codDobor;
     }
 
+    public short getPrCalc() {
+        return pr_calc;
+    }
+
     /**
      * checked {@link TPolSobst} list
      */

@@ -90,14 +90,15 @@ public class TPolRepository {
         List<Object> args = new ArrayList<Object>();
 
         String sql = "select id,\n" +
-                "rtrim(type_code),\n" +
-                "rtrim(n_contract),\n" +
+                "rtrim(type_code) as type_code,\n" +
+                "rtrim(n_contract) as n_contract,\n" +
                 "date_begin,\n" +
                 "date_end,\n" +
-                "rtrim(name),\n" +
+                "rtrim(name) as name,\n" +
                 "n_pol,\n" +
-                "cod_tip_tarif,\n" +  //8
-                "dobor\n" +  //9
+                "cod_tip_tarif,\n" +
+                "dobor,\n" +
+                "pr_calc\n" +
                 " from tvk_tarif\n" +
                 "WHERE\n";
 
@@ -129,15 +130,16 @@ public class TPolRepository {
 
         return jdbcTemplate.query(sql, (rs, i) -> {
             final TPolDocument doc = new TPolDocument();
-            doc.id = rs.getInt(1);
-            doc.type_code = rs.getString(2);
-            doc.n_contract = rs.getString(3);
-            doc.date_begin = rs.getDate(4);
-            doc.date_end = rs.getDate(5);
-            doc.name = rs.getString(6);
-            doc.n_pol = rs.getInt(7);
-            doc.codTipTar = rs.getInt(8);
-            doc.codDobor = rs.getShort(9);
+            doc.id = rs.getInt("id");
+            doc.type_code = rs.getString("type_code");
+            doc.n_contract = rs.getString("n_contract");
+            doc.date_begin = rs.getDate("date_begin");
+            doc.date_end = rs.getDate("date_end");
+            doc.name = rs.getString("name");
+            doc.n_pol = rs.getInt("n_pol");
+            doc.codTipTar = rs.getInt("cod_tip_tarif");
+            doc.codDobor = rs.getShort("dobor");
+            doc.pr_calc = rs.getShort("pr_calc");
             return doc;
         }, args.toArray(new Object[0]));
     }
@@ -253,11 +255,11 @@ public class TPolRepository {
         jdbcTemplate.update(connection -> {
             PreparedStatement preparedStatement;
             if (tPolDocument.id == 0) {
-                preparedStatement = connection.prepareStatement("insert into tvk_tarif (type_code, n_contract, date_begin, date_end, name, n_pol, cod_tip_tarif, dobor)" +
-                                " values (?,?,?,?,?,?,?,?)",
+                preparedStatement = connection.prepareStatement("insert into tvk_tarif (type_code, n_contract, date_begin, date_end, name, n_pol, cod_tip_tarif, dobor, pr_calc)" +
+                                " values (?,?,?,?,?,?,?,?,?)",
                         Statement.RETURN_GENERATED_KEYS);
             } else {
-                preparedStatement = connection.prepareStatement("update tvk_tarif set type_code = ?, n_contract = ?, date_begin = ?, date_end = ?, name = ?, n_pol = ?, cod_tip_tarif = ?, dobor = ? where id = ?");
+                preparedStatement = connection.prepareStatement("update tvk_tarif set type_code = ?, n_contract = ?, date_begin = ?, date_end = ?, name = ?, n_pol = ?, cod_tip_tarif = ?, dobor = ?, pr_calc = ? where id = ?");
             }
 
             preparedStatement.setString(1, tPolDocument.type_code);
@@ -270,9 +272,10 @@ public class TPolRepository {
             preparedStatement.setInt(6, getTPNumber(tPolDocument.type_code));
             preparedStatement.setInt(7, tPolDocument.codTipTar);
             preparedStatement.setShort(8, tPolDocument.codDobor);
+            preparedStatement.setShort(9, tPolDocument.pr_calc);
 
             if (tPolDocument.id != 0) {
-                preparedStatement.setInt(9, tPolDocument.id);
+                preparedStatement.setInt(10, tPolDocument.id);
             }
 
             return preparedStatement;
