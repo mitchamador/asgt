@@ -39,7 +39,7 @@ public class TPolDocument extends TpolDocument {
         return codDobor;
     }
 
-    public short getPrCalc() {
+    public short getPr_calc() {
         return pr_calc;
     }
 
