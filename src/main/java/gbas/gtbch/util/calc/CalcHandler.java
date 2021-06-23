@@ -87,7 +87,7 @@ public class CalcHandler {
 
         } catch (Exception e) {
             e.printStackTrace();
-            data.setTextResult(e.getMessage());
+            data.setTextResult(e.toString());
             data.setErrorCode(CalcError.EXCEPTION.getCode());
         } finally {
             SQLUtils.close(connection);
