@@ -130,6 +130,7 @@
             $("#datetime_end").datetimepicker('setDate', dateTimeEnd);
 
             $("#loadButton").click(function (e) {
+                $(e.target).prop("disabled", true);
 
                 var data = {};
                 data.date_begin = $("#datetime_begin_text").val();
@@ -154,6 +155,9 @@
 
                         table.clear();
                         table.rows.add(result).draw();
+                    },
+                    complete: function() {
+                        $(e.target).prop("disabled", false);
                     }
                 });
             });
