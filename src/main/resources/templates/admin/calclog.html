@@ -31,11 +31,15 @@
             var table = $('#calcLogTable').DataTable({
                 scrollY: "calc(60vh - 240px)",
                 scrollCollapse: false,
-                paging: false,
+                paging: true,
+                lengthChange: false,
+                pageLength: 500,
+                pagingType: "full_numbers",
+                deferRender: true,
                 searching: true,
                 info: false,
                 columns: [
-                    {"defaultContent": "", "width": "10%"},
+                    {"data": "columnIndex", "defaultContent": "", "width": "10%"},
                     {"data": "type", "width": "22%"},
                     // {"data": "number", "width": "15%"},
                     // {"data": "station", "width": "15%"},
@@ -49,19 +53,35 @@
                     "targets": 0
                 }],
                 language : {
-                     "zeroRecords": " ",
+                    "zeroRecords": " ",
                     "searchPlaceholder": "Поиск",
-                    "search": "Поиск:"
+                    "search": "Поиск:",
+                    paginate: {
+                        first:    '«',
+                        previous: '‹',
+                        next:     '›',
+                        last:     '»'
+                    }
                 },
-                dom: 't<"row col-sm-1 margin-top-sm"f>',
+                dom: 't<"row col-sm-1 margin-top-sm"f><p>',
                 style: 'single',
                 select: true,
-                "createdRow": function(row, data, dataIndex){
+                createdRow: function(row, data, dataIndex){
                     if (data.errorCode !== 0) {
                         $(row).css("color", "red");
                     }
-                },
+                }
             });
+
+            //addCounterToDataTable(table);
+
+            table.on( 'order.dt search.dt', function () {
+                table.rows({search:'applied', order:'applied'}).every( function ( rowIdx, tableLoop, rowLoop ) {
+                    var data = this.data();
+                    data.columnIndex = rowLoop + 1;
+                    this.data( data );
+                } );
+            } ).draw();
 
             var loadCalculationLog = function(d) {
                 $.ajax({
@@ -102,8 +122,6 @@
                     }
                 }
             );
-
-            addCounterToDataTable(table);
 
             var currentDate = new Date();
             var dateTimeEnd = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), currentDate.getHours() + 1);
@@ -264,7 +282,7 @@
             </div>
 
             <div id="logTabFolder" class="invisible">
-                <div style="height: calc(40vh - 95px); margin-top: 50px">
+                <div style="height: calc(40vh - 95px); margin-top: 0px">
                     <ul class="nav nav-tabs" style="width: 100%; align-content: center;">
                         <li class="active">
                             <a id="inXmlTab" data-toggle="tab" href="#inXmlTabItem"><i id="inXmlButton" class="fa fa-save" style="margin-right: 3px; padding: 3px 3px; cursor: pointer"></i>Входной XML</a>
