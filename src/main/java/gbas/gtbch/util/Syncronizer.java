@@ -172,13 +172,8 @@ public class Syncronizer extends ServerJob {
      * acquires one permit from syncronizator's semaphore
      * @return true, if acuqire is done, false, if timeout or interrupt
      */
-    public boolean acquire() {
-        try {
-            return semaphore.tryAcquire(10, TimeUnit.MINUTES); // waiting 10 min for syncronization job
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        return false;
+    public boolean acquire() throws InterruptedException {
+        return semaphore.tryAcquire(10, TimeUnit.MINUTES); // waiting 10 min for syncronization job
     }
 
     /**
