@@ -19,11 +19,14 @@ import org.springframework.stereotype.Component;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.util.Date;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 @Component
 public class Syncronizer extends ServerJob {
 
     public static final String SYNCRONIZER_UPLOAD_PARAM = "syncronizer_data";
+    private static final int SEMAPHORE_MAX = 64;
 
     private Logger logger = LoggerFactory.getLogger(Syncronizer.class);
 
@@ -63,14 +66,34 @@ public class Syncronizer extends ServerJob {
         logger.info(s);
     }
 
+    private final Semaphore semaphore;
+
+    public Syncronizer() {
+        semaphore = new Semaphore(SEMAPHORE_MAX, true);
+    }
+
     @Async
     public void run() {
-        if (isRunning()) return;
 
-        clearJob();
+        synchronized (this) {
+            if (isRunning()) {
+                return;
+            } else {
+                setRunning(true);
+            }
+        }
+
+        boolean syncronizerAcquired = false;
 
         try (Connection con = sapodDataSource.getConnection()) {
-            setRunning(true);
+            // waiting for calculation threads to finish and block new calculation threads until syncronization done
+            if (!semaphore.tryAcquire(SEMAPHORE_MAX, 0, TimeUnit.SECONDS)) {
+                log("Waiting for completion of calculation jobs...");
+                semaphore.acquire(SEMAPHORE_MAX);
+            }
+            syncronizerAcquired = true;
+
+            clearJob();
 
             Syncronizator s = new Syncronizator(con, bytes) {
                 @Override
@@ -125,9 +148,17 @@ public class Syncronizer extends ServerJob {
                 System.err.println(errors);
             }
 
+        } catch (InterruptedException e) {
+            logger.error("Suncronizer.acquire(MAX) interrupted exception");
+            e.printStackTrace();
         } catch (Exception e) {
+            logger.error("Suncronizer exception: {}", e.getMessage());
             e.printStackTrace();
         } finally {
+            if (syncronizerAcquired) {
+                // unblock calculation threads
+                semaphore.release(SEMAPHORE_MAX);
+            }
             setRunning(false);
         }
     }
@@ -137,5 +168,24 @@ public class Syncronizer extends ServerJob {
         this.bytes = bytes;
     }
 
+    /**
+     * acquires one permit from syncronizator's semaphore
+     * @return true, if acuqire is done, false, if timeout or interrupt
+     */
+    public boolean acquire() {
+        try {
+            return semaphore.tryAcquire(10, TimeUnit.MINUTES); // waiting 10 min for syncronization job
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
+     * releases one permit from syncronizator's semaphore
+     */
+    public void release() {
+        semaphore.release();
+    }
 
 }

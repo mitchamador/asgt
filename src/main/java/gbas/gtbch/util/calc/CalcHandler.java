@@ -3,12 +3,14 @@ package gbas.gtbch.util.calc;
 import gbas.gtbch.sapod.model.CalculationLog;
 import gbas.gtbch.sapod.service.CalculationLogService;
 import gbas.gtbch.util.ErrorXml;
+import gbas.gtbch.util.Syncronizer;
 import gbas.gtbch.util.calc.handler.Handler;
 import gbas.gtbch.util.calc.handler.ObjectHandler;
 import gbas.tvk.nsi.cash.Func;
 import gbas.tvk.service.SQLUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +18,7 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -35,9 +38,12 @@ public class CalcHandler {
      */
     private CalculationLogService calculationLogService;
 
-    public CalcHandler(@Qualifier("sapodDataSource") DataSource dataSource, CalculationLogService calculationLogService) throws SQLException {
+    private final Syncronizer syncronizer;
+
+    public CalcHandler(@Qualifier("sapodDataSource") DataSource dataSource, CalculationLogService calculationLogService, Syncronizer syncronizer) throws SQLException {
         this.dataSource = dataSource;
         this.calculationLogService = calculationLogService;
+        this.syncronizer = syncronizer;
     }
 
     /**
@@ -77,9 +83,25 @@ public class CalcHandler {
             } else {
                 ObjectHandler objectHandler = Handler.getHandler(data.getInputXml());
                 if (objectHandler != null) {
-                    objectHandler.calc(data, connection);
+                    boolean syncronizerAcquired = false;
+                    try {
+                        do {
+                            if (syncronizerAcquired = syncronizer.acquire()) {
+                                objectHandler.calc(data, connection);
+                            } else {
+                                if (syncronizer.isRunning()) {
+                                    data.setErrorCode(CalcError.SYNC_RUNNING.getCode());
+                                    data.setTextResult(CalcError.getCalcError(data.getErrorCode()).getName());
+                                }
+                            }
+                        } while (!syncronizerAcquired && data.getErrorCode() != CalcError.SYNC_RUNNING.getCode());
+                    } finally {
+                        if (syncronizerAcquired) {
+                            syncronizer.release();
+                        }
+                    }
                 }
-                if (data.getCalculationObject() == null) {
+                if (data.getCalculationObject() == null && data.getErrorCode() == CalcError.NO_ERROR.getCode()) {
                     data.setTextResult(String.format("Неверный объект расчета: \"%s\"", data.getInputXml()));
                     data.setErrorCode(CalcError.UNKNOWN_OBJECT.getCode());
                 }

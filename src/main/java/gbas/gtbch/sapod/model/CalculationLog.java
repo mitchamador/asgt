@@ -2,6 +2,7 @@ package gbas.gtbch.sapod.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import gbas.gtbch.util.JpaTruncator;
+import gbas.gtbch.util.calc.CalcError;
 import gbas.tvk.util.GZipUtils;
 
 import javax.persistence.*;
@@ -167,6 +168,7 @@ public class CalculationLog {
     private String fileName;
 
     public CalculationLog() {
+        this(null, null);
     }
 
     /**
@@ -174,7 +176,7 @@ public class CalculationLog {
      * @param source
      */
     public CalculationLog(Source source) {
-        this.source = source;
+        this(source, null);
     }
 
     /**
@@ -182,8 +184,13 @@ public class CalculationLog {
      * @param jmsCorrelationId
      */
     public CalculationLog(String jmsCorrelationId) {
-        this.source = Source.MQ;
-        setJmsCorrelationId(jmsCorrelationId);
+        this(Source.MQ, jmsCorrelationId);
+    }
+
+    public CalculationLog(Source source, String jmsCorrelationId) {
+        this.errorCode = CalcError.NO_ERROR.getCode();
+        this.source = source;
+        this.jmsCorrelationId = jmsCorrelationId;
     }
 
     public int getId() {

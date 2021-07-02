@@ -6,6 +6,7 @@ public enum CalcError {
     EXCEPTION(2, "Ошибка при расчете"),
     NULL(3, "Пустой объект"),
     EMPTY_RESULT(4, "Не заполнен результат расчета"),
+    SYNC_RUNNING(5, "Выполняется синхронизация НСИ"),
     UNKNOWN_ERROR(-1, "Неизвестная ошибка"),
     ;
 
