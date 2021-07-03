@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import gbas.gtbch.model.ServerResponse;
 import gbas.gtbch.sapod.model.CalculationLog;
 import gbas.gtbch.sapod.model.TpImportDate;
+import gbas.gtbch.sapod.model.User;
 import gbas.gtbch.sapod.service.CalculationLogService;
 import gbas.gtbch.sapod.service.TpImportDateService;
 import gbas.gtbch.util.UtilDate8;
@@ -18,9 +19,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -44,6 +47,13 @@ public class ApiController {
         this.calculationLogService = calculationLogService;
     }
 
+    private Map<String, String> addUserPrincipal(Principal principal, Map<String, String> params) {
+        if (principal instanceof UsernamePasswordAuthenticationToken && ((UsernamePasswordAuthenticationToken) principal).getPrincipal() instanceof User) {
+            params.put("web_user", ((User) ((UsernamePasswordAuthenticationToken) principal).getPrincipal()).getFio());
+        }
+        return params;
+    }
+
     private CalculationLog createCalculationLog(Map<String, String> params) {
         CalculationLog calculationLog;
         if (params != null && params.containsKey("sapod_user")) {
@@ -59,9 +69,9 @@ public class ApiController {
     }
 
     @RequestMapping(value = "/api/calc", method = RequestMethod.POST)
-    public ResponseEntity<String> calc(@RequestParam(required = false) Map<String,String> params, @RequestBody String data) {
+    public ResponseEntity<String> calc(Principal principal, @RequestParam(required = false) Map<String,String> params, @RequestBody String data) {
 
-        String response = calcHandler.calc(new CalcData(data, createCalculationLog(params))).getTextResult();
+        String response = calcHandler.calc(new CalcData(data, createCalculationLog(addUserPrincipal(principal, params)))).getTextResult();
 
         logger.info(String.format("/api/calc response: \"%s\"", getCroppedString(response)));
 
@@ -69,9 +79,9 @@ public class ApiController {
     }
 
     @RequestMapping(value = "/api/calcdata", method = RequestMethod.POST)
-    public ResponseEntity<CalcData> calcdata(@RequestParam(required = false) Map<String,String> params, @RequestBody String data) {
+    public ResponseEntity<CalcData> calcdata(Principal principal, @RequestParam(required = false) Map<String, String> params, @RequestBody String data) {
 
-        CalcData calcData = calcHandler.calc(new CalcData(data, createCalculationLog(params)));
+        CalcData calcData = calcHandler.calc(new CalcData(data, createCalculationLog(addUserPrincipal(principal, params))));
         if (calcData.getCalculationLog() != null) {
             calcData.setFileName(UtilDate8.getStringDate(calcData.getCalculationLog().getInboundTime(), "yyyyMMdd_HHmmss"));
         }
@@ -82,9 +92,9 @@ public class ApiController {
     }
 
     @RequestMapping(value = "/api/calcxml", method = RequestMethod.POST)
-    public ResponseEntity<String> calcxml(@RequestParam(required = false) Map<String,String> params, @RequestBody String data) {
+    public ResponseEntity<String> calcxml(Principal principal, @RequestParam(required = false) Map<String,String> params, @RequestBody String data) {
 
-        String response = calcHandler.calc(new CalcData(data, createCalculationLog(params))).getOutputXml();
+        String response = calcHandler.calc(new CalcData(data, createCalculationLog(addUserPrincipal(principal, params)))).getOutputXml();
 
         logger.info(String.format("/api/calcxml response: \"%s\"", getCroppedString(response)));
 
