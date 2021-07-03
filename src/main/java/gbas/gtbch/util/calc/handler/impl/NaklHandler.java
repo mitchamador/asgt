@@ -46,7 +46,7 @@ public class NaklHandler implements ObjectHandler {
 
             if (c.vo != null) {
                 if (data.getCalculationLog() != null) {
-                    data.getCalculationLog().setNumber(c.vo.numberOtpr);
+                    data.getCalculationLog().setNumber(c.vo.n_otpr);
                     if (c.vo.oper == VagonOtpr.OPER_DEPARTURE) {
                         data.getCalculationLog().setStation(c.vo.k_st_otpr);
                     } else if (c.vo.oper == VagonOtpr.OPER_ARRIVAL) {
