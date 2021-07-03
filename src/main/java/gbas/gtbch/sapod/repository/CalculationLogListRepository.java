@@ -77,7 +77,7 @@ public class CalculationLogListRepository {
             }
         }
 
-        sql = "select id, sourcetype, user, doctype, docnumber, station, inbound_time, outbound_time, error_code, jms_correlation_id\n" +
+        sql = "select *\n" +
                 "from calculation_log\n"
                 + sql;
 
