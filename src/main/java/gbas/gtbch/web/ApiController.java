@@ -44,10 +44,24 @@ public class ApiController {
         this.calculationLogService = calculationLogService;
     }
 
-    @RequestMapping(value = "/api/calc", method = RequestMethod.POST)
-    public ResponseEntity<String> calc(@RequestBody String data) {
+    private CalculationLog createCalculationLog(Map<String, String> params) {
+        CalculationLog calculationLog;
+        if (params != null && params.containsKey("sapod_user")) {
+            calculationLog = new CalculationLog(CalculationLog.Source.SAPOD);
+            calculationLog.setUser(params.get("sapod_user"));
+        } else if (params != null && params.containsKey("web_user")) {
+            calculationLog = new CalculationLog(CalculationLog.Source.WEBUI);
+            calculationLog.setUser(params.get("web_user"));
+        } else {
+            calculationLog = new CalculationLog(CalculationLog.Source.REST);
+        }
+        return calculationLog;
+    }
 
-        String response = calcHandler.calc(new CalcData(data, new CalculationLog(CalculationLog.Source.REST))).getTextResult();
+    @RequestMapping(value = "/api/calc", method = RequestMethod.POST)
+    public ResponseEntity<String> calc(@RequestParam(required = false) Map<String,String> params, @RequestBody String data) {
+
+        String response = calcHandler.calc(new CalcData(data, createCalculationLog(params))).getTextResult();
 
         logger.info(String.format("/api/calc response: \"%s\"", getCroppedString(response)));
 
@@ -55,9 +69,9 @@ public class ApiController {
     }
 
     @RequestMapping(value = "/api/calcdata", method = RequestMethod.POST)
-    public ResponseEntity<CalcData> calcdata(@RequestBody String data) {
+    public ResponseEntity<CalcData> calcdata(@RequestParam(required = false) Map<String,String> params, @RequestBody String data) {
 
-        CalcData calcData = calcHandler.calc(new CalcData(data, new CalculationLog(CalculationLog.Source.REST)));
+        CalcData calcData = calcHandler.calc(new CalcData(data, createCalculationLog(params)));
         if (calcData.getCalculationLog() != null) {
             calcData.setFileName(UtilDate8.getStringDate(calcData.getCalculationLog().getInboundTime(), "yyyyMMdd_HHmmss"));
         }
@@ -68,9 +82,9 @@ public class ApiController {
     }
 
     @RequestMapping(value = "/api/calcxml", method = RequestMethod.POST)
-    public ResponseEntity<String> calcxml(@RequestBody String data) {
+    public ResponseEntity<String> calcxml(@RequestParam(required = false) Map<String,String> params, @RequestBody String data) {
 
-        String response = calcHandler.calc(new CalcData(data, new CalculationLog(CalculationLog.Source.REST))).getOutputXml();
+        String response = calcHandler.calc(new CalcData(data, createCalculationLog(params))).getOutputXml();
 
         logger.info(String.format("/api/calcxml response: \"%s\"", getCroppedString(response)));
 

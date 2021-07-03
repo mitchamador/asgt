@@ -77,7 +77,7 @@ public class CalculationLogListRepository {
             }
         }
 
-        sql = "select id, sourcetype, doctype, docnumber, station, inbound_time, outbound_time, error_code, jms_correlation_id\n" +
+        sql = "select id, sourcetype, user, doctype, docnumber, station, inbound_time, outbound_time, error_code, jms_correlation_id\n" +
                 "from calculation_log\n"
                 + sql;
 
@@ -88,6 +88,7 @@ public class CalculationLogListRepository {
 
             calculationLog.setId(rs.getInt("id"));
             calculationLog.setSource(CalculationLog.Source.getSource(rs.getString("sourcetype")));
+            calculationLog.setUser(rs.getString("user"));
             calculationLog.setType(CalculationLog.Type.getType(rs.getString("doctype")));
             calculationLog.setNumber(rs.getString("docnumber"));
             calculationLog.setStation(rs.getString("station"));

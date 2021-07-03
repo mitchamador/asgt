@@ -1,7 +1,6 @@
 package gbas.gtbch.sapod.service;
 
 import gbas.gtbch.sapod.model.CalculationLog;
-import gbas.gtbch.sapod.model.Currency;
 
 import java.util.Date;
 import java.util.List;

@@ -18,7 +18,9 @@ public class CalculationLog {
      */
     public enum Source {
         MQ("MQ"),
-        REST("HTTP")
+        REST("API"),
+        SAPOD("API from SAPOD"),
+        WEBUI("API from WEB UI"),
         ;
 
         private String name;
@@ -104,6 +106,12 @@ public class CalculationLog {
      */
     @Column(name = "docnumber", length = 20)
     private String number;
+
+    /**
+     * user name
+     */
+    @Column(name = "user", length = 80)
+    private String user;
 
     /**
      * station code
@@ -298,6 +306,14 @@ public class CalculationLog {
 
     public void setSource(Source source) {
         this.source = source;
+    }
+
+    public String getUser() {
+        return user;
+    }
+
+    public void setUser(String user) {
+        this.user = JpaTruncator.truncate(user);
     }
 
     public int getErrorCode() {
