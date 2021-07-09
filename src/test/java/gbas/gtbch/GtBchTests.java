@@ -1,17 +1,9 @@
 package gbas.gtbch;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import gbas.gtbch.sapod.model.CalculationLog;
+import gbas.gtbch.sapod.model.*;
 import gbas.gtbch.sapod.model.Currency;
-import gbas.gtbch.sapod.model.ExchangeRate;
-import gbas.gtbch.sapod.model.TPolDocument;
-import gbas.gtbch.sapod.model.TpImportDate;
-import gbas.gtbch.sapod.service.TPolService;
-import gbas.gtbch.sapod.service.TPolRowService;
-import gbas.gtbch.sapod.service.CalculationLogService;
-import gbas.gtbch.sapod.service.CurrencyService;
-import gbas.gtbch.sapod.service.ExchangeRateService;
-import gbas.gtbch.sapod.service.TpImportDateService;
+import gbas.gtbch.sapod.service.*;
 import gbas.gtbch.util.UtilDate8;
 import gbas.gtbch.web.request.KeyValue;
 import gbas.gtbch.websapod.ServicesImpl;
@@ -298,6 +290,32 @@ public class GtBchTests {
 	@Test
 	public void deleteTpRowTest() {
 		tPolRowService.deleteRow(6256);
+	}
+
+	@Autowired
+	private RecalcRateService recalcRateService;
+
+	@Test
+	public void rateRecalcTest() {
+		List<RecalcRate> list;
+
+		list = recalcRateService.getRecalcRates();
+		for (RecalcRate r : list) {
+			logger.info(r.toString());
+		}
+
+		RecalcRate rate = new RecalcRate();
+		rate.setDateBegin(UtilDate8.getDate("07.07.2021"));
+		rate.setRate(1.2345);
+		rate.setIndex(1.0);
+
+		rate = recalcRateService.save(rate);
+		if (rate != null) {
+			logger.info(rate.toString());
+
+			recalcRateService.delete(rate.getId());
+		}
+
 	}
 
 }

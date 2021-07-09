@@ -25,7 +25,22 @@
     <script th:inline="javascript">
         $(document).ready($(function () {
 
-            function loadTable(mnemo) {
+            var reloadTables = function (currentTab) {
+                if (currentTab === "currencyRateTab") {
+                    loadCurrencyRateTable();
+                    $('#exchangeRateTable').DataTable().columns.adjust().draw();
+                } else if (currentTab === "rateRecalcTab") {
+                    loadRecalcRateTable();
+                    $('#recalcRateTable').DataTable().columns.adjust().draw();
+                }
+            };
+
+            $('a[data-toggle="tab"]').on('click', function (e) {
+                $('#usersTab a[href="' + $(e.target).attr("href") + '"]').tab('show');
+                reloadTables($(e.target).attr("id"));
+            });
+
+            function loadCurrencyRateTable(mnemo) {
                 var data = {};
                 data.date = $("#date_text").val();
 
@@ -40,46 +55,19 @@
                 );
             }
 
-            var currencyEditor = initModal2("#currencyEditorModal", {
-                "okCurrencyButton" : function (rate) {
+            function loadRecalcRateTable(id) {
+                var data = {};
 
-                    var _howMuch = parseInt($("#howMuch").val());
-                    if (isNaN(_howMuch)) {
-                        alert("Ошибка");
-                        return;
-                    }
-
-                    var _rate = parseFloat($("#rate").val());
-                    if (isNaN(_rate)) {
-                        alert("Ошибка");
-                        return;
-                    }
-
-                    rate.howMuch = _howMuch;
-                    rate.rate = _rate;
-
-                    $.ajax({
-                        url: contextRoot + "api/currency/rate/" + (rate.id !== 0 ? rate.id : ""),
-                        type: rate.id !== 0 ? 'PUT' : 'POST',
-                        data: JSON.stringify(rate),
-                        cache: false,
-                        contentType: "application/json",
-                        complete: function (jqXHR, textStatus) {
-                            if (textStatus === 'success') {
-                                console.log("Сохранение курсов валют " + rate.currency.shortName + " => " + rate.baseCurrency.shortName + " на дату " + new Date(rate.fromDate).getStringDate());
-                                loadTable(rate.currency.shortName);
-                                currencyEditor.close();
-                            } else {
-                                alert("Ошибка сохранения курсов валют");
-                            }
+                $("#rateRecalcFragment").load(
+                    "./currency/recalcrates",
+                    $.param(data),
+                    function() {
+                        if (id !== undefined) {
+                            $('#recalcRateTable').DataTable().row("[data-id='" + id + "']").select();
                         }
-                    });
-
-                },
-                "cancelCurrencyButton": function (rate) {
-                    console.log("cancel");
-                },
-            });
+                    }
+                );
+            }
 
             var currentDate = new Date();
 
@@ -95,89 +83,52 @@
             $("#date").datetimepicker('setDate', currentDate);
 
             $("#date").datetimepicker()
-                .on('changeDate', function(e){
-                    loadTable();
+                .on('changeDate', function(e) {
+                    loadCurrencyRateTable();
                 });
 
-            loadTable();
-
-            var openCurrencyEditor = function(rate) {
-                $("#fromDate").val(new Date(rate.fromDate).getStringDate());
-                $("#howMuch").val(rate.howMuch);
-                $("#currencyName").text(rate.currency.name + " = ");
-                $("#rate").val(rate.rate);
-                $("#baseCurrencyName").text(rate.baseCurrency.name);
-                currencyEditor.show(rate);
-            };
-
-            $("#howMuch").on('keypress', function(e) {
-                var value = $(this).val() + e.key;
-                if (!value.match("^[0-9]+$")) {
-                    e.preventDefault();
-                }
-            });
-
-            $("#rate").on('keypress', function(e) {
-                var value = $(this).val() + e.key;
-                if (!value.match("^([0-9]+(\.[0-9]{0,4})?)$")) {
-                    e.preventDefault();
-                }
-            });
+            loadCurrencyRateTable();
 
             window.CurrencyData = {
-                loadTable : loadTable,
-                openCurrencyEditor: openCurrencyEditor
+                loadCurrencyRateTable : loadCurrencyRateTable,
+                loadRecalcRateTable : loadRecalcRateTable
             };
         }));
     </script>
 
     <div class="page-header-name">Курс валют</div>
 
-    <div style="display: inline-flex;">
-        <h5><span class="text-nowrap" style="margin-right: 5px">Курсы валют НБ РБ, действующие на дату</span></h5>
-        <div class="form-group" style="flex-grow: 1">
-            <div id="date" class="input-group date">
-                <input id="date_text" type="text" class="form-control"/>
-                <span class="input-group-addon">
-                    <i class="glyphicon glyphicon-calendar"></i>
-                </span>
-            </div>
-        </div>
-    </div>
+    <div id="currencyTabFolder">
+        <div style="height: calc(85vh - 95px); margin-top: 0px">
+            <ul class="nav nav-tabs" style="width: 100%; align-content: center;">
+                <li class="active">
+                    <a id="currencyRateTab" data-toggle="tab" href="#currencyRateTabItem">Курсы НБ РБ</a>
+                </li>
+                <li>
+                    <a id="rateRecalcTab" data-toggle="tab" href="#rateRecalcTabItem">Курс пересчета</a>
+                </li>
+            </ul>
 
-    <div id="exchangeRateFragment">
-    </div>
-
-    <div id="currencyEditorModal" class="modal" data-keyboard="true" data-backdrop="static" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Редактирование информации о курсах валют</h5>
-                </div>
-
-                <div class="modal-body" style="margin-left: 10px; margin-right: 10px">
-
-                    <div style="display: inline-flex; width: 100%" >
-                        <h5><span class="text-nowrap" style="margin-right: 15px">Курс валют, действующий на дату</span></h5>
+            <div class="tab-content" style="height: 100%">
+                <div id="currencyRateTabItem" class="tab-pane active" style="height: 100%; width: 100%; margin-top: 10px">
+                    <div style="display: inline-flex;">
+                        <h5><span class="text-nowrap" style="margin-right: 5px">Курсы валют НБ РБ, действующие на дату</span></h5>
                         <div class="form-group" style="flex-grow: 1">
-                            <div id="fromDateDiv" class="input-group date">
-                                <input id="fromDate" type="text" class="form-control" readonly/>
-                                <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+                            <div id="date" class="input-group date">
+                                <input id="date_text" type="text" class="form-control"/>
+                                <span class="input-group-addon">
+                                    <i class="glyphicon glyphicon-calendar"></i>
+                                </span>
                             </div>
                         </div>
                     </div>
-                    <div class="form-group" style="display: inline-flex; width: 100%" >
-                        <input class="form-control" type="text" id="howMuch">
-                        <h5><span id="currencyName" class="text-nowrap" style="margin-left: 15px; margin-right: 15px"></span></h5>
-                        <input class="form-control" type="text" id="rate">
-                        <h5><span id="baseCurrencyName" class="text-nowrap" style="margin-left: 15px"></span></h5>
+
+                    <div id="exchangeRateFragment">
                     </div>
                 </div>
-
-                <div class="modal-footer">
-                    <button id="okCurrencyButton" type="button" data-hide="no" class="btn btn-success">Сохранить
-                    </button>
-                    <button id="cancelCurrencyButton" type="button" class="btn btn-default">Выход</button>
+                <div id="rateRecalcTabItem" class="tab-pane" style="height: 100%; width: 100%">
+                    <div id="rateRecalcFragment">
+                    </div>
                 </div>
             </div>
         </div>

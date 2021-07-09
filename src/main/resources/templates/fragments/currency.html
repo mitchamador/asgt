@@ -18,20 +18,20 @@
                 paging: false,
                 searching: false,
                 info: false,
-                language : {
+                language: {
                     "zeroRecords": " ",
                     searchPlaceholder: "Поиск",
                     "search": "Поиск:"
                 },
                 style: 'single',
-                select: { style: 'single' },
+                select: {style: 'single'},
                 columnDefs: [
                     {
-                        targets:   -1,
-                        render: function ( data, type, row ) {
-                            if ( type === 'display' ) {
+                        targets: -1,
+                        render: function (data, type, row) {
+                            if (type === 'display') {
                                 return '<div style="display: flex; max-width: 250px; width: 100%; height: 100%; vertical-align: center">' +
-                                    '<span style="flex-grow: 1; align-self: center;">' + data + '</span>'+
+                                    '<span style="flex-grow: 1; align-self: center;">' + data + '</span>' +
                                     '<a id="currencyEdit" class="invisible btn-success btn-sm" style="align-self: center; margin-right: 3px; padding: 1px 4px; cursor: pointer"><i class="fa fa-edit"></i></a>' +
                                     '<a id="currencyClear" class="invisible btn-danger btn-sm" style="align-self: center; padding: 1px 5px; cursor: pointer"><i class="fa fa-trash"></i></a>' +
                                     '</div>';
@@ -42,8 +42,73 @@
                 ]
             });
 
+            var openCurrencyEditor = function(rate) {
+                $("#fromDate").val(new Date(rate.fromDate).getStringDate());
+                $("#howMuch").val(rate.howMuch);
+                $("#currencyName").text(rate.currency.name + " = ");
+                $("#rate").val(rate.rate);
+                $("#baseCurrencyName").text(rate.baseCurrency.name);
+                currencyEditor.show(rate);
+            };
+
+
+            $("#howMuch").on('keypress', function(e) {
+                var value = $(this).val() + e.key;
+                if (!value.match("^[0-9]+$")) {
+                    e.preventDefault();
+                }
+            });
+
+            $("#rate").on('keypress', function(e) {
+                var value = $(this).val() + e.key;
+                if (!value.match("^([0-9]+([.|,][0-9]{0,4})?)$")) {
+                    e.preventDefault();
+                }
+            });
+
+            var currencyEditor = initModal2("#currencyEditorModal", {
+                "okCurrencyButton" : function (rate) {
+
+                    var _howMuch = parseInt($("#howMuch").val());
+                    if (isNaN(_howMuch)) {
+                        alert("Ошибка");
+                        return;
+                    }
+
+                    var _rate = parseFloat($("#rate").val());
+                    if (isNaN(_rate)) {
+                        alert("Ошибка");
+                        return;
+                    }
+
+                    rate.howMuch = _howMuch;
+                    rate.rate = _rate;
+
+                    $.ajax({
+                        url: contextRoot + "api/currency/rate/" + (rate.id !== 0 ? rate.id : ""),
+                        type: rate.id !== 0 ? 'PUT' : 'POST',
+                        data: JSON.stringify(rate),
+                        cache: false,
+                        contentType: "application/json",
+                        complete: function (jqXHR, textStatus) {
+                            if (textStatus === 'success') {
+                                console.log("Сохранение курсов валют " + rate.currency.shortName + " => " + rate.baseCurrency.shortName + " на дату " + new Date(rate.fromDate).getStringDate());
+                                CurrencyData.loadCurrencyRateTable(rate.currency.shortName);
+                                currencyEditor.close();
+                            } else {
+                                alert("Ошибка сохранения курсов валют");
+                            }
+                        }
+                    });
+
+                },
+                "cancelCurrencyButton": function (rate) {
+                    console.log("cancel");
+                },
+            });
+
             addDataTableRowListener(currencyTable, {
-                "currencyEdit" : function(tr, table) {
+                "currencyEdit": function (tr, table) {
                     var id = tr.attr('data-id');
                     var rate = findRate(id);
                     if (rate !== undefined) {
@@ -53,13 +118,13 @@
                             var r = Object.assign({}, rate);
                             r.id = 0;
                             r.fromDate = requestDate;
-                            CurrencyData.openCurrencyEditor(r);
+                            openCurrencyEditor(r);
                         } else {
-                            CurrencyData.openCurrencyEditor(rate);
+                            openCurrencyEditor(rate);
                         }
                     }
                 },
-                "currencyClear" : function(tr, table) {
+                "currencyClear": function (tr, table) {
                     var id = tr.attr('data-id');
                     var rate = findRate(id);
                     if (rate !== undefined) {
@@ -79,7 +144,7 @@
                                         complete: function (jqXHR, textStatus) {
                                             if (textStatus === 'success') {
                                                 console.log("Удаление курсов валют " + rate.currency.shortName + " => " + rate.baseCurrency.shortName + " на дату " + new Date(rate.fromDate).getStringDate());
-                                                CurrencyData.loadTable(rate.currency.shortName);
+                                                CurrencyData.loadCurrencyRateTable(rate.currency.shortName);
                                             } else {
                                                 alert("Ошибка удаления курсов валют");
                                             }
@@ -92,7 +157,7 @@
                 }
             });
 
-            var findRate = function(id) {
+            var findRate = function (id) {
                 return rates.find(function (r) {
                     return r.id === parseInt(id);
                 });
@@ -101,12 +166,48 @@
         }));
     </script>
 
+    <div id="currencyEditorModal" class="modal" data-keyboard="true" data-backdrop="static" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Редактирование информации о курсах валют</h5>
+                </div>
+
+                <div class="modal-body" style="margin-left: 10px; margin-right: 10px">
+
+                    <div style="display: inline-flex; width: 100%" >
+                        <h5><span class="text-nowrap" style="margin-right: 15px">Курс валют, действующий на дату</span></h5>
+                        <div class="form-group" style="flex-grow: 1">
+                            <div id="fromDateDiv" class="input-group date">
+                                <input id="fromDate" type="text" class="form-control" readonly/>
+                                <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" style="display: inline-flex; width: 100%" >
+                        <input class="form-control" type="text" id="howMuch">
+                        <h5><span id="currencyName" class="text-nowrap" style="margin-left: 15px; margin-right: 15px"></span></h5>
+                        <input class="form-control" type="text" id="rate">
+                        <h5><span id="baseCurrencyName" class="text-nowrap" style="margin-left: 15px"></span></h5>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button id="okCurrencyButton" type="button" data-hide="no" class="btn btn-success">Сохранить
+                    </button>
+                    <button id="cancelCurrencyButton" type="button" class="btn btn-default">Выход</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <table id="exchangeRateTable" class="table-condensed table-bordered" style="height: 100%; width:100%">
         <thead>
         <tr>
             <th style="width: 40%">Наименование иностранной валюты</th>
             <th style="width: 40%">Количество единиц иностранной валюты,<br>
-                буквенный код валюты</th>
+                буквенный код валюты
+            </th>
             <th style="width: 20%">Официальный курс</th>
         </tr>
         </thead>
@@ -117,11 +218,16 @@
                 <td>
                     <div>
                         <th:block th:switch="${rate.getCurrency().getShortName()}">
-                            <i th:case="'USD'" class="flag-icon" th:style="'background-image: url(' + @{/img/flags/us.svg} + ');'"></i>
-                            <i th:case="'EUR'" class="flag-icon" th:style="'background-image: url(' + @{/img/flags/eu.svg} + ');'"></i>
-                            <i th:case="'KZT'" class="flag-icon" th:style="'background-image: url(' + @{/img/flags/kz.svg} + ');'"></i>
-                            <i th:case="'RUB'" class="flag-icon" th:style="'background-image: url(' + @{/img/flags/ru.svg} + ');'"></i>
-                            <i th:case="'CHF'" class="flag-icon" th:style="'background-image: url(' + @{/img/flags/ch.svg} + ');'"></i>
+                            <i th:case="'USD'" class="flag-icon"
+                               th:style="'background-image: url(' + @{/img/flags/us.svg} + ');'"></i>
+                            <i th:case="'EUR'" class="flag-icon"
+                               th:style="'background-image: url(' + @{/img/flags/eu.svg} + ');'"></i>
+                            <i th:case="'KZT'" class="flag-icon"
+                               th:style="'background-image: url(' + @{/img/flags/kz.svg} + ');'"></i>
+                            <i th:case="'RUB'" class="flag-icon"
+                               th:style="'background-image: url(' + @{/img/flags/ru.svg} + ');'"></i>
+                            <i th:case="'CHF'" class="flag-icon"
+                               th:style="'background-image: url(' + @{/img/flags/ch.svg} + ');'"></i>
                         </th:block>
                         <span class="text" th:text="${rate.getCurrency().getName() + rate.getComment()}"></span>
                     </div>
@@ -132,6 +238,247 @@
         </th:block>
         </tbody>
 
+    </table>
+
+</th:block>
+
+<th:block th:fragment="recalcrate">
+
+    <script th:inline="javascript">
+        $(document).ready($(function () {
+
+            /*<![CDATA[*/
+            var recalcRates = [[${recalcRates}]];
+            /*]]>*/
+
+            var recalcRateTable = $('#recalcRateTable').DataTable({
+                scrollY: "calc(80vh - 40px)",
+                scrollCollapse: true,
+                paging: false,
+                ordering: false,
+                searching: false,
+                info: false,
+                language: {
+                    "zeroRecords": " ",
+                    searchPlaceholder: "Поиск",
+                    "search": "Поиск:"
+                },
+                style: 'single',
+                select: {style: 'single'},
+                columnDefs: [
+                    {
+                        targets: -1,
+                        render: function (data, type, row) {
+                            if (type === 'display') {
+                                return '<div style="display: flex; max-width: 250px; width: 100%; height: 100%; vertical-align: center">' +
+                                    '<span style="flex-grow: 1; align-self: center;">' + data + '</span>' +
+                                    '<a id="recalcRateEdit" class="invisible btn-success btn-sm" style="align-self: center; margin-right: 3px; padding: 1px 4px; cursor: pointer"><i class="fa fa-edit"></i></a>' +
+                                    '<a id="recalcRateClear" class="invisible btn-danger btn-sm" style="align-self: center; padding: 1px 5px; cursor: pointer"><i class="fa fa-trash"></i></a>' +
+                                    '</div>';
+                            }
+                            return data;
+                        }
+                    }
+                ]
+            });
+
+            var recalcRateEditor = initModal2("#recalcRateEditorModal", {
+                "okRecalcRateButton": function (rate) {
+                    var _rate = parseFloat($("#recalcRateRate").val());
+                    if (isNaN(_rate)) {
+                        alert("Ошибка при вводе курса пересчета");
+                        return;
+                    }
+
+                    var _index = parseFloat($("#recalcRateIndex").val());
+                    if (isNaN(_index)) {
+                        alert("Ошибка при вводе индекса");
+                        return;
+                    }
+
+                    rate.index = _index;
+                    rate.rate = _rate;
+                    rate.dateBegin = $("#recalcRateDateBegin").datetimepicker('getDate');
+
+                    $.ajax({
+                        url: contextRoot + "api/currency/recalcrate/" + (rate.id !== 0 ? rate.id : ""),
+                        type: rate.id !== 0 ? 'PUT' : 'POST',
+                        data: JSON.stringify(rate),
+                        cache: false,
+                        contentType: "application/json",
+                        complete: function (jqXHR, textStatus) {
+                            if (textStatus === 'success') {
+                                rate.id = parseInt(jqXHR.responseText);
+                                console.log("Сохранение курса пересчета на дату " + new Date(rate.dateBegin).getStringDate());
+                                CurrencyData.loadRecalcRateTable(rate.id);
+                                recalcRateEditor.close();
+                            } else {
+                                alert("Ошибка сохранения курса пересчета");
+                            }
+                        }
+                    });
+
+                },
+                "cancelRecalcRateButton": function (rate) {
+                    console.log("cancel");
+                },
+            });
+
+            var validateDouble = function (e) {
+                var value = $(e.target).val() + e.key;
+                if (!value.match("^([0-9]+([.|,][0-9]{0,4})?)$")) {
+                    e.preventDefault();
+                }
+            };
+
+            $("#recalcRateRate").on('keypress', function (e) {
+                validateDouble(e);
+            });
+
+            $("#recalcRateIndex").on('keypress', function (e) {
+                validateDouble(e);
+            });
+
+            var openRecalcEditor = function (rate) {
+                //$("#recalcRateDateBeginText").val(new Date(rate.dateBegin).getStringDate());
+                $("#recalcRateDateBegin").datetimepicker('setDate', new Date(rate.dateBegin));
+                $("#recalcRateRate").val(rate.rate);
+                $("#recalcRateIndex").val(rate.index);
+                recalcRateEditor.show(rate);
+            };
+
+            addDataTableRowListener(recalcRateTable, {
+                "recalcRateEdit": function (tr, table) {
+                    var id = tr.attr('data-id');
+                    var rate = findRecalcRate(id);
+                    if (rate !== undefined) {
+                        openRecalcEditor(rate);
+                    }
+                },
+                "recalcRateClear": function (tr, table) {
+                    var id = tr.attr('data-id');
+                    if (id !== undefined) {
+                        var rate = findRecalcRate(id);
+                        if (rate !== undefined) {
+                            showYesNoModal("Удалить информацию по курсу пересчета на дату " + new Date(rate.dateBegin).getStringDate() + "?",
+                                function () {
+                                    $.ajax({
+                                        url: contextRoot + "api/currency/recalcrate/" + rate.id,
+                                        type: 'DELETE',
+                                        cache: false,
+                                        contentType: "application/json",
+                                        complete: function (jqXHR, textStatus) {
+                                            if (textStatus === 'success') {
+                                                console.log("Удаление курса пересчета на дату " + new Date(rate.dateBegin).getStringDate());
+                                                CurrencyData.loadRecalcRateTable();
+                                            } else {
+                                                alert("Ошибка удаления курса пересчета");
+                                            }
+                                        }
+                                    });
+                                }
+                            );
+                        }
+                    }
+                }
+            });
+
+            $("#recalcRateCreate").click(function (e) {
+                var rate = {};
+                rate.id = 0;
+                rate.dateBegin = new Date();
+                rate.rate = 1;
+                rate.index = 1;
+                openRecalcEditor(rate);
+                e.preventDefault();
+            });
+
+            var findRecalcRate = function (id) {
+                return recalcRates.find(function (r) {
+                    return r.id === parseInt(id);
+                });
+            }
+
+            $("#recalcRateDateBegin").datetimepicker({
+                todayHighlight: true,
+                format: "dd.mm.yyyy",
+                language: 'ru',
+                minView: 2,
+                autoclose: true,
+                weekStart: 1
+            });
+
+        }))
+        ;
+    </script>
+
+    <div id="recalcRateEditorModal" class="modal" data-keyboard="true" data-backdrop="static" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Редактирование информации о курсе пересчета</h5>
+                </div>
+
+                <div class="modal-body" style="margin-left: 10px; margin-right: 10px">
+
+                    <div style="display: inline-flex; width: 100%">
+                        <h5><span class="text-nowrap"
+                                  style="margin-right: 15px">Дата начала действия курса пересчета</span></h5>
+                        <div class="form-group" style="flex-grow: 1">
+                            <div id="recalcRateDateBegin" class="input-group date">
+                                <input id="recalcRateDateBeginText" type="text" class="form-control"/>
+                                <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" style="display: inline-flex; width: 100%">
+                        <h5><span id="rateName" class="text-nowrap" style="margin-right: 15px">Курс пересчета</span>
+                        </h5>
+                        <input class="form-control" type="text" id="recalcRateRate">
+                        <h5><span id="indexName" class="text-nowrap" style="margin-left: 15px; margin-right: 15px">Индекс</span>
+                        </h5>
+                        <input class="form-control" type="text" id="recalcRateIndex">
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button id="okRecalcRateButton" type="button" data-hide="no" class="btn btn-success">Сохранить
+                    </button>
+                    <button id="cancelRecalcRateButton" type="button" class="btn btn-default">Выход</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <table id="recalcRateTable" class="table-condensed table-bordered" style="height: 100%; width:100%">
+        <thead>
+        <tr>
+            <th class="text-nowrap" style="width: 40%">
+                <!--                № п/п-->
+                <div style="display: flex; width: 100%; height: 100%">
+                    <a id="recalcRateCreate" class="btn-success btn-sm"
+                       style="align-self: center; margin-right: 3px; padding: 1px 5px; cursor: pointer"><i
+                            class="fa fa-plus"></i></a>
+                    <span class="text-nowrap" style="flex-grow: 1; align-self: center;">Дата начала действия курса пересчета</span>
+                </div>
+            </th>
+            <!--
+                        <th style="width: 40%">Дата начала действия курса пересчета</th>
+            -->
+            <th style="width: 40%">Курс пересчета CHF к USD</th>
+            <th style="width: 20%">Индекс</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        <th:block th:each="rate : ${recalcRates}">
+            <tr th:data-id="${rate.getId()}">
+                <td th:text="${#dates.format(rate.getDateBegin(), 'dd.MM.yyyy')}"></td>
+                <td th:text="${#numbers.formatDecimal(rate.getRate(), 1, 4)}"></td>
+                <td th:text="${#numbers.formatDecimal(rate.getIndex(), 1, 4)}"></td>
+            </tr>
+        </th:block>
+        </tbody>
     </table>
 
 </th:block>
