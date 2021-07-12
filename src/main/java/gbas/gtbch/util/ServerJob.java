@@ -7,6 +7,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -31,9 +32,13 @@ public abstract class ServerJob {
     private AtomicBoolean running = new AtomicBoolean();
 
     /**
+     * max log list size
+     */
+    private final static int MAX_LOG_SIZE = 512;
+    /**
      *
      */
-    private final List<String> logs = new ArrayList<>();
+    private final ServerLog logs = new ServerLog(MAX_LOG_SIZE);
 
     /**
      *
