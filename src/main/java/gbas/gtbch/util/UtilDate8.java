@@ -11,6 +11,10 @@ import java.util.HashMap;
 
 public class UtilDate8 {
 
+    private static final String DEFAULT_DATE_FORMAT = "dd.MM.yyyy";
+    private static final String DEFAULT_DATETIME_FORMAT = "dd.MM.yyyy HH:mm";
+    private static final String DEFAULT_FULLDATE_FORMAT = "dd.MM.yyyy HH:mm:ss.SSS";
+    private static final HashMap<String, DateTimeFormatter> dateFormatHashMap = new HashMap<>();
     private static DateTimeFormatter DATEFORMATTER =
             new DateTimeFormatterBuilder().appendPattern("dd.MM.yyyy[ [HH][:mm][:ss][.SSS]]")
                     .parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
@@ -19,12 +23,8 @@ public class UtilDate8 {
                     .parseDefaulting(ChronoField.NANO_OF_SECOND, 0)
                     .toFormatter();
 
-    private static final String DEFAULT_DATE_FORMAT = "dd.MM.yyyy";
-    private static final String DEFAULT_DATETIME_FORMAT = "dd.MM.yyyy HH:mm";
-    private static final String DEFAULT_FULLDATE_FORMAT = "dd.MM.yyyy HH:mm:ss.SSS";
-    private static final HashMap<String, DateTimeFormatter> dateFormatHashMap = new HashMap<>();
-
-    private UtilDate8() {}
+    private UtilDate8() {
+    }
 
     /**
      * @param format
@@ -33,10 +33,10 @@ public class UtilDate8 {
     private static DateTimeFormatter getDateFormat(final String format) {
         final String s = format == null ? DEFAULT_DATE_FORMAT : format;
         DateTimeFormatter sdf = dateFormatHashMap.get(s);
-        if(sdf == null) {
+        if (sdf == null) {
             try {
-                dateFormatHashMap.put(s, sdf = DateTimeFormatter.ofPattern(format));
-            } catch(final RuntimeException e) {
+                dateFormatHashMap.put(s, sdf = DateTimeFormatter.ofPattern(s));
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -49,8 +49,12 @@ public class UtilDate8 {
      * @return Date
      */
     public static Date getDate(final String date) {
-        if(date != null) {
-            return Date.from(LocalDateTime.parse(date, DATEFORMATTER).toInstant(OffsetDateTime.now().getOffset()));
+        if (date != null) {
+            try {
+                return Date.from(LocalDateTime.parse(date, DATEFORMATTER).toInstant(OffsetDateTime.now().getOffset()));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return null;
     }
@@ -61,10 +65,14 @@ public class UtilDate8 {
      * @return String
      */
     public static String getStringDate(final Date date, final String format) {
-        if(date != null) {
+        if (date != null) {
             final DateTimeFormatter df = getDateFormat(format);
-            if(df != null) {
-                return df.format(LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault()));
+            if (df != null) {
+                try {
+                    return df.format(LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault()));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -119,7 +127,7 @@ public class UtilDate8 {
     private static int compareStartDate(final Date date, final String stringDate) {
         final Date dateOriginal = date == null ? new Date() : date;
         final Date dateStart = getStartDate(stringDate);
-        if(dateStart != null) {
+        if (dateStart != null) {
             return dateOriginal.compareTo(dateStart);
         }
 
@@ -134,7 +142,7 @@ public class UtilDate8 {
     private static int compareEndDate(final Date date, final String stringDate) {
         final Date dateOriginal = date == null ? new Date() : date;
         final Date endDate = getEndDate(stringDate);
-        if(endDate != null) {
+        if (endDate != null) {
             return dateOriginal.compareTo(endDate);
         }
 
@@ -149,7 +157,7 @@ public class UtilDate8 {
     public static int compareDateTime(final Date d, final String stringDate) {
         final Date dateOriginal = d == null ? new Date() : d;
         final Date date = getDate(stringDate);
-        if(date != null) {
+        if (date != null) {
             return dateOriginal.compareTo(date);
         }
 
