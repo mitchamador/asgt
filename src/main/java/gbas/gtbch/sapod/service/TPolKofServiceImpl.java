@@ -60,7 +60,12 @@ public class TPolKofServiceImpl implements TPolKofService {
     @Override
     @Transactional(transactionManager = "sapodTransactionManager")
     public int saveKof(TvkKof kof) {
-        return tPolKofRepository.saveKof(kof);
+        try {
+            return tPolKofRepository.saveKof(kof);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 
     /**

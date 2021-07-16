@@ -47,7 +47,12 @@ public class TPolTVesServiceImpl implements TPolTVesService {
      */
     @Override
     public int saveVO(TvkTVes tVes) {
-        return tPolTVesRepository.saveVO(tVes);
+        try {
+            return tPolTVesRepository.saveVO(tVes);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 
     /**
