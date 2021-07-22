@@ -3,6 +3,7 @@ package gbas.gtbch.web;
 import gbas.gtbch.sapod.model.TpolItem;
 import gbas.gtbch.sapod.service.TPolItemsService;
 import gbas.gtbch.sapod.service.TPolRowService;
+import gbas.gtbch.web.controlleradvice.annotations.DuplicateKeyExceptionHandler;
 import gbas.tvk.tpol3.service.TPItem;
 import gbas.tvk.tpol3.service.TPItems;
 import gbas.tvk.tpol3.service.TPRow;
@@ -19,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 
 @RestController
+@DuplicateKeyExceptionHandler
 @RequestMapping("/api/tpol/row")
 public class TPolRowController {
 

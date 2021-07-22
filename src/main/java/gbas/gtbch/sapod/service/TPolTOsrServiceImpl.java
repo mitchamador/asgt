@@ -47,12 +47,7 @@ public class TPolTOsrServiceImpl implements TPolTOsrService {
      */
     @Override
     public int saveCont(TvkTOsr osr) {
-        try {
-            return tPolTOsrRepository.saveCont(osr);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return 0;
+        return tPolTOsrRepository.saveCont(osr);
     }
 
     /**

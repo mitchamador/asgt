@@ -6,7 +6,6 @@ import gbas.gtbch.sapod.model.TPolSobst;
 import gbas.gtbch.sapod.model.TpolGroup;
 import gbas.gtbch.sapod.repository.TPolRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -19,7 +18,6 @@ public class TPolServiceImpl implements TPolService {
     public TPolServiceImpl(TPolRepository tPolRepository) {
         this.tPolRepository = tPolRepository;
     }
-
 
     /**
      * get {@link TPolDocument}
@@ -76,7 +74,6 @@ public class TPolServiceImpl implements TPolService {
      * @return
      */
     private List<TPolDocument> getDocuments(int id, String typeCode, Date dateBegin, Date dateEnd) {
-
         return tPolRepository.getDocuments(id, typeCode, dateBegin, dateEnd);
     }
 
@@ -111,9 +108,7 @@ public class TPolServiceImpl implements TPolService {
      * @param list    {@link TPolSobst} list
      */
     @Override
-    @Transactional(transactionManager = "sapodTransactionManager")
     public boolean saveSobstList(int idTarif, List<TPolSobst> list) {
-
         return tPolRepository.saveSobstList(idTarif, list);
     }
 

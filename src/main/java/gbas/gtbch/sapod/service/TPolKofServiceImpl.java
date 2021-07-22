@@ -2,12 +2,11 @@ package gbas.gtbch.sapod.service;
 
 import gbas.gtbch.sapod.repository.TPolKofRepository;
 import gbas.tvk.tpol3.TvkKof;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Component
+@Service
 public class TPolKofServiceImpl implements TPolKofService {
 
     private final TPolKofRepository tPolKofRepository;
@@ -58,14 +57,8 @@ public class TPolKofServiceImpl implements TPolKofService {
      * @return
      */
     @Override
-    @Transactional(transactionManager = "sapodTransactionManager")
     public int saveKof(TvkKof kof) {
-        try {
-            return tPolKofRepository.saveKof(kof);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return 0;
+        return tPolKofRepository.saveKof(kof);
     }
 
     /**

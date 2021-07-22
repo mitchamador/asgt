@@ -1,6 +1,7 @@
 package gbas.gtbch.web;
 
 import gbas.gtbch.sapod.service.TPolTOsrService;
+import gbas.gtbch.web.controlleradvice.annotations.DuplicateKeyExceptionHandler;
 import gbas.tvk.tpol3.TvkTOsr;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,7 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
+@DuplicateKeyExceptionHandler
 @RequestMapping("/api/tpol/tosr")
 public class TPolTOsrController {
 
