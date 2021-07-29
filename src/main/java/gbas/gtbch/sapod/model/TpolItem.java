@@ -1,10 +1,10 @@
 package gbas.gtbch.sapod.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import gbas.tvk.tpol3.service.ColumnInfo;
 import gbas.tvk.tpol3.service.TPItem;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -13,6 +13,7 @@ public class TpolItem {
     /**
      * TarifPolicy item object {@link TPItem}
      */
+    @JsonIgnore
     private TPItem item;
 
     /**
