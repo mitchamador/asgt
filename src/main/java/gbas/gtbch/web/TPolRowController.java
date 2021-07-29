@@ -1,5 +1,6 @@
 package gbas.gtbch.web;
 
+import gbas.gtbch.sapod.model.TPolItemData;
 import gbas.gtbch.sapod.model.TpolItem;
 import gbas.gtbch.sapod.service.TPolItemsService;
 import gbas.gtbch.sapod.service.TPolRowService;
@@ -139,33 +140,29 @@ public class TPolRowController {
      * save data for {@link TpolItem}
      * @param id {@link TPRow} id
      * @param name {@link TpolItem} name
-     * @param data data
+     * @param tPolItemData {@link TPolItemData}
      * @return
      */
     @RequestMapping(value = "/{id:[\\d]+}/item/{name}", method = RequestMethod.POST)
     public ResponseEntity<Boolean> saveItemData(
             @PathVariable int id,
             @PathVariable String name,
-            @RequestParam(required = false) String[] data,
-            @RequestParam(required = false) List<String[]> array,
-            @RequestParam(name = "set", required = false) Integer setParam) {
+            @RequestBody TPolItemData tPolItemData) {
 
-        List<String[]> dataArray = data != null ? Collections.singletonList(data) : array;
-
-        int set = setParam == null ? 0 : setParam;
+        List<String[]> dataArray = tPolItemData.getData() != null ? Collections.singletonList(tPolItemData.getData()) : tPolItemData.getArray();
 
         TPItem tpItem = TPItems.getTpItem(name);
 
         boolean result = false;
         if (dataArray != null && tpItem != null) {
-            TpolItem tpolItem = new TpolItem(tpItem, set);
+            TpolItem tpolItem = new TpolItem(tpItem, tPolItemData.getSet());
             for (String[] d : dataArray) {
                 if (!tPolItemsService.checkData(tpolItem, id, d)) {
                     tPolItemsService.addData(tpolItem, id, d);
-                    logger.info("save item data: rowId = {}, item = {}, set = {}, data = {}", id, tpItem.getName(), set, d);
+                    logger.info("save item data: rowId = {}, item = {}, set = {}, data = {}", id, tpItem.getName(), tPolItemData.getSet(), d);
                     result = true;
                 } else {
-                    logger.info("item data exists: rowId = {}, item = {}, set = {}, data = {}", id, tpItem.getName(), set, d);
+                    logger.info("item data exists: rowId = {}, item = {}, set = {}, data = {}", id, tpItem.getName(), tPolItemData.getSet(), d);
                 }
             }
         }
@@ -177,32 +174,28 @@ public class TPolRowController {
      * delete data for {@link TpolItem}
      * @param id {@link TPRow} id
      * @param name {@link TpolItem} name
-     * @param data data
+     * @param tPolItemData {@link TPolItemData}
      * @return
      */
     @RequestMapping(value = "/{id:[\\d]+}/item/{name}", method = RequestMethod.DELETE)
     public ResponseEntity<Boolean> deleteItemData(
             @PathVariable int id,
             @PathVariable String name,
-            @RequestParam(required = false) String[] data,
-            @RequestParam(required = false) List<String[]> array,
-            @RequestParam(name = "set", required = false) Integer setParam) {
+            @RequestBody TPolItemData tPolItemData) {
 
-        List<String[]> dataArray = data != null ? Collections.singletonList(data) : array;
-
-        int set = setParam == null ? 0 : setParam;
+        List<String[]> dataArray = tPolItemData.getData() != null ? Collections.singletonList(tPolItemData.getData()) : tPolItemData.getArray();
 
         TPItem tpItem = TPItems.getTpItem(name);
 
         boolean result = false;
         if (dataArray != null && tpItem != null) {
-            TpolItem tpolItem = new TpolItem(tpItem, set);
+            TpolItem tpolItem = new TpolItem(tpItem, tPolItemData.getSet());
             for (String[] d : dataArray) {
                 if (Arrays.asList("ClassItem", "Distance", "StationTargetItem", "StationSourceItem").contains(name)) {
                     d[0] = d[1];
                 }
                 result |= tPolItemsService.deleteData(tpolItem, id, d[0]);
-                logger.info("delete item data: rowId = {}, item = {}, set = {}, data = {}", id, tpItem.getName(), set, d);
+                logger.info("delete item data: rowId = {}, item = {}, set = {}, data = {}", id, tpItem.getName(), tPolItemData.getSet(), d);
             }
         }
         return new ResponseEntity<>(result, HttpStatus.OK);

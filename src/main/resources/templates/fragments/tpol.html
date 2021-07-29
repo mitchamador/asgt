@@ -986,7 +986,8 @@
                                 $.ajax({
                                     url: contextRoot + "api/tpol/row/" + row.id + "/item/" + item.name,
                                     type: "DELETE",
-                                    data: params,
+                                    data: JSON.stringify(params),
+                                    contentType: "application/json",
                                     traditional: true,
                                     cache: false,
                                     success: function (msg) {
@@ -1104,7 +1105,8 @@
                     $.ajax({
                         url: contextRoot + "api/tpol/row/" + row.id + "/item/" + item.name,
                         type: "POST",
-                        data: params,
+                        data: JSON.stringify(params),
+                        contentType: "application/json",
                         traditional: true,
                         cache: false,
                         success: function (msg) {
