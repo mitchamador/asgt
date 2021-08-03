@@ -6,12 +6,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.*;
 
 /**
@@ -77,7 +74,7 @@ public class CalculationLogListRepository {
             }
         }
 
-        sql = "select *\n" +
+        sql = "select id, sourcetype, user as u, doctype, docnumber, station, inbound_time, outbound_time, error_code, jms_correlation_id\n" +
                 "from calculation_log\n"
                 + sql;
 
@@ -88,7 +85,7 @@ public class CalculationLogListRepository {
 
             calculationLog.setId(rs.getInt("id"));
             calculationLog.setSource(CalculationLog.Source.getSource(rs.getString("sourcetype")));
-            calculationLog.setUser(rs.getString("user"));
+            calculationLog.setUser(rs.getString("u"));
             calculationLog.setType(CalculationLog.Type.getType(rs.getString("doctype")));
             calculationLog.setNumber(rs.getString("docnumber"));
             calculationLog.setStation(rs.getString("station"));
