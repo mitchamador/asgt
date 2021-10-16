@@ -1,12 +1,11 @@
 package gbas.gtbch.sapod.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import gbas.gtbch.util.JpaTruncator;
 import gbas.gtbch.util.calc.CalcError;
-import gbas.tvk.util.GZipUtils;
 
 import javax.persistence.*;
-import java.io.UnsupportedEncodingException;
 import java.util.Date;
 
 @Entity
@@ -126,12 +125,9 @@ public class CalculationLog {
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss.SSS")
     private Date inboundTime;
 
-    /**
-     * gzipped inbound xml object
-     */
-    @Column(name = "inbound_xml_gz")
-    @Lob
-    private byte[] inboundXml;
+    @OneToOne(mappedBy = "calculationLog", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonBackReference
+    private CalculationLogData logData;
 
     /**
      * outbound time
@@ -139,20 +135,6 @@ public class CalculationLog {
     @Column(name = "outbound_time")
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss.SSS")
     private Date outboundTime;
-
-    /**
-     * gzipped outbound xml object
-     */
-    @Column(name = "outbound_xml_gz")
-    @Lob
-    private byte[] outboundXml;
-
-    /**
-     * gzipped outbound text object
-     */
-    @Column(name = "outbound_text_gz")
-    @Lob
-    private byte[] outboundText;
 
     /**
      * error
@@ -241,63 +223,12 @@ public class CalculationLog {
         this.inboundTime = inboundTime;
     }
 
-    public String getInboundXml() {
-        try {
-            return GZipUtils.gZippedBytes2String(inboundXml);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public void setInboundXml(String inboundXml) {
-        try {
-            this.inboundXml = GZipUtils.string2GZippedBytes(inboundXml);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-    }
-
     public Date getOutboundTime() {
         return outboundTime;
     }
 
     public void setOutboundTime(Date outboundTime) {
         this.outboundTime = outboundTime;
-    }
-
-    public String getOutboundXml() {
-        try {
-            return GZipUtils.gZippedBytes2String(outboundXml);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public void setOutboundXml(String outboundXml) {
-        try {
-            this.outboundXml = GZipUtils.string2GZippedBytes(outboundXml);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public String getOutboundText() {
-        try {
-            return GZipUtils.gZippedBytes2String(outboundText);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public void setOutboundText(String outboundText) {
-        try {
-            this.outboundText = GZipUtils.string2GZippedBytes(outboundText);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
     }
 
     public Source getSource() {
@@ -347,4 +278,40 @@ public class CalculationLog {
     public void setFileName(String fileName) {
         this.fileName = fileName;
     }
+
+    public CalculationLogData getLogData() {
+        if (logData == null) {
+            logData = new CalculationLogData(this);
+        }
+        return logData;
+    }
+
+    public void setLogData(CalculationLogData logData) {
+        this.logData = logData;
+    }
+
+    public String getInboundXml() {
+        return getLogData().getInboundXml();
+    }
+
+    public void setInboundXml(String inboundXml) {
+        getLogData().setInboundXml(inboundXml);
+    }
+
+    public String getOutboundXml() {
+        return getLogData().getOutboundXml();
+    }
+
+    public void setOutboundXml(String outboundXml) {
+        getLogData().setOutboundXml(outboundXml);
+    }
+
+    public String getOutboundText() {
+        return getLogData().getOutboundText();
+    }
+
+    public void setOutboundText(String outboundText) {
+        getLogData().setOutboundText(outboundText);
+    }
+
 }

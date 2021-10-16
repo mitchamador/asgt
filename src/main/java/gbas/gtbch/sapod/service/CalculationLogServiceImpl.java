@@ -2,6 +2,7 @@ package gbas.gtbch.sapod.service;
 
 import gbas.gtbch.sapod.model.CalculationLog;
 import gbas.gtbch.sapod.repository.CalculationLogListRepository;
+import gbas.gtbch.sapod.repository.CalculationLogListRepositoryJdbcTemplateImpl;
 import gbas.gtbch.sapod.repository.CalculationLogRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +19,8 @@ public class CalculationLogServiceImpl implements CalculationLogService {
     private final CalculationLogRepository calculationLogRepository;
     private final CalculationLogListRepository calculationLogListRepository;
 
-    public CalculationLogServiceImpl(CalculationLogRepository calculationLogRepository, CalculationLogListRepository calculationLogListRepository) {
+    public CalculationLogServiceImpl(CalculationLogRepository calculationLogRepository,
+                                     CalculationLogListRepositoryJdbcTemplateImpl calculationLogListRepository) {
         this.calculationLogRepository = calculationLogRepository;
         this.calculationLogListRepository = calculationLogListRepository;
     }
@@ -46,7 +48,8 @@ public class CalculationLogServiceImpl implements CalculationLogService {
 
     @Override
     public CalculationLog findById(int id) {
-        return calculationLogRepository.findById(id).orElse(null);
+        CalculationLog calculationLog = calculationLogRepository.findById(id).orElse(null);
+        return calculationLog;
     }
 
     @Override
