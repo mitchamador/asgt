@@ -67,7 +67,7 @@ public class SystemInfo {
         info.addAll(getDbInfo(sapodDataSource, ""));
         info.addAll(getDbInfo(pensiDataSource, " ПЭНСИ"));
 
-        if (!mqProperties.isDummy()) {
+        if (mqProperties.isEnabled()) {
             info.addAll(getMqInfo(mqProperties));
         }
 

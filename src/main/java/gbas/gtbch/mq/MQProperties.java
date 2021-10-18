@@ -13,8 +13,6 @@ import javax.jms.ConnectionFactory;
 @Component
 public class MQProperties {
 
-    private boolean dummy;
-
     private ConnectionFactory connectionFactory;
     private JndiMQConfigurationProperties jndiMQConfigurationProperties;
     private QueueConfigurationProperties inboundConfigurationProperties;
@@ -25,8 +23,11 @@ public class MQProperties {
     @Value("${app.mq.enable:false}")
     private boolean isEnabled;
 
-    public MQProperties(boolean dummy) {
-        this.dummy = dummy;
+    public boolean isEnabled() {
+        return isEnabled;
+    }
+
+    public MQProperties() {
     }
 
     @Bean
@@ -38,7 +39,7 @@ public class MQProperties {
             @Autowired(required = false) @Qualifier("inboundQueueName") String inboundQueueName,
             @Autowired(required = false) @Qualifier("outboundQueueName") String outboundQueueName) {
 
-        MQProperties mqProperties = new MQProperties(!isEnabled);
+        MQProperties mqProperties = new MQProperties();
         if (isEnabled) {
             mqProperties.connectionFactory = connectionFactory;
             mqProperties.jndiMQConfigurationProperties = jndiMQConfigurationProperties;
@@ -75,7 +76,4 @@ public class MQProperties {
         return outboundQueueName;
     }
 
-    public boolean isDummy() {
-        return dummy;
-    }
 }
