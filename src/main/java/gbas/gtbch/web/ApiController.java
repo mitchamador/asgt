@@ -128,10 +128,11 @@ public class ApiController {
      * @return
      */
     @RequestMapping(value = "/api/calclog", method = RequestMethod.GET)
-    public ResponseEntity<List<CalculationLog>> getCalculationLogList(
+    public ResponseEntity getCalculationLogList(
+            HttpServletRequest request,
             @RequestParam Map<String,String> params,
             @RequestParam(value = "date_begin", required = false) @DateTimeFormat(pattern = "dd.MM.yyyy HH:mm") Date dateBegin,
-            @RequestParam(value = "date_end", required = false) @DateTimeFormat(pattern = "dd.MM.yyyy HH:mm") Date dateEnd) {
+            @RequestParam(value = "date_end", required = false) @DateTimeFormat(pattern = "dd.MM.yyyy HH:mm") Date dateEnd) throws JsonProcessingException{
 
         List<CalculationLog> calculationLogs = calculationLogService.getList(params, dateBegin, dateEnd);
 
@@ -146,7 +147,7 @@ public class ApiController {
             }
         }
 
-        return new ResponseEntity<>(calculationLogs, HttpStatus.OK);
+        return GzippedResponseEntity.getGzippedResponseEntity(request, new ObjectMapper().writeValueAsString(calculationLogs));
     }
 
     /**

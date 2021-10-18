@@ -1,19 +1,20 @@
 package gbas.gtbch.web;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.zip.GZIPOutputStream;
 
+@Component
 public class GzippedResponseEntity {
-
-    private GzippedResponseEntity() {
-    }
 
     /**
      * compress to gzip
@@ -29,14 +30,29 @@ public class GzippedResponseEntity {
         return baos.toByteArray();
     }
 
+
+    @Value("${server.compression.enabled:false}")
+    private boolean configServerCompression;
+
+    private static boolean isCompressionEnabled;
+
+    @PostConstruct
+    public void init() {
+        isCompressionEnabled = configServerCompression;
+    }
+
     /**
      * check HttpServletRequest for HttpHeaders.ACCEPT_ENCODING header
      * @param httpRequest
      * @return
      */
     private static boolean acceptsGZipEncoding(HttpServletRequest httpRequest) {
-        String acceptEncoding = httpRequest.getHeader(HttpHeaders.ACCEPT_ENCODING);
-        return acceptEncoding != null && acceptEncoding.contains("gzip");
+        if (isCompressionEnabled) {
+            return false;
+        } else {
+            String acceptEncoding = httpRequest.getHeader(HttpHeaders.ACCEPT_ENCODING);
+            return acceptEncoding != null && acceptEncoding.contains("gzip");
+        }
     }
 
     /**
@@ -47,19 +63,27 @@ public class GzippedResponseEntity {
      */
     public static ResponseEntity getGzippedResponseEntity(HttpServletRequest request, String body) {
 
-        if (body != null && acceptsGZipEncoding(request)) {
+        HttpHeaders headers = new HttpHeaders();
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.CONTENT_ENCODING, "gzip");
+        if (body != null) {
+            if (body.startsWith("[") && body.endsWith("]")) {
+                headers.add(HttpHeaders.CONTENT_TYPE, "application/json");
+            }
 
-            try {
-                return new ResponseEntity<>(compress(body.getBytes(StandardCharsets.UTF_8)), headers, HttpStatus.OK);
-            } catch (IOException e) {
-                e.printStackTrace();
+            if (acceptsGZipEncoding(request)) {
+                headers.add(HttpHeaders.CONTENT_ENCODING, "gzip");
+
+                try {
+                    return new ResponseEntity<>(compress(body.getBytes(StandardCharsets.UTF_8)), headers, HttpStatus.OK);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                headers.remove(HttpHeaders.CONTENT_ENCODING);
             }
         }
 
-        return new ResponseEntity<>(body, HttpStatus.OK);
+        return new ResponseEntity<>(body, headers, HttpStatus.OK);
     }
 
 }
