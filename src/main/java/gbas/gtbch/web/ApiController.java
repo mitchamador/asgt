@@ -40,11 +40,13 @@ public class ApiController {
     private final CalcHandler calcHandler;
     private final TpImportDateService tpImportDateService;
     private final CalculationLogService calculationLogService;
+    private final ObjectMapper mapper;
 
-    public ApiController(CalcHandler calcHandler, TpImportDateService tpImportDateService, CalculationLogService calculationLogService) {
+    public ApiController(CalcHandler calcHandler, TpImportDateService tpImportDateService, CalculationLogService calculationLogService, ObjectMapper mapper) {
         this.calcHandler = calcHandler;
         this.tpImportDateService = tpImportDateService;
         this.calculationLogService = calculationLogService;
+        this.mapper = mapper;
     }
 
     private Map<String, String> addUserPrincipal(Principal principal, Map<String, String> params) {
@@ -147,7 +149,7 @@ public class ApiController {
             }
         }
 
-        return GzippedResponseEntity.getGzippedResponseEntity(request, new ObjectMapper().writeValueAsString(calculationLogs));
+        return GzippedResponseEntity.getGzippedResponseEntity(request, mapper.writeValueAsString(calculationLogs));
     }
 
     /**
@@ -171,7 +173,7 @@ public class ApiController {
 
             log.setFileName(UtilDate8.getStringDate(log.getInboundTime(), "yyyyMMdd_HHmmss"));
         }
-        return GzippedResponseEntity.getGzippedResponseEntity(request, new ObjectMapper().writeValueAsString(log));
+        return GzippedResponseEntity.getGzippedResponseEntity(request, mapper.writeValueAsString(log));
     }
 
     /**
