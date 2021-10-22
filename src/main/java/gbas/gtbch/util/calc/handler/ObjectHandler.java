@@ -5,7 +5,7 @@ import gbas.gtbch.util.calc.CalcData;
 import java.sql.Connection;
 
 /**
- * Interface for convertation and calculation of object
+ * Interface for onject's conversion and calculation
  */
 public interface ObjectHandler {
 

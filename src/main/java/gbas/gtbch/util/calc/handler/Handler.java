@@ -11,6 +11,7 @@ public enum Handler {
     FDU92(new Fdu92Handler()),
     GU46(new Gu46Handler()),
     GU23(new Gu23Handler()),
+    KEU16(new Keu16Handler()),
     ;
 
     private ObjectHandler objectHandler;
