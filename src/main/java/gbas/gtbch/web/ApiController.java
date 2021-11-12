@@ -8,6 +8,7 @@ import gbas.gtbch.sapod.model.TpImportDate;
 import gbas.gtbch.sapod.model.User;
 import gbas.gtbch.sapod.service.CalculationLogService;
 import gbas.gtbch.sapod.service.TpImportDateService;
+import gbas.gtbch.util.SystemInfoProperties;
 import gbas.gtbch.util.UtilDate8;
 import gbas.gtbch.util.XmlFormatter;
 import gbas.gtbch.util.calc.CalcData;
@@ -40,14 +41,23 @@ public class ApiController {
     private final CalcHandler calcHandler;
     private final TpImportDateService tpImportDateService;
     private final CalculationLogService calculationLogService;
+    /**
+     * jackson mapper
+     */
     private final ObjectMapper mapper;
+    /**
+     * system info
+     */
+    private final SystemInfoProperties systemInfoProperties;
 
-    public ApiController(CalcHandler calcHandler, TpImportDateService tpImportDateService, CalculationLogService calculationLogService, ObjectMapper mapper) {
+    public ApiController(CalcHandler calcHandler, TpImportDateService tpImportDateService, CalculationLogService calculationLogService, ObjectMapper mapper, SystemInfoProperties systemInfoProperties) {
         this.calcHandler = calcHandler;
         this.tpImportDateService = tpImportDateService;
         this.calculationLogService = calculationLogService;
         this.mapper = mapper;
+        this.systemInfoProperties = systemInfoProperties;
     }
+
 
     private Map<String, String> addUserPrincipal(Principal principal, Map<String, String> params) {
         if (principal instanceof UsernamePasswordAuthenticationToken && ((UsernamePasswordAuthenticationToken) principal).getPrincipal() instanceof User) {
@@ -202,5 +212,10 @@ public class ApiController {
             list.add(new KeyValue(type.name(), type.getName()));
         }
         return new ResponseEntity<>(list, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/api/sysinfo", method = RequestMethod.GET)
+    public ResponseEntity<List<KeyValue>> getSystemInfo() {
+        return ResponseEntity.ok(systemInfoProperties.getSystemProperties());
     }
 }

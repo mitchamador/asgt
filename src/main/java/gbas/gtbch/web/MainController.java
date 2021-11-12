@@ -3,11 +3,10 @@ package gbas.gtbch.web;
 import gbas.gtbch.sapod.model.CalculationLog;
 import gbas.gtbch.sapod.model.TpImportDate;
 import gbas.gtbch.sapod.service.TpImportDateService;
-import gbas.gtbch.util.UtilDate8;
+import gbas.gtbch.util.SystemInfoProperties;
 import gbas.gtbch.web.request.KeyValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -16,11 +15,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Controller
 public class MainController {
@@ -174,58 +170,17 @@ public class MainController {
         return new ModelAndView("user/calc");
     }
 
+    @Autowired
+    private SystemInfoProperties systemInfoProperties;
+
     /**
-     * users info page
+     * system info page
      * @return
      */
     @GetMapping("/user/info")
     public ModelAndView info() {
-        List<KeyValue> systemProperties = new ArrayList<>(systemPropertiesList);
-
-        try {
-            Instant startTime = context.getBean("startTime", Instant.class);
-
-            Duration upTime = Duration.between(startTime, Instant.now());
-
-            systemProperties.add(new KeyValue("Время",
-                    String.format("start time: %s, startup duration: %s, uptime: %s",
-                            getStringTime(startTime),
-                            getStringTime(context.getBean("startupDuration", Duration.class), 180),
-                            getStringTime(upTime))));
-        } catch (BeansException e) {
-            e.printStackTrace();
-        }
-
-        return new ModelAndView("user/info", "info", systemProperties);
+        return new ModelAndView("user/info", "info", systemInfoProperties.getSystemProperties());
     }
 
-    /**
-     *
-     * @param time
-     * @return
-     */
-    private String getStringTime(Object time) {
-        return getStringTime(time, 10);
-    }
-
-    /**
-     *
-     * @param time
-     * @param diff
-     * @return
-     */
-    private String getStringTime(Object time, int diff) {
-        if (time instanceof Instant) {
-            return UtilDate8.getStringDate(new java.util.Date(((Instant) time).toEpochMilli()), "dd.MM.yyyy HH:mm:ss");
-        } else if (time instanceof Duration) {
-            Duration duration = (Duration) time;
-            if (duration.getSeconds() > diff) {
-                return String.format("%s days %s hours %s minutes", duration.toDays(), duration.toHours() % 24, duration.toMinutes() % 60);
-            } else {
-                return  (double) duration.toMillis() / TimeUnit.SECONDS.toMillis(1) + " s.";
-            }
-        }
-        return "n/a";
-    }
 
 }

@@ -1,13 +1,12 @@
 package gbas.gtbch.util;
 
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 public class UtilDate8 {
 
@@ -216,5 +215,35 @@ public class UtilDate8 {
     public static boolean isDateRange(final Date date, final String dateBegin, final String dateEnd) {
         return isDateFrom(date, dateBegin) && isDateUntil(date, dateEnd);
     }
+
+    /**
+     *
+     * @param time
+     * @return
+     */
+    public static  String getStringTime(Object time) {
+        return getStringTime(time, 60);
+    }
+
+    /**
+     *
+     * @param time
+     * @param diff
+     * @return
+     */
+    public static  String getStringTime(Object time, int diff) {
+        if (time instanceof Instant) {
+            return UtilDate8.getStringDate(new java.util.Date(((Instant) time).toEpochMilli()), "dd.MM.yyyy HH:mm:ss");
+        } else if (time instanceof Duration) {
+            Duration duration = (Duration) time;
+            if (duration.getSeconds() > diff) {
+                return String.format("%s days %s hours %s minutes", duration.toDays(), duration.toHours() % 24, duration.toMinutes() % 60);
+            } else {
+                return  (double) duration.toMillis() / TimeUnit.SECONDS.toMillis(1) + " s.";
+            }
+        }
+        return "n/a";
+    }
+
 
 }
