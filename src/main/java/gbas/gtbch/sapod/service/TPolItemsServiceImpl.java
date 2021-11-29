@@ -2,7 +2,6 @@ package gbas.gtbch.sapod.service;
 
 import gbas.gtbch.sapod.model.TpolItem;
 import gbas.gtbch.sapod.repository.TPolItemsRepository;
-import gbas.tvk.tpol3.service.TPRow;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,7 +29,7 @@ public class TPolItemsServiceImpl implements TPolItemsService {
      * check data for existing
      *
      * @param item {@link TpolItem}
-     * @param id   {@link TPRow} id
+     * @param id   {@link gbas.gtbch.sapod.model.TpRow} id
      * @param data data
      * @return true if data exists
      */
@@ -43,7 +42,7 @@ public class TPolItemsServiceImpl implements TPolItemsService {
      * add data
      *
      * @param item {@link TpolItem}
-     * @param id   {@link TPRow} id
+     * @param id   {@link gbas.gtbch.sapod.model.TpRow} id
      * @param data data
      * @return
      */

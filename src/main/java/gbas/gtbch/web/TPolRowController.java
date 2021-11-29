@@ -1,13 +1,13 @@
 package gbas.gtbch.web;
 
 import gbas.gtbch.sapod.model.TPolItemData;
+import gbas.gtbch.sapod.model.TpRow;
 import gbas.gtbch.sapod.model.TpolItem;
 import gbas.gtbch.sapod.service.TPolItemsService;
 import gbas.gtbch.sapod.service.TPolRowService;
 import gbas.gtbch.web.controlleradvice.annotations.DuplicateKeyExceptionHandler;
 import gbas.tvk.tpol3.service.TPItem;
 import gbas.tvk.tpol3.service.TPItems;
-import gbas.tvk.tpol3.service.TPRow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -37,41 +37,41 @@ public class TPolRowController {
     }
 
     /**
-     * get TPRow
+     * get TpRow
      * @param id tvk_t_pol.id
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public ResponseEntity<TPRow> getRow(@PathVariable int id) {
+    public ResponseEntity<TpRow> getRow(@PathVariable int id) {
         return new ResponseEntity<>(tpolRowService.getRow(id), HttpStatus.OK);
     }
 
     /**
-     * copy TPRow
+     * copy TpRow
      * @param id tvk_t_pol.id
      * @param documentId - destinatation documentId
      */
     @RequestMapping(value = "/{id}/copy", method = RequestMethod.GET)
-    public ResponseEntity<TPRow> copyRow(@PathVariable int id, @RequestParam(required = false, name = "doc_id") Integer documentId) {
+    public ResponseEntity<TpRow> copyRow(@PathVariable int id, @RequestParam(required = false, name = "doc_id") Integer documentId) {
         logger.info("copy source tp row with id = {} to tp document with id {}", id, documentId);
         return new ResponseEntity<>(tpolRowService.copyRow(id, documentId != null ? documentId : 0), HttpStatus.OK);
     }
 
     /**
-     * create new TPRow
-     * @param row - {@link TPRow}
+     * create new TpRow
+     * @param row - {@link TpRow}
      */
     @RequestMapping(value = "", method = RequestMethod.POST)
-    public ResponseEntity saveRow(@RequestBody TPRow row) {
+    public ResponseEntity saveRow(@RequestBody TpRow row) {
         int id = tpolRowService.saveRow(row);
         return id != 0 ? ResponseEntity.created(URI.create("/api/tpol/row/" + id)).build() : ResponseEntity.notFound().build();
     }
 
     /**
-     * update TPRow
+     * update TpRow
      * @param id - tvk_t_pol.id
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
-    public ResponseEntity updateRow(@PathVariable int id, @RequestBody TPRow row) {
+    public ResponseEntity updateRow(@PathVariable int id, @RequestBody TpRow row) {
         row.id = id;
         return tpolRowService.saveRow(row) != 0 ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
     }
@@ -87,7 +87,7 @@ public class TPolRowController {
     }
 
     /**
-     * get all items for {@link TPRow}
+     * get all items for {@link TpRow}
      * @param id - TPRow.id
      * @return
      */
@@ -112,7 +112,7 @@ public class TPolRowController {
 
     /**
      * get or check data for {@link TpolItem}
-     * @param id {@link TPRow} id
+     * @param id {@link TpRow} id
      * @param name {@link TpolItem} name
      * @param data data
      * @return
@@ -138,7 +138,7 @@ public class TPolRowController {
 
     /**
      * save data for {@link TpolItem}
-     * @param id {@link TPRow} id
+     * @param id {@link TpRow} id
      * @param name {@link TpolItem} name
      * @param tPolItemData {@link TPolItemData}
      * @return
@@ -172,7 +172,7 @@ public class TPolRowController {
 
     /**
      * delete data for {@link TpolItem}
-     * @param id {@link TPRow} id
+     * @param id {@link TpRow} id
      * @param name {@link TpolItem} name
      * @param tPolItemData {@link TPolItemData}
      * @return

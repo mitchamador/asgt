@@ -1,15 +1,14 @@
 package gbas.gtbch;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import gbas.gtbch.sapod.model.*;
 import gbas.gtbch.sapod.model.Currency;
+import gbas.gtbch.sapod.model.*;
 import gbas.gtbch.sapod.service.*;
 import gbas.gtbch.util.UtilDate8;
 import gbas.gtbch.web.request.KeyValue;
 import gbas.gtbch.websapod.ServicesImpl;
 import gbas.sapod.bridge.controllers.Services;
 import gbas.sapod.bridge.utilities.JsonBuilder;
-import gbas.tvk.tpol3.service.TPRow;
 import gbas.tvk.util.UtilDate;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -281,7 +280,7 @@ public class GtBchTests {
 
 	@Test
 	public void copyTpRowTest() {
-		TPRow row = tPolRowService.copyRow(3482, 80);
+		TpRow row = tPolRowService.copyRow(3482, 80);
 		if (row != null) {
 			tPolRowService.deleteRow(row.id);
 		}

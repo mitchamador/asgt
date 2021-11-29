@@ -1,11 +1,7 @@
 package gbas.gtbch.sapod.repository;
 
-import gbas.gtbch.sapod.model.CodeName;
-import gbas.gtbch.sapod.model.TPolDocument;
-import gbas.gtbch.sapod.model.TPolSobst;
-import gbas.gtbch.sapod.model.TpolGroup;
+import gbas.gtbch.sapod.model.*;
 import gbas.tvk.nsi.cash.Func;
-import gbas.tvk.tpol3.service.TPRow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +17,6 @@ import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.Timestamp;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -372,11 +367,11 @@ public class TPolRepository {
      */
     public Integer copyDocument(int sourceId, int destinationId) {
 
-        List<TPRow> sourceRows = tPolRowRepository.getRows(sourceId);
+        List<TpRow> sourceRows = tPolRowRepository.getRows(sourceId);
 
         if (sourceRows == null) return null;
 
-        for (TPRow tpRow : sourceRows) {
+        for (TpRow tpRow : sourceRows) {
             tPolRowRepository.copyRow(tpRow.id, destinationId);
         }
 

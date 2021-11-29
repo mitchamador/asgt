@@ -1,6 +1,6 @@
 package gbas.gtbch.sapod.service;
 
-import gbas.tvk.tpol3.service.TPRow;
+import gbas.gtbch.sapod.model.TpRow;
 
 import java.util.List;
 
@@ -10,14 +10,14 @@ public interface TPolRowService {
      * @param id_tarif
      * @return
      */
-    List<TPRow> getRows(int id_tarif);
+    List<TpRow> getRows(int id_tarif);
 
     /**
      *
      * @param idRow
      * @return
      */
-    TPRow getRow(int idRow);
+    TpRow getRow(int idRow);
 
     /**
      *
@@ -31,7 +31,7 @@ public interface TPolRowService {
      * @param row
      * @return
      */
-    int saveRow(TPRow row);
+    int saveRow(TpRow row);
 
     /**
      *
@@ -39,5 +39,5 @@ public interface TPolRowService {
      * @param destinationDocumentId
      * @return
      */
-    TPRow copyRow(int sourceRowId, int destinationDocumentId);
+    TpRow copyRow(int sourceRowId, int destinationDocumentId);
 }

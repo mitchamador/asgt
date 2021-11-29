@@ -1,12 +1,8 @@
 package gbas.gtbch.web;
 
-import gbas.gtbch.sapod.model.CodeName;
-import gbas.gtbch.sapod.model.TPolDocument;
-import gbas.gtbch.sapod.model.TPolSobst;
-import gbas.gtbch.sapod.model.TpolGroup;
-import gbas.gtbch.sapod.service.TPolService;
+import gbas.gtbch.sapod.model.*;
 import gbas.gtbch.sapod.service.TPolRowService;
-import gbas.tvk.tpol3.service.TPRow;
+import gbas.gtbch.sapod.service.TPolService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -74,7 +70,7 @@ public class TPolController {
     }
 
     /**
-     * copy all {@link TPRow}'s from source {@link TPolDocument} to destination {@link TPolDocument}
+     * copy all {@link TpRow}'s from source {@link TPolDocument} to destination {@link TPolDocument}
      * @param sourceId - tvk_tarif.id
      * @param destinationId - destination tvk_tarif.id
      */
@@ -114,11 +110,11 @@ public class TPolController {
     }
 
     /**
-     * get {@link TPRow} list
+     * get {@link TpRow} list
      * @param id - tvk_tarif.id
      */
     @RequestMapping(value = "/document/{id:[\\d]+}/rows", method = RequestMethod.GET)
-    public ResponseEntity<List<TPRow>> getRows(@PathVariable int id) {
+    public ResponseEntity<List<TpRow>> getRows(@PathVariable int id) {
         return new ResponseEntity<>(tpolRowService.getRows(id), HttpStatus.OK);
     }
 

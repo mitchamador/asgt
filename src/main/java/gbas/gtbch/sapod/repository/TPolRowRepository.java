@@ -1,6 +1,6 @@
 package gbas.gtbch.sapod.repository;
 
-import gbas.tvk.tpol3.service.TPRow;
+import gbas.gtbch.sapod.model.TpRow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,11 +32,11 @@ public class TPolRowRepository {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public List<TPRow> getRows(int id_tarif) {
+    public List<TpRow> getRows(int id_tarif) {
         return getRows(id_tarif, 0);
     }
 
-    private List<TPRow> getRows(int id_tarif, int id_row) {
+    private List<TpRow> getRows(int id_tarif, int id_row) {
 
         List<Object> params = new ArrayList<>();
 
@@ -64,7 +64,7 @@ public class TPolRowRepository {
                         "order by 2",
                 params.toArray(),
                 (rs, i) -> {
-                    TPRow row = new TPRow();
+                    TpRow row = new TpRow();
                     row.id = rs.getInt("id");
                     row.tPol = rs.getInt("t_pol");
                     row.nStr = rs.getInt("n_str");
@@ -92,13 +92,13 @@ public class TPolRowRepository {
      * @param idRow
      * @return
      */
-    public TPRow getRow(int idRow) {
-        List<TPRow> rows = getRows(0, idRow);
+    public TpRow getRow(int idRow) {
+        List<TpRow> rows = getRows(0, idRow);
         return rows != null && !rows.isEmpty() ? rows.get(0) : null;
     }
 
     /**
-     * delete {@link TPRow}
+     * delete {@link TpRow}
      *
      * @param id
      */
@@ -111,13 +111,13 @@ public class TPolRowRepository {
     }
 
     /**
-     * create new or update existing {@link TPRow}
+     * create new or update existing {@link TpRow}
      *
      * @param row
      * @return
      */
     @Transactional(transactionManager = "sapodTransactionManager")
-    public int saveRow(TPRow row) {
+    public int saveRow(TpRow row) {
 
         if (row.id == 0) {
             // insert new row
@@ -229,10 +229,10 @@ public class TPolRowRepository {
     }
 
 
-    public TPRow copyRow(int sourceRowId, int destinationDocumentId) {
+    public TpRow copyRow(int sourceRowId, int destinationDocumentId) {
 
         // read source row
-        TPRow row = getRow(sourceRowId);
+        TpRow row = getRow(sourceRowId);
 
         if (row == null) return null;
 
@@ -263,7 +263,7 @@ public class TPolRowRepository {
                     new Object[]{sourceRowId},
                     rs -> {
                         jdbcTemplate.update(connection -> {
-                            PreparedStatement preparedStatement = connection.prepareStatement(sqlInsertCommand.toString());
+                            PreparedStatement preparedStatement = connection.prepareStatement(sqlInsertCommand);
                             int c = 1;
                             preparedStatement.setInt(c++, row.id);
                             for (int i = 0; i < rs.getMetaData().getColumnCount(); i++) {

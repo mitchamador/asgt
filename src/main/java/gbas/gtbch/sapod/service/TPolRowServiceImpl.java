@@ -1,7 +1,7 @@
 package gbas.gtbch.sapod.service;
 
+import gbas.gtbch.sapod.model.TpRow;
 import gbas.gtbch.sapod.repository.TPolRowRepository;
-import gbas.tvk.tpol3.service.TPRow;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,7 +24,7 @@ public class TPolRowServiceImpl implements TPolRowService {
      * @return
      */
     @Override
-    public List<TPRow> getRows(int id_tarif) {
+    public List<TpRow> getRows(int id_tarif) {
         return tPolRowRepository.getRows(id_tarif);
     }
 
@@ -33,12 +33,12 @@ public class TPolRowServiceImpl implements TPolRowService {
      * @return
      */
     @Override
-    public TPRow getRow(int idRow) {
+    public TpRow getRow(int idRow) {
         return tPolRowRepository.getRow(idRow);
     }
 
     /**
-     * delete {@link TPRow}
+     * delete {@link TpRow}
      *
      * @param id
      * @return
@@ -49,13 +49,13 @@ public class TPolRowServiceImpl implements TPolRowService {
     }
 
     /**
-     * create new or update existing {@link TPRow}
+     * create new or update existing {@link TpRow}
      *
      * @param row
      * @return
      */
     @Override
-    public int saveRow(TPRow row) {
+    public int saveRow(TpRow row) {
         return tPolRowRepository.saveRow(row);
     }
 
@@ -66,7 +66,7 @@ public class TPolRowServiceImpl implements TPolRowService {
      * @return
      */
     @Override
-    public TPRow copyRow(int sourceRowId, int destinationDocumentId) {
+    public TpRow copyRow(int sourceRowId, int destinationDocumentId) {
         return tPolRowRepository.copyRow(sourceRowId, destinationDocumentId);
     }
 }

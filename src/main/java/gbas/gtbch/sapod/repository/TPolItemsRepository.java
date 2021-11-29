@@ -1,13 +1,10 @@
 package gbas.gtbch.sapod.repository;
 
 import gbas.gtbch.sapod.model.TpolItem;
-import gbas.tvk.tpol3.service.TPRow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,7 +12,6 @@ import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,7 +61,7 @@ public class TPolItemsRepository {
      * check data for existing
      *
      * @param item {@link TpolItem}
-     * @param id   {@link TPRow} id
+     * @param id   {@link gbas.gtbch.sapod.model.TpRow} id
      * @param data data
      * @return true if data exists
      */
@@ -82,7 +78,7 @@ public class TPolItemsRepository {
      * add data
      *
      * @param item {@link TpolItem}
-     * @param id   {@link TPRow} id
+     * @param id   {@link gbas.gtbch.sapod.model.TpRow} id
      * @param data data
      * @return
      */

@@ -9,6 +9,9 @@ import java.text.DecimalFormat;
  */
 public class TpRow extends TPRow {
 
+    public TpRow() {
+    }
+
     public TpRow(TPRow row) {
         this.id = row.id;
         this.tPol = row.tPol;
