@@ -12,26 +12,26 @@
     <div sec:authorize="!isAuthenticated()" th:insert="fragments/login :: login">
     </div>
 
-<!--
+<!--/*
     <div sec:authorize="isAuthenticated()">
         User: <span sec:authentication="name">NOT FOUND</span>
         Spring Roles: <span sec:authentication="principal.authorities">NOT FOUND</span>
     </div>
--->
+*/-->
 
-<!--
+<!--/*
     <div sec:authorize="!isAuthenticated()" class="text-center">
             <a class="btn btn-success btn-lg" href="/login" th:href="@{/login}" role="button">Вход в систему</a>
     </div>
     <div sec:authorize="isAuthenticated()" class="text-center">
             <a class="btn btn-danger btn-lg" href="/logout" th:href="@{/logout}" role="button">Выход из системы</a>
     </div>
--->
+*/-->
 
-<!--
+<!--/*
     <a sec:authorize="!isAuthenticated()" class="text-center" href="/user" th:href="@{/user}"><h2>Вход в систему</h2></a>
     <a sec:authorize="isAuthenticated()" class="text-center" href="/logout" th:href="@{/logout}"><h2>Выход из системы</h2></a>
--->
+*/-->
 
 </div>
 </body>

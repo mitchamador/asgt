@@ -355,12 +355,12 @@
             <th style="width: 10%">Дата окончания</th>
             <th style="width: 55%;">
                 Примечание
-<!--
+<!--/*
                 <div style="display: flex; width: 100%; height: 100%">
                     <span class="text-nowrap" style="flex-grow: 1; align-self: center;">Примечание</span>
                     <a id="documentCreate" class="btn-success btn-sm" style="align-self: center; margin-right: 3px; padding: 1px 5px; cursor: pointer"><i class="fa fa-plus"></i></a>
                 </div>
--->
+*/-->
             </th>
         </tr>
         </thead>
@@ -768,9 +768,7 @@
     <table id="rowTable" class="table-condensed table-bordered" style="width:100%; font-size: 0.9em;">
         <thead>
         <tr>
-<!--            <th style="width: 7%">№ строки</th>-->
             <th class="text-nowrap" style="width: 7%">
-                <!--                № п/п-->
                 <div style="display: flex; width: 100%; height: 100%">
                     <a id="rowCreate" class="btn-success btn-sm" style="align-self: center; margin-right: 3px; padding: 1px 5px; cursor: pointer"><i class="fa fa-plus"></i></a>
                     <span class="text-nowrap" style="flex-grow: 1; align-self: center;">№ строки</span>
@@ -1192,7 +1190,6 @@
     <table id="itemDataTable" class="table-condensed table-bordered" style="width:100%; font-size: 0.9em">
         <thead>
         <tr>
-<!--            <th style="width: 20px">№ п/п</th>-->
             <th:block th:switch="${item.getName()}">
                 <th th:case="Cargo" class="text-nowrap" style="width: 5%">
                     <div id="nsiCargoDropdown" class="dropdown" style="display: flex; width: 100%; height: 100%">
