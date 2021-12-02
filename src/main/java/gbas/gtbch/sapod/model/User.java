@@ -4,7 +4,6 @@ package gbas.gtbch.sapod.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import org.hibernate.Hibernate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -47,6 +46,17 @@ public class User implements UserDetails, Serializable {
     @JsonManagedReference
     private Set<Role> roles = new HashSet<>();
 
+    @Transient
+    private String token;
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
     public int getId() {
         return id;
     }
@@ -56,7 +66,7 @@ public class User implements UserDetails, Serializable {
     }
 
     public String getLogin() {
-        return login;
+        return login != null ? login.trim() : null;
     }
 
     public void setLogin(String login) {
@@ -122,7 +132,7 @@ public class User implements UserDetails, Serializable {
 
     @Override
     public String getUsername() {
-        return login;
+        return getLogin();
     }
 
     public Date getLoggedInDate() {
@@ -155,7 +165,11 @@ public class User implements UserDetails, Serializable {
 
     @Override
     public String toString() {
-        return "User [ username: " + getUsername().trim() + ", position: " + getPosition().trim() + ", fio: " + getFio().trim() + " ]";
+        return "User [ " +
+                "username: " + getUsername().trim() +
+                (getPosition().trim().isEmpty() ? "" : (", position: " + getPosition().trim())) +
+                (getFio().trim().isEmpty() ? "" : (", fio: " + getFio().trim())) +
+                " ]";
     }
 
     @Override

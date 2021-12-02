@@ -24,17 +24,11 @@ public class MainController {
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     /**
-     * {@link gbas.gtbch.util.SystemInfo}
-     */
-    private final List<KeyValue> systemPropertiesList;
-
-    /**
      * {@link BeanFactory}
      */
     private final ApplicationContext context;
 
-    public MainController(List<KeyValue> systemProperties, ApplicationContext context) {
-        this.systemPropertiesList = systemProperties;
+    public MainController(ApplicationContext context) {
         this.context = context;
     }
 
@@ -61,7 +55,7 @@ public class MainController {
      * access-denied page
      * @return
      */
-    @GetMapping("/access-denied")
+    @GetMapping("/error/access-denied")
     public String accessDenied() {
         return "error/access-denied";
     }

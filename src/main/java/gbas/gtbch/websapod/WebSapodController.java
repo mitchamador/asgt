@@ -15,7 +15,6 @@ import gbas.tvk.desktop.Version;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,8 +45,13 @@ public class WebSapodController {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Autowired
-    AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
+
+    public WebSapodController(@Qualifier("authenticationManager") AuthenticationManager authenticationManager, @Qualifier("sapodDataSource") DataSource sapodDataSource, TpImportDateService tpImportDateService) {
+        this.authenticationManager = authenticationManager;
+        this.sapodDataSource = sapodDataSource;
+        this.tpImportDateService = tpImportDateService;
+    }
 
     /**
      * websapod authentication
@@ -100,7 +104,7 @@ public class WebSapodController {
 
     @RequestMapping(value = "/api/websapod/version", method = RequestMethod.GET)
     public ResponseEntity<String> version(HttpServletRequest request) {
-        gbas.tvk.desktop.Version Version = new Version();
+        Version Version = new Version();
 
         String version[] = Version.getVersion();
 
@@ -114,8 +118,7 @@ public class WebSapodController {
         );
     }
 
-    @Autowired
-    @Qualifier("sapodDataSource")
+    final
     DataSource sapodDataSource;
 
     @RequestMapping(value = "/api/websapod/route", method = RequestMethod.GET)
@@ -123,7 +126,7 @@ public class WebSapodController {
 
         try (Connection c = sapodDataSource.getConnection()) {
             return new ResponseEntity<>(
-                    JsonBuilder.getJsonObject(
+                    getJsonObject(
                             new RouteService(request).calc(new ServicesImpl(c))
                     ).toJSONString(),
                     HttpStatus.OK);
@@ -143,7 +146,7 @@ public class WebSapodController {
 
         try (Connection c = sapodDataSource.getConnection()) {
             return new ResponseEntity<>(
-                    JsonBuilder.getJsonLabelValueArray(
+                    getJsonLabelValueArray(
                             new CalcService(request).calc(new ServicesImpl(c)).getLabelValueList()
                     ).toJSONString(),
                     HttpStatus.OK);
@@ -175,7 +178,7 @@ public class WebSapodController {
         }
     }
 
-    @Autowired
+    final
     TpImportDateService tpImportDateService;
 
 
@@ -184,7 +187,7 @@ public class WebSapodController {
         TpImportDate tpImportDate = tpImportDateService.getTpImportDate();
 
         return new ResponseEntity<>(
-                JsonBuilder.getJsonObject(Collections.singletonList(new KeyValue("computed", UtilDate8.getStringDate(tpImportDate.getDateCreate(), "dd/MM/yy")))).toJSONString(),
+                getJsonObject(Collections.singletonList(new KeyValue("computed", UtilDate8.getStringDate(tpImportDate.getDateCreate(), "dd/MM/yy")))).toJSONString(),
                 HttpStatus.OK);
     }
 

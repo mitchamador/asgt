@@ -228,6 +228,12 @@
             <scope>${package-shared.scope}</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.auth0</groupId>
+            <artifactId>java-jwt</artifactId>
+            <version>3.18.2</version>
+        </dependency>
+
         <!--
          ibm mq spring boot starter
          note exclusion for com.ibm.mq.allclient for provided scope

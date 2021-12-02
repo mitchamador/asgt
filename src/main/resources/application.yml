@@ -36,6 +36,11 @@ logging:
 #    org.springframework.boot.context.web.ErrorPageFilter: OFF
 
 app:
+  api:
+    # use 'jwt' for token based authentication
+    #     'cookies' for cookies based authentication
+    #     'none' for no authentication
+    security: "none"
   defferedtimeout: 60
   jobs:
     nbrb-downloader:

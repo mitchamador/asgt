@@ -1,12 +1,15 @@
 package gbas.gtbch.security;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
@@ -14,11 +17,12 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.concurrent.TimeUnit;
 
-
-@EnableWebSecurity
+@Configuration
 @DependsOn("waitSapodDataSource")
+@Order(2)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     /**
@@ -29,11 +33,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     /**
      *
      */
-    private final LoginHandler loginHandler;
+    private final SessionHandler sessionHandler;
 
-    public SecurityConfig(UserDetailsService userService, LoginHandler loginHandler) {
+    @Autowired
+    private ApiAccess apiAccess;
+
+    public SecurityConfig(UserDetailsService userService, SessionHandler sessionHandler) {
         this.userService = userService;
-        this.loginHandler = loginHandler;
+        this.sessionHandler = sessionHandler;
     }
 
     @Override
@@ -44,48 +51,73 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http
-                .authorizeRequests()
-                    .antMatchers(
-                            "/",
-                            "/js/**",
-                            "/css/**",
-                            "/img/**",
-                            "/webjars/**",
-                            "/favicon.ico",
-                            "/api/websapod/**",
-                            "/api/**",
-                            "/login**")
+            http
+                    .authorizeRequests(expressionInterceptUrlRegistry -> {
+                        expressionInterceptUrlRegistry
+                                .antMatchers(
+                                        "/",
+                                        "/js/**",
+                                        "/css/**",
+                                        "/img/**",
+                                        "/webjars/**",
+                                        "/favicon.ico",
+                                        "/login**",
+                                        "/error/**")
+                                .permitAll();
+
+                        if (apiAccess.byCookies()) {
+                            expressionInterceptUrlRegistry
+                                    .requestMatchers(apiAccess.getUnauthorizedApiMatchers()).permitAll()
+                                    .antMatchers("/api/**").authenticated();
+                        } else if (apiAccess.unsecure()) {
+                            expressionInterceptUrlRegistry
+                                    .antMatchers("/api/**").permitAll();
+                        } else if (apiAccess.byJwt()) {
+                            expressionInterceptUrlRegistry
+                                    .antMatchers("/api/**").denyAll();
+                        }
+
+                        expressionInterceptUrlRegistry
+                                .antMatchers("/admin/**").hasAnyRole("ADMIN")
+                                .antMatchers("/user/**").hasAnyRole("ADMIN", "USER");
+
+
+                        expressionInterceptUrlRegistry.anyRequest().denyAll();
+                    })
+                        .formLogin()
+                            .loginPage("/login")
                             .permitAll()
-                    .antMatchers("/admin/**"/*, "/api/**"*/).hasAnyRole("ADMIN")
-                    .antMatchers("/user/**"/*, "/api/**"*/).hasAnyRole("ADMIN", "USER")
-                    //.antMatchers("/api/websapod/**", "/guest/**").hasAnyRole("GUEST")
-                    .anyRequest().authenticated()
-                .and()
-                .formLogin()
-                    .loginPage("/login")
-                    .permitAll()
-                .successHandler(loginHandler)
-                .and()
-                .logout()
-                    .invalidateHttpSession(true)
-                    .clearAuthentication(true)
-                    .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                    .logoutSuccessUrl("/login?logout")
-                    .permitAll()
-                .and()
-                .exceptionHandling()
-                    .accessDeniedHandler(loginHandler)
-                // remember me
-                .and()
-                .rememberMe().tokenValiditySeconds((int) TimeUnit.HOURS.toSeconds(72))
-                .and()
-                .csrf().disable()
-                .sessionManagement()
-                .maximumSessions(1)
-                .expiredUrl("/login?expired")
-                .sessionRegistry(sessionRegistry())
-                .maxSessionsPreventsLogin(false);
+                            .successHandler(sessionHandler)
+                    .and()
+                        .logout()
+                            .invalidateHttpSession(true)
+                            .clearAuthentication(true)
+                            .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                            .logoutSuccessUrl("/login?logout")
+                            .logoutSuccessHandler(sessionHandler)
+                            .permitAll()
+                    .and()
+                        .exceptionHandling(httpSecurityExceptionHandlingConfigurer -> {
+                            httpSecurityExceptionHandlingConfigurer
+                                    .accessDeniedHandler(sessionHandler);
+                            if (apiAccess.byCookies()) {
+                                httpSecurityExceptionHandlingConfigurer
+                                        .defaultAuthenticationEntryPointFor((httpServletRequest, httpServletResponse, e) -> httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized"),
+                                                //HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
+                                                new AntPathRequestMatcher("/api/**"));
+                            }
+
+                        })
+                        // remember me
+                        .rememberMe().tokenValiditySeconds((int) TimeUnit.HOURS.toSeconds(72))
+                    .and()
+                        .csrf().disable()
+                        .sessionManagement()
+                            .maximumSessions(1)
+                            .expiredUrl("/login?expired")
+                            .sessionRegistry(sessionRegistry())
+                            .maxSessionsPreventsLogin(false)
+            ;
     }
 
     @Bean
@@ -102,19 +134,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new HttpSessionEventPublisher();
     }
 
-
     @Override
     public void configure(WebSecurity web) throws Exception {
-//        web
-//                .ignoring()
-//                .antMatchers("/webjars/**", "/css/**", "/js/**", "/img/**", "/api/**", "/login");
     }
-
 
     @Bean
     @Override
+    @Qualifier("authenticationManager")
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
 
 }
+
+
