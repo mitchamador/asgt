@@ -3,7 +3,6 @@ package gbas.gtbch.security.jwt;
 import gbas.gtbch.sapod.model.User;
 import gbas.gtbch.sapod.service.UserService;
 import gbas.gtbch.security.ApiAccess;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,7 +13,6 @@ import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
-import org.springframework.stereotype.Component;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -22,7 +20,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@Component
+/**
+ * jwt authorization filter
+ */
 @ConditionalOnExpression("'${app.api.security:}'.equals('jwt')")
 public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
@@ -34,7 +34,7 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
     private final ApiAccess apiAccess;
 
-    public JWTAuthorizationFilter(JWTToken jwtToken, UserService userService, SessionRegistry sessionRegistry, ApiAccess apiAccess, @Qualifier("apiAuthenticationManager") AuthenticationManager authenticationManager) {
+    public JWTAuthorizationFilter(JWTToken jwtToken, UserService userService, SessionRegistry sessionRegistry, ApiAccess apiAccess, AuthenticationManager authenticationManager) {
         super(authenticationManager);
         this.jwtToken = jwtToken;
         this.userService = userService;

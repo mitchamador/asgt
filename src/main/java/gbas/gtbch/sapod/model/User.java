@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 @Entity
 @Table(name = "users")
 @Cacheable(false)
-@JsonIgnoreProperties(value = {"enabled", "username", "authorities", "accountNonExpired", "credentialsNonExpired", "accountNonLocked"})
+@JsonIgnoreProperties(value = {"enabled", "username", "authorities", "accountNonExpired", "credentialsNonExpired", "accountNonLocked", "token"})
 public class User implements UserDetails, Serializable {
 
     @Id

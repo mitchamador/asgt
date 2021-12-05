@@ -2,7 +2,7 @@ package gbas.gtbch.web;
 
 import gbas.gtbch.sapod.model.User;
 import gbas.gtbch.security.SessionHandler;
-import gbas.gtbch.web.response.AuthResponse;
+import gbas.gtbch.security.jwt.JWTToken;
 import gbas.gtbch.web.response.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,11 +37,13 @@ public class SessionController {
     private final AuthenticationManager authenticationManager;
     private final SessionRegistry sessionRegistry;
     private final SessionHandler sessionHandler;
+    private final JWTToken jwtToken;
 
-    public SessionController(@Qualifier("authenticationManager") AuthenticationManager authenticationManager, SessionRegistry sessionRegistry, SessionHandler sessionHandler) {
+    public SessionController(@Qualifier("authenticationManager") AuthenticationManager authenticationManager, SessionRegistry sessionRegistry, SessionHandler sessionHandler, JWTToken jwtToken) {
         this.authenticationManager = authenticationManager;
         this.sessionRegistry = sessionRegistry;
         this.sessionHandler = sessionHandler;
+        this.jwtToken = jwtToken;
     }
 
     /**
@@ -53,7 +55,7 @@ public class SessionController {
      * @return
      */
     @RequestMapping(value = "login", method = RequestMethod.POST)
-    public ResponseEntity<AuthResponse> login(HttpSession session,
+    public ResponseEntity<Response> login(HttpSession session,
                                               @RequestParam(value = "username", required = false) String userName,
                                               @RequestParam(value = "password", required = false) String password) {
         try {
@@ -75,14 +77,14 @@ public class SessionController {
 
                 String token = authentication.getPrincipal() instanceof User ? ((User) authentication.getPrincipal()).getToken() : "";
 
-                return ResponseEntity.ok(new AuthResponse(String.format("User %s logged in", userName), token));
+                return ResponseEntity.ok().header(jwtToken.getHeaderString(), token).body(new Response(String.format("User %s logged in", userName)));
             }
 
         } catch (BadCredentialsException e) {
             logger.debug("login failed for user {}", userName);
         }
 
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new AuthResponse("Login failed"));
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Response("Login failed"));
     }
 
     /**
