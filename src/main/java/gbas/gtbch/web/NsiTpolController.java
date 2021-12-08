@@ -39,9 +39,9 @@ public class NsiTpolController {
      * tp page
      * @return
      */
-    @GetMapping("index")
+    @GetMapping("")
     public ModelAndView adminTp() {
-        ModelAndView model = new ModelAndView("user/nsi/tpol/index");
+        ModelAndView model = new ModelAndView("user/nsi/tpol");
 
         List<TpGroup> tpGroups = tPolService.getGroups();
         TpGroup tpGroup = new TpGroup();
