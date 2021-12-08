@@ -120,7 +120,7 @@
                         console.log("Редактирование документа тарифной политики с id=" + d.id);
 
                         $("#documentEditor").load(
-                            "./document/" + d.id + "/editor"
+                            "./tpol/document/" + d.id + "/editor"
                         );
                     },
                     "documentDelete" : function(tr) {
@@ -171,7 +171,7 @@
                         $("body").css("cursor", "progress");
 
                         $("#divTableRows").load(
-                            "./document/" + row.id + "/rows",
+                            "./tpol/document/" + row.id + "/rows",
                             function( response, status, xhr ) {
                                 $("body").css("cursor", "default");
                                 tr[0].scrollIntoViewIfNeeded();
@@ -298,7 +298,7 @@
             $("#documentCreate").click(function (e) {
 
                 $("#documentEditor").load(
-                    "./document/0/editor"
+                    "./tpol/document/0/editor"
                 );
 
                 //e.preventDefault();
@@ -663,7 +663,7 @@
                     var d = rowTable.row(tr).data();
 
                     $("#divItems").load(
-                        "./row/" + tr.attr("id-row") + "/items",
+                        "./tpol/row/" + tr.attr("id-row") + "/items",
                         function(responseText, textStatus, jqXHR) {
 
                             $("body").css("cursor", "default");
@@ -749,7 +749,7 @@
             $("#rowCreate").click(function (e) {
 
                 $("#divItems").load(
-                    "./row/0/items",
+                    "./tpol/row/0/items",
                     function(responseText, textStatus, jqXHR) {
                         if (textStatus !== 'error') {
                             $("#tpPages").children().removeClass("active");
@@ -831,7 +831,7 @@
                 var item = $(this).attr("item");
 
                 $("#itemData").load(
-                    "./row/" + row.id + "/item/" + item
+                    "./tpol/row/" + row.id + "/item/" + item
                 );
             });
 
