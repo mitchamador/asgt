@@ -1,6 +1,10 @@
 package gbas.gtbch.web;
 
-import gbas.gtbch.sapod.model.*;
+import gbas.gtbch.sapod.model.CodeName;
+import gbas.gtbch.sapod.model.tpol.TpDocument;
+import gbas.gtbch.sapod.model.tpol.TpGroup;
+import gbas.gtbch.sapod.model.tpol.TpRow;
+import gbas.gtbch.sapod.model.tpol.TpSobst;
 import gbas.gtbch.sapod.service.TPolRowService;
 import gbas.gtbch.sapod.service.TPolService;
 import org.slf4j.Logger;
@@ -30,25 +34,25 @@ public class TPolController {
 
 
     /**
-     * get {@link TPolDocument} list
+     * get {@link TpDocument} list
      * @param dateBegin start period date (dd.MM.yyyy)
      * @param dateEnd end period date (dd.MM.yyyy)
      */
     @RequestMapping(value = "/documents", method = RequestMethod.GET)
-    public ResponseEntity<List<TPolDocument>> getDocuments(
+    public ResponseEntity<List<TpDocument>> getDocuments(
             @RequestParam(value = "date_begin", required = false) @DateTimeFormat(pattern = "dd.MM.yyyy") Date dateBegin,
             @RequestParam(value = "date_end", required = false) @DateTimeFormat(pattern = "dd.MM.yyyy") Date dateEnd) {
         return new ResponseEntity<>(tpolService.getDocuments(dateBegin, dateEnd), HttpStatus.OK);
     }
 
     /**
-     * get {@link TPolDocument} list
+     * get {@link TpDocument} list
      * @param typeCode tvk_tarif.type_code ('base_tarif', 'down_tarif', 'polnom', 'russia_tarif', 'iskl_tarif', 'tr1_bch')
      * @param dateBegin start period date (dd.MM.yyyy)
      * @param dateEnd end period date (dd.MM.yyyy)
      */
     @RequestMapping(value = "/documents/{typeCode}", method = RequestMethod.GET)
-    public ResponseEntity<List<TPolDocument>> getDocumentsType(
+    public ResponseEntity<List<TpDocument>> getDocumentsType(
             @PathVariable String typeCode,
             @RequestParam(value = "date_begin", required = false) @DateTimeFormat(pattern = "dd.MM.yyyy") Date dateBegin,
             @RequestParam(value = "date_end", required = false) @DateTimeFormat(pattern = "dd.MM.yyyy") Date dateEnd) {
@@ -56,21 +60,21 @@ public class TPolController {
     }
 
     @RequestMapping(value = "/groups", method = RequestMethod.GET)
-    public ResponseEntity<List<TpolGroup>> getGroups() {
+    public ResponseEntity<List<TpGroup>> getGroups() {
         return new ResponseEntity<>(tpolService.getGroups(), HttpStatus.OK);
     }
 
     /**
-     * get {@link TPolDocument}
+     * get {@link TpDocument}
      * @param id - tvk_tarif.id
      */
     @RequestMapping(value = "/document/{id:[\\d]+}", method = RequestMethod.GET)
-    public ResponseEntity<TPolDocument> getDocument(@PathVariable int id, @RequestParam(name = "editor", defaultValue = "false", required = false) boolean editorMode) {
+    public ResponseEntity<TpDocument> getDocument(@PathVariable int id, @RequestParam(name = "editor", defaultValue = "false", required = false) boolean editorMode) {
         return new ResponseEntity<>(tpolService.getDocument(id, editorMode), HttpStatus.OK);
     }
 
     /**
-     * copy all {@link TpRow}'s from source {@link TPolDocument} to destination {@link TPolDocument}
+     * copy all {@link TpRow}'s from source {@link TpDocument} to destination {@link TpDocument}
      * @param sourceId - tvk_tarif.id
      * @param destinationId - destination tvk_tarif.id
      */
@@ -80,27 +84,27 @@ public class TPolController {
     }
 
     /**
-     * create new {@link TPolDocument}
-     * @param obj - {@link TPolDocument}
+     * create new {@link TpDocument}
+     * @param obj - {@link TpDocument}
      */
     @RequestMapping(value = "/document", method = RequestMethod.POST)
-    public ResponseEntity<Integer> saveDocument(@RequestBody TPolDocument obj) {
+    public ResponseEntity<Integer> saveDocument(@RequestBody TpDocument obj) {
         int id = tpolService.saveDocument(obj);
         return id != 0 ? ResponseEntity.created(URI.create("/api/tpol/document/" + id)).body(id) : ResponseEntity.notFound().build();
     }
 
     /**
-     * update {@link TPolDocument}
+     * update {@link TpDocument}
      * @param id - tvk_tarif.id
      */
     @RequestMapping(value = "/document/{id:[\\d]+}", method = RequestMethod.PUT)
-    public ResponseEntity<Integer> updateDocument(@PathVariable int id, @RequestBody TPolDocument obj) {
+    public ResponseEntity<Integer> updateDocument(@PathVariable int id, @RequestBody TpDocument obj) {
         obj.id = id;
         return tpolService.saveDocument(obj) != 0 ? ResponseEntity.ok().body(obj.id) : ResponseEntity.notFound().build();
     }
 
     /**
-     * delete {@link TPolDocument}
+     * delete {@link TpDocument}
      * @param id - tvk_tarif.id
      */
     @RequestMapping(value = "/document/{id:[\\d]+}", method = RequestMethod.DELETE)
@@ -119,21 +123,21 @@ public class TPolController {
     }
 
     /**
-     * get {@link TPolSobst} list
+     * get {@link TpSobst} list
      * @param id - tvk_tarif.id
      */
     @RequestMapping(value = "/document/{id:[\\d]+}/sobsts", method = RequestMethod.GET)
-    public ResponseEntity<List<TPolSobst>> getDocumentSobsts(@PathVariable int id, @RequestParam(defaultValue = "false") boolean checked) {
+    public ResponseEntity<List<TpSobst>> getDocumentSobsts(@PathVariable int id, @RequestParam(defaultValue = "false") boolean checked) {
         return new ResponseEntity<>(tpolService.getSobstList(id, checked), HttpStatus.OK);
     }
 
     /**
-     * save {@link TPolSobst} list
+     * save {@link TpSobst} list
      * @param id tvk_tarif.id
-     * @param list List<{@link TPolSobst}>
+     * @param list List<{@link TpSobst}>
      */
     @RequestMapping(value = "/document/{id:[\\d]+}/sobsts", method = RequestMethod.POST)
-    public ResponseEntity<Boolean> setDocumentSobsts(@PathVariable int id, @RequestBody List<TPolSobst> list) {
+    public ResponseEntity<Boolean> setDocumentSobsts(@PathVariable int id, @RequestBody List<TpSobst> list) {
         return new ResponseEntity<>(tpolService.saveSobstList(id, list), HttpStatus.OK);
     }
 
@@ -147,10 +151,10 @@ public class TPolController {
     }
 
     /**
-     * get all {@link TPolSobst} list
+     * get all {@link TpSobst} list
      */
     @RequestMapping(value = "/sobsts", method = RequestMethod.GET)
-    public ResponseEntity<List<TPolSobst>> getSobsts() {
+    public ResponseEntity<List<TpSobst>> getSobsts() {
         return new ResponseEntity<>(tpolService.getSobstList(0, false), HttpStatus.OK);
     }
 

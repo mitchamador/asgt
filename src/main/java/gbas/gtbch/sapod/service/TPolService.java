@@ -1,10 +1,9 @@
 package gbas.gtbch.sapod.service;
 
 import gbas.gtbch.sapod.model.CodeName;
-import gbas.gtbch.sapod.model.TPolDocument;
-import gbas.gtbch.sapod.model.TPolSobst;
-import gbas.gtbch.sapod.model.TpolGroup;
-import org.springframework.transaction.annotation.Transactional;
+import gbas.gtbch.sapod.model.tpol.TpDocument;
+import gbas.gtbch.sapod.model.tpol.TpGroup;
+import gbas.gtbch.sapod.model.tpol.TpSobst;
 
 import java.util.Date;
 import java.util.List;
@@ -15,7 +14,7 @@ public interface TPolService {
      * @param id
      * @return
      */
-    TPolDocument getDocument(int id);
+    TpDocument getDocument(int id);
 
     /**
      *
@@ -23,7 +22,7 @@ public interface TPolService {
      * @param editorMode
      * @return
      */
-    TPolDocument getDocument(int id, boolean editorMode);
+    TpDocument getDocument(int id, boolean editorMode);
 
     /**
      *
@@ -31,7 +30,7 @@ public interface TPolService {
      * @param dateEnd
      * @return
      */
-    List<TPolDocument> getDocuments(Date dateBegin, Date dateEnd);
+    List<TpDocument> getDocuments(Date dateBegin, Date dateEnd);
 
     /**
      *
@@ -40,7 +39,7 @@ public interface TPolService {
      * @param dateEnd
      * @return
      */
-    List<TPolDocument> getDocuments(String typeCode, Date dateBegin, Date dateEnd);
+    List<TpDocument> getDocuments(String typeCode, Date dateBegin, Date dateEnd);
 
     /**
      *
@@ -61,7 +60,7 @@ public interface TPolService {
      * @param checked
      * @return
      */
-    List<TPolSobst> getSobstList(int idTarif, boolean checked);
+    List<TpSobst> getSobstList(int idTarif, boolean checked);
 
     /**
      *
@@ -69,20 +68,20 @@ public interface TPolService {
      * @param list
      * @return
      */
-    boolean saveSobstList(int idTarif, List<TPolSobst> list);
+    boolean saveSobstList(int idTarif, List<TpSobst> list);
 
     /**
      *
      * @return
      */
-    List<TpolGroup> getGroups();
+    List<TpGroup> getGroups();
 
     /**
      *
-     * @param tPolDocument
+     * @param tpDocument
      * @return
      */
-    int saveDocument(TPolDocument tPolDocument);
+    int saveDocument(TpDocument tpDocument);
 
     /**
      *

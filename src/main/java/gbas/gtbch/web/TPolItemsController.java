@@ -1,6 +1,6 @@
 package gbas.gtbch.web;
 
-import gbas.gtbch.sapod.model.TpolItem;
+import gbas.gtbch.sapod.model.tpol.TpItem;
 import gbas.gtbch.sapod.service.TPolItemsService;
 import gbas.tvk.tpol3.service.TPItem;
 import gbas.tvk.tpol3.service.TPItems;
@@ -22,23 +22,23 @@ public class TPolItemsController {
     }
 
     /**
-     * get {@link TpolItem} list
+     * get {@link TpItem} list
      *
      * @return
      */
     @RequestMapping(value = "", method = RequestMethod.GET)
-    public ResponseEntity<List<TpolItem>> getItems() {
-        List<TpolItem> items = new ArrayList<>();
+    public ResponseEntity<List<TpItem>> getItems() {
+        List<TpItem> items = new ArrayList<>();
         for (TPItems enumItems : TPItems.values()) {
-            items.add(new TpolItem(enumItems.getItem()));
+            items.add(new TpItem(enumItems.getItem()));
         }
         return new ResponseEntity<>(items, HttpStatus.OK);
     }
 
     /**
-     * get NSI for {@link TpolItem}
+     * get NSI for {@link TpItem}
      *
-     * @param name - {@link TpolItem} name
+     * @param name - {@link TpItem} name
      * @return
      */
     @RequestMapping(value = "/nsi/{name}", method = RequestMethod.GET)
@@ -51,7 +51,7 @@ public class TPolItemsController {
 
         TPItem tpItem = TPItems.getTpItem(name);
         if (tpItem != null) {
-            data = tPolItemsService.getNsi(new TpolItem(tpItem, set));
+            data = tPolItemsService.getNsi(new TpItem(tpItem, set));
         }
         return new ResponseEntity<>(data, HttpStatus.OK);
     }

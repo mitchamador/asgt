@@ -3,6 +3,8 @@ package gbas.gtbch;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import gbas.gtbch.sapod.model.Currency;
 import gbas.gtbch.sapod.model.*;
+import gbas.gtbch.sapod.model.tpol.TpDocument;
+import gbas.gtbch.sapod.model.tpol.TpRow;
 import gbas.gtbch.sapod.service.*;
 import gbas.gtbch.util.UtilDate8;
 import gbas.gtbch.web.request.KeyValue;
@@ -132,7 +134,7 @@ public class GtBchTests {
 
 	@Test
 	public void tpolRepositoryTest() throws ParseException {
-		List<TPolDocument> list;
+		List<TpDocument> list;
 
 /*
 		List<String[]> groups = tpolRepository.getGroups();

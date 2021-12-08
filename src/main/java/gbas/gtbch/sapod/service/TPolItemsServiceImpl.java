@@ -1,6 +1,7 @@
 package gbas.gtbch.sapod.service;
 
-import gbas.gtbch.sapod.model.TpolItem;
+import gbas.gtbch.sapod.model.tpol.TpItem;
+import gbas.gtbch.sapod.model.tpol.TpRow;
 import gbas.gtbch.sapod.repository.TPolItemsRepository;
 import org.springframework.stereotype.Service;
 
@@ -16,38 +17,38 @@ public class TPolItemsServiceImpl implements TPolItemsService {
     }
 
     @Override
-    public List<String[]> getNsi(TpolItem item) {
+    public List<String[]> getNsi(TpItem item) {
         return tPolItemsRepository.getNsi(item);
     }
 
     @Override
-    public List<String[]> getData(TpolItem item, int id_tpol) {
+    public List<String[]> getData(TpItem item, int id_tpol) {
         return tPolItemsRepository.getData(item, id_tpol);
     }
 
     /**
      * check data for existing
      *
-     * @param item {@link TpolItem}
-     * @param id   {@link gbas.gtbch.sapod.model.TpRow} id
+     * @param item {@link TpItem}
+     * @param id   {@link TpRow} id
      * @param data data
      * @return true if data exists
      */
     @Override
-    public Boolean checkData(TpolItem item, int id, String[] data) {
+    public Boolean checkData(TpItem item, int id, String[] data) {
         return tPolItemsRepository.checkData(item, id, data);
     }
 
     /**
      * add data
      *
-     * @param item {@link TpolItem}
-     * @param id   {@link gbas.gtbch.sapod.model.TpRow} id
+     * @param item {@link TpItem}
+     * @param id   {@link TpRow} id
      * @param data data
      * @return
      */
     @Override
-    public boolean addData(TpolItem item, int id, String[] data) {
+    public boolean addData(TpItem item, int id, String[] data) {
         return tPolItemsRepository.addData(item, id, data);
     }
 
@@ -60,7 +61,7 @@ public class TPolItemsServiceImpl implements TPolItemsService {
      * @return
      */
     @Override
-    public Boolean deleteData(TpolItem item, int id, String data) {
+    public Boolean deleteData(TpItem item, int id, String data) {
         return tPolItemsRepository.deleteData(item, id, data);
     }
 

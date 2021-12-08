@@ -1,4 +1,4 @@
-package gbas.gtbch.sapod.model;
+package gbas.gtbch.sapod.model.tpol;
 
 import gbas.tvk.tpol3.service.TPRow;
 

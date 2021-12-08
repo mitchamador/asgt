@@ -1,22 +1,21 @@
 package gbas.gtbch.web;
 
-import gbas.gtbch.sapod.model.*;
+import gbas.gtbch.sapod.model.tpol.TpDocument;
+import gbas.gtbch.sapod.model.tpol.TpGroup;
+import gbas.gtbch.sapod.model.tpol.TpItem;
+import gbas.gtbch.sapod.model.tpol.TpRow;
 import gbas.gtbch.sapod.service.TPolItemsService;
-import gbas.gtbch.sapod.service.TPolService;
 import gbas.gtbch.sapod.service.TPolRowService;
+import gbas.gtbch.sapod.service.TPolService;
 import gbas.tvk.tpol3.service.TPItems;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,11 +43,11 @@ public class NsiTpolController {
     public ModelAndView adminTp() {
         ModelAndView model = new ModelAndView("user/nsi/tpol/index");
 
-        List<TpolGroup> tpolGroups = tPolService.getGroups();
-        TpolGroup tpolGroup = new TpolGroup();
-        tpolGroup.setName("Все");
-        tpolGroups.add(0, tpolGroup);
-        model.addObject("tpGroups", tpolGroups);
+        List<TpGroup> tpGroups = tPolService.getGroups();
+        TpGroup tpGroup = new TpGroup();
+        tpGroup.setName("Все");
+        tpGroups.add(0, tpGroup);
+        model.addObject("tpGroups", tpGroups);
 
         return model;
     }
@@ -68,16 +67,16 @@ public class NsiTpolController {
     }
 
     /**
-     * get {@link TPolDocument}
+     * get {@link TpDocument}
      * @param id - tvk_tarif.id
      */
     @RequestMapping(value = "/document/{id:[\\d]+}/editor", method = RequestMethod.GET)
     public ModelAndView getDocumentEditor(@PathVariable int id) {
         ModelAndView model = new ModelAndView("fragments/tpol :: documentEditor");
 
-        TPolDocument tPolDocument;
+        TpDocument tpDocument;
         if (id == 0) {
-            tPolDocument = new TPolDocument();
+            tpDocument = new TpDocument();
 
             Calendar c = Calendar.getInstance();
             c.set(Calendar.MONTH, 0);
@@ -86,18 +85,18 @@ public class NsiTpolController {
             c.clear(Calendar.MINUTE);
             c.clear(Calendar.SECOND);
             c.clear(Calendar.MILLISECOND);
-            tPolDocument.date_begin = c.getTime();
+            tpDocument.date_begin = c.getTime();
 
             c.add(Calendar.YEAR, 1);
             c.add(Calendar.DAY_OF_YEAR, -1);
-            tPolDocument.date_end = c.getTime();
+            tpDocument.date_end = c.getTime();
 
-            tPolDocument.sobstList = tPolService.getSobstList(0, true);
+            tpDocument.sobstList = tPolService.getSobstList(0, true);
         } else {
-            tPolDocument = tPolService.getDocument(id, true);
+            tpDocument = tPolService.getDocument(id, true);
         }
 
-        model.addObject("document", tPolDocument);
+        model.addObject("document", tpDocument);
         model.addObject("tarif", tPolService.getBaseTarifList());
         model.addObject("groups", tPolService.getGroups());
 
@@ -115,9 +114,9 @@ public class NsiTpolController {
     public ModelAndView getItems(@PathVariable int id) {
         ModelAndView model = new ModelAndView("fragments/tpol :: items");
 
-        List<TpolItem> items = new ArrayList<>();
+        List<TpItem> items = new ArrayList<>();
         for (TPItems enumItems : TPItems.values()) {
-            TpolItem item = new TpolItem(enumItems.getItem());
+            TpItem item = new TpItem(enumItems.getItem());
 
             List<String[]> data = tPolItemsService.getData(item, id);
 
@@ -151,7 +150,7 @@ public class NsiTpolController {
 
         ModelAndView model = new ModelAndView("fragments/tpol :: item");
 
-        TpolItem item = new TpolItem(TPItems.getTpItem(name), set);
+        TpItem item = new TpItem(TPItems.getTpItem(name), set);
         if (item.getItem() != null) {
             item.setItemData(tPolItemsService.getData(item, id));
             item.setItemDataSize(item.getItemData() != null && !item.getItemData().isEmpty() ? item.getItemData().size() : 0);

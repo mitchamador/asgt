@@ -1,6 +1,10 @@
 package gbas.gtbch.sapod.repository;
 
-import gbas.gtbch.sapod.model.*;
+import gbas.gtbch.sapod.model.CodeName;
+import gbas.gtbch.sapod.model.tpol.TpDocument;
+import gbas.gtbch.sapod.model.tpol.TpGroup;
+import gbas.gtbch.sapod.model.tpol.TpRow;
+import gbas.gtbch.sapod.model.tpol.TpSobst;
 import gbas.tvk.nsi.cash.Func;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,15 +39,15 @@ public class TPolRepository {
     }
 
     /**
-     * get {@link TPolDocument}
+     * get {@link TpDocument}
      *
      * @param id
      * @return
      */
-    public TPolDocument getDocument(int id, boolean editorMode) {
-        List<TPolDocument> list = getDocuments(id, null, null, null);
+    public TpDocument getDocument(int id, boolean editorMode) {
+        List<TpDocument> list = getDocuments(id, null, null, null);
         if (list != null && !list.isEmpty()) {
-            TPolDocument document = list.get(0);
+            TpDocument document = list.get(0);
             document.sobstList = getSobstList(id, !editorMode);
             return document;
         } else {
@@ -52,25 +56,25 @@ public class TPolRepository {
     }
 
     /**
-     * get list of {@link TPolDocument}
+     * get list of {@link TpDocument}
      *
      * @param dateBegin
      * @param dateEnd
      * @return
      */
-    public List<TPolDocument> getDocuments(Date dateBegin, Date dateEnd) {
+    public List<TpDocument> getDocuments(Date dateBegin, Date dateEnd) {
         return getDocuments(0, null, dateBegin, dateEnd);
     }
 
     /**
-     * get list of {@link TPolDocument}
+     * get list of {@link TpDocument}
      *
      * @param typeCode
      * @param dateBegin
      * @param dateEnd
      * @return
      */
-    public List<TPolDocument> getDocuments(String typeCode, Date dateBegin, Date dateEnd) {
+    public List<TpDocument> getDocuments(String typeCode, Date dateBegin, Date dateEnd) {
         return getDocuments(0, typeCode, dateBegin, dateEnd);
     }
 
@@ -81,7 +85,7 @@ public class TPolRepository {
      * @param dateEnd
      * @return
      */
-    public List<TPolDocument> getDocuments(int id, String typeCode, Date dateBegin, Date dateEnd) {
+    public List<TpDocument> getDocuments(int id, String typeCode, Date dateBegin, Date dateEnd) {
         List<Object> args = new ArrayList<Object>();
 
         String sql = "select id,\n" +
@@ -124,7 +128,7 @@ public class TPolRepository {
         }
 
         return jdbcTemplate.query(sql, (rs, i) -> {
-            final TPolDocument doc = new TPolDocument();
+            final TpDocument doc = new TpDocument();
             doc.id = rs.getInt("id");
             doc.type_code = rs.getString("type_code");
             doc.n_contract = rs.getString("n_contract");
@@ -173,7 +177,7 @@ public class TPolRepository {
      * @param checked
      * @return
      */
-    public List<TPolSobst> getSobstList(int idTarif, boolean checked) {
+    public List<TpSobst> getSobstList(int idTarif, boolean checked) {
         return jdbcTemplate.query(
                 idTarif == 0 ?
                         "select a.kadm, rtrim(a.sname) as sname, rtrim(a.name) as name, 0 as checked\n" +
@@ -186,31 +190,31 @@ public class TPolRepository {
                                 "order by name",
                 idTarif == 0 ? null : new Object[]{idTarif},
                 (rs, i) -> {
-                    TPolSobst tPolSobst = new TPolSobst();
-                    tPolSobst.setkAdm(rs.getInt("kadm"));
-                    tPolSobst.setsName(Func.iif(rs.getString("sname")));
-                    tPolSobst.setName(Func.iif(rs.getString("name")));
-                    tPolSobst.setChecked(rs.getBoolean("checked"));
-                    return tPolSobst;
+                    TpSobst tpSobst = new TpSobst();
+                    tpSobst.setkAdm(rs.getInt("kadm"));
+                    tpSobst.setsName(Func.iif(rs.getString("sname")));
+                    tpSobst.setName(Func.iif(rs.getString("name")));
+                    tpSobst.setChecked(rs.getBoolean("checked"));
+                    return tpSobst;
                 });
     }
 
     /**
-     * save {@link TPolSobst} list
+     * save {@link TpSobst} list
      *
-     * @param idTarif {@link TPolDocument#id}
-     * @param list    {@link TPolSobst} list
+     * @param idTarif {@link TpDocument#id}
+     * @param list    {@link TpSobst} list
      */
     @Transactional(transactionManager = "sapodTransactionManager")
-    public boolean saveSobstList(int idTarif, List<TPolSobst> list) {
+    public boolean saveSobstList(int idTarif, List<TpSobst> list) {
         if (list != null) {
             jdbcTemplate.update("delete from tvk_tpol_nssobst where id_tarif = ?", idTarif);
 
             jdbcTemplate.execute("insert into tvk_tpol_nssobst (id_tarif, code_adm) values (?, ?)", (PreparedStatementCallback<Object>) preparedStatement -> {
-                for (TPolSobst tPolSobst : list) {
-                    if (tPolSobst.isChecked()) {
+                for (TpSobst tpSobst : list) {
+                    if (tpSobst.isChecked()) {
                         preparedStatement.setInt(1, idTarif);
-                        preparedStatement.setInt(2, tPolSobst.getkAdm());
+                        preparedStatement.setInt(2, tpSobst.getkAdm());
                         preparedStatement.executeUpdate();
                     }
                 }
@@ -226,10 +230,10 @@ public class TPolRepository {
      *
      * @return
      */
-    public List<TpolGroup> getGroups() {
+    public List<TpGroup> getGroups() {
         return jdbcTemplate.query("select code, name from type_document where code IN ('base_tarif', 'down_tarif', 'polnom', 'russia_tarif', 'iskl_tarif', 'tr1_bch')",
                 (rs, i) -> {
-                    TpolGroup group = new TpolGroup();
+                    TpGroup group = new TpGroup();
                     group.setCode(Func.iif(rs.getString("code")));
                     group.setName(Func.iif(rs.getString("name")));
                     return group;
@@ -237,19 +241,19 @@ public class TPolRepository {
     }
 
     /**
-     * save {@link TPolDocument}
+     * save {@link TpDocument}
      *
-     * @param tPolDocument {@link TPolDocument}
+     * @param tpDocument {@link TpDocument}
      * @return
      */
     @Transactional(transactionManager = "sapodTransactionManager")
-    public int saveDocument(TPolDocument tPolDocument) {
+    public int saveDocument(TpDocument tpDocument) {
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(connection -> {
             PreparedStatement preparedStatement;
-            if (tPolDocument.id == 0) {
+            if (tpDocument.id == 0) {
                 preparedStatement = connection.prepareStatement("insert into tvk_tarif (type_code, n_contract, date_begin, date_end, name, n_pol, cod_tip_tarif, dobor, pr_calc)" +
                                 " values (?,?,?,?,?,?,?,?,?)",
                         Statement.RETURN_GENERATED_KEYS);
@@ -257,33 +261,33 @@ public class TPolRepository {
                 preparedStatement = connection.prepareStatement("update tvk_tarif set type_code = ?, n_contract = ?, date_begin = ?, date_end = ?, name = ?, n_pol = ?, cod_tip_tarif = ?, dobor = ?, pr_calc = ? where id = ?");
             }
 
-            preparedStatement.setString(1, tPolDocument.type_code);
-            preparedStatement.setString(2, tPolDocument.n_contract);
-            preparedStatement.setTimestamp(3, Timestamp.valueOf(LocalDateTime.ofInstant(tPolDocument.date_begin.toInstant(), ZoneId.systemDefault()).toLocalDate().atStartOfDay()));
-            //preparedStatement.setTimestamp(3, new Timestamp(tPolDocument.date_begin.getTime()));
-            preparedStatement.setTimestamp(4, Timestamp.valueOf(LocalDateTime.ofInstant(tPolDocument.date_end.toInstant(), ZoneId.systemDefault()).toLocalDate().atStartOfDay()));
-            //preparedStatement.setTimestamp(4, new Timestamp(tPolDocument.date_end.getTime()));
-            preparedStatement.setString(5, tPolDocument.name);
-            preparedStatement.setInt(6, getTPNumber(tPolDocument.type_code));
-            preparedStatement.setInt(7, tPolDocument.codTipTar);
-            preparedStatement.setShort(8, tPolDocument.codDobor);
-            preparedStatement.setShort(9, tPolDocument.pr_calc);
+            preparedStatement.setString(1, tpDocument.type_code);
+            preparedStatement.setString(2, tpDocument.n_contract);
+            preparedStatement.setTimestamp(3, Timestamp.valueOf(LocalDateTime.ofInstant(tpDocument.date_begin.toInstant(), ZoneId.systemDefault()).toLocalDate().atStartOfDay()));
+            //preparedStatement.setTimestamp(3, new Timestamp(tpDocument.date_begin.getTime()));
+            preparedStatement.setTimestamp(4, Timestamp.valueOf(LocalDateTime.ofInstant(tpDocument.date_end.toInstant(), ZoneId.systemDefault()).toLocalDate().atStartOfDay()));
+            //preparedStatement.setTimestamp(4, new Timestamp(tpDocument.date_end.getTime()));
+            preparedStatement.setString(5, tpDocument.name);
+            preparedStatement.setInt(6, getTPNumber(tpDocument.type_code));
+            preparedStatement.setInt(7, tpDocument.codTipTar);
+            preparedStatement.setShort(8, tpDocument.codDobor);
+            preparedStatement.setShort(9, tpDocument.pr_calc);
 
-            if (tPolDocument.id != 0) {
-                preparedStatement.setInt(10, tPolDocument.id);
+            if (tpDocument.id != 0) {
+                preparedStatement.setInt(10, tpDocument.id);
             }
 
             return preparedStatement;
         }, keyHolder);
 
-        if (tPolDocument.id == 0) {
-            tPolDocument.id = (int) (keyHolder.getKey() != null ? keyHolder.getKey() : 0);
+        if (tpDocument.id == 0) {
+            tpDocument.id = (int) (keyHolder.getKey() != null ? keyHolder.getKey() : 0);
             ;
         }
 
-        saveSobstList(tPolDocument.id, tPolDocument.sobstList);
+        saveSobstList(tpDocument.id, tpDocument.sobstList);
 
-        return tPolDocument.id;
+        return tpDocument.id;
     }
 
     /**
@@ -318,9 +322,9 @@ public class TPolRepository {
     }
 
     /**
-     * delete {@link TPolDocument}
+     * delete {@link TpDocument}
      *
-     * @param id {@link TPolDocument#id}
+     * @param id {@link TpDocument#id}
      * @return
      */
     @Transactional(transactionManager = "sapodTransactionManager")

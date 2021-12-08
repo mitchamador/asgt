@@ -1,6 +1,6 @@
 package gbas.gtbch.sapod.repository;
 
-import gbas.gtbch.sapod.model.TpRow;
+import gbas.gtbch.sapod.model.tpol.TpRow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

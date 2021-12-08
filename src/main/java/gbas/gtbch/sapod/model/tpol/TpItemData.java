@@ -1,10 +1,10 @@
-package gbas.gtbch.sapod.model;
+package gbas.gtbch.sapod.model.tpol;
 
 import java.util.List;
 
-public class TPolItemData {
+public class TpItemData {
     /**
-     * {@link TpolItem#set}
+     * {@link TpItem#set}
      */
     int set;
 

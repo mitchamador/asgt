@@ -1,11 +1,11 @@
-package gbas.gtbch.sapod.model;
+package gbas.gtbch.sapod.model.tpol;
 
 import gbas.tvk.tpol3.TpolDocument;
 
 import java.util.Date;
 import java.util.List;
 
-public class TPolDocument extends TpolDocument {
+public class TpDocument extends TpolDocument {
 
     public String getName() {
         return name;
@@ -44,11 +44,11 @@ public class TPolDocument extends TpolDocument {
     }
 
     /**
-     * checked {@link TPolSobst} list
+     * checked {@link TpSobst} list
      */
-    public List<TPolSobst> sobstList;
+    public List<TpSobst> sobstList;
 
-    public List<TPolSobst> getSobstList() {
+    public List<TpSobst> getSobstList() {
         return sobstList;
     }
 }

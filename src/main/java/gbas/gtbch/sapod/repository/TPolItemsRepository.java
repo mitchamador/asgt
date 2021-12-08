@@ -1,6 +1,7 @@
 package gbas.gtbch.sapod.repository;
 
-import gbas.gtbch.sapod.model.TpolItem;
+import gbas.gtbch.sapod.model.tpol.TpItem;
+import gbas.gtbch.sapod.model.tpol.TpRow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -44,7 +45,7 @@ public class TPolItemsRepository {
         return list;
     }
 
-    public List<String[]> getNsi(TpolItem item) {
+    public List<String[]> getNsi(TpItem item) {
         String sql = item.getItem().getSqlFromNSI(item.getSet());
         if (sql != null) {
             return jdbcTemplate.query(sql, TPolItemsRepository::extractStringArrayList);
@@ -53,19 +54,19 @@ public class TPolItemsRepository {
         }
     }
 
-    public List<String[]> getData(TpolItem item, int id_tpol) {
+    public List<String[]> getData(TpItem item, int id_tpol) {
         return jdbcTemplate.query(item.getItem().getSqlSelected(id_tpol), TPolItemsRepository::extractStringArrayList);
     }
 
     /**
      * check data for existing
      *
-     * @param item {@link TpolItem}
-     * @param id   {@link gbas.gtbch.sapod.model.TpRow} id
+     * @param item {@link TpItem}
+     * @param id   {@link TpRow} id
      * @param data data
      * @return true if data exists
      */
-    public Boolean checkData(TpolItem item, int id, String[] data) {
+    public Boolean checkData(TpItem item, int id, String[] data) {
         String sql = item.getItem().getSqlCheckExist(id, data, item.getSet());
         if (sql != null) {
             return jdbcTemplate.query(sql, ResultSet::next);
@@ -77,13 +78,13 @@ public class TPolItemsRepository {
     /**
      * add data
      *
-     * @param item {@link TpolItem}
-     * @param id   {@link gbas.gtbch.sapod.model.TpRow} id
+     * @param item {@link TpItem}
+     * @param id   {@link TpRow} id
      * @param data data
      * @return
      */
     @Transactional(transactionManager = "sapodTransactionManager")
-    public boolean addData(TpolItem item, int id, String[] data) {
+    public boolean addData(TpItem item, int id, String[] data) {
         return jdbcTemplate.update(connection -> connection.prepareStatement(
                 item.getItem().getSqlAddSelected(id, data, item.getSet()))) != 0;
     }
@@ -97,7 +98,7 @@ public class TPolItemsRepository {
      * @return
      */
     @Transactional(transactionManager = "sapodTransactionManager")
-    public Boolean deleteData(TpolItem item, int id, String data) {
+    public Boolean deleteData(TpItem item, int id, String data) {
         return jdbcTemplate.update(item.getItem().getSqlDelSelected(id, data, item.getSet())) != 0;
     }
 }

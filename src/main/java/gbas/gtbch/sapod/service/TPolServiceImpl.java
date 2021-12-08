@@ -1,9 +1,9 @@
 package gbas.gtbch.sapod.service;
 
 import gbas.gtbch.sapod.model.CodeName;
-import gbas.gtbch.sapod.model.TPolDocument;
-import gbas.gtbch.sapod.model.TPolSobst;
-import gbas.gtbch.sapod.model.TpolGroup;
+import gbas.gtbch.sapod.model.tpol.TpDocument;
+import gbas.gtbch.sapod.model.tpol.TpGroup;
+import gbas.gtbch.sapod.model.tpol.TpSobst;
 import gbas.gtbch.sapod.repository.TPolRepository;
 import org.springframework.stereotype.Service;
 
@@ -20,13 +20,13 @@ public class TPolServiceImpl implements TPolService {
     }
 
     /**
-     * get {@link TPolDocument}
+     * get {@link TpDocument}
      *
      * @param id
      * @return
      */
     @Override
-    public TPolDocument getDocument(int id) {
+    public TpDocument getDocument(int id) {
         return getDocument(id, false);
     }
 
@@ -37,24 +37,24 @@ public class TPolServiceImpl implements TPolService {
      * @return
      */
     @Override
-    public TPolDocument getDocument(int id, boolean editorMode) {
+    public TpDocument getDocument(int id, boolean editorMode) {
         return tPolRepository.getDocument(id, editorMode);
     }
 
     /**
-     * get list of {@link TPolDocument}
+     * get list of {@link TpDocument}
      *
      * @param dateBegin
      * @param dateEnd
      * @return
      */
     @Override
-    public List<TPolDocument> getDocuments(Date dateBegin, Date dateEnd) {
+    public List<TpDocument> getDocuments(Date dateBegin, Date dateEnd) {
         return tPolRepository.getDocuments(dateBegin, dateEnd);
     }
 
     /**
-     * get list of {@link TPolDocument}
+     * get list of {@link TpDocument}
      *
      * @param typeCode
      * @param dateBegin
@@ -62,7 +62,7 @@ public class TPolServiceImpl implements TPolService {
      * @return
      */
     @Override
-    public List<TPolDocument> getDocuments(String typeCode, Date dateBegin, Date dateEnd) {
+    public List<TpDocument> getDocuments(String typeCode, Date dateBegin, Date dateEnd) {
         return tPolRepository.getDocuments(typeCode, dateBegin, dateEnd);
     }
 
@@ -73,7 +73,7 @@ public class TPolServiceImpl implements TPolService {
      * @param dateEnd
      * @return
      */
-    private List<TPolDocument> getDocuments(int id, String typeCode, Date dateBegin, Date dateEnd) {
+    private List<TpDocument> getDocuments(int id, String typeCode, Date dateBegin, Date dateEnd) {
         return tPolRepository.getDocuments(id, typeCode, dateBegin, dateEnd);
     }
 
@@ -97,18 +97,18 @@ public class TPolServiceImpl implements TPolService {
     }
 
     @Override
-    public List<TPolSobst> getSobstList(int idTarif, boolean checked) {
+    public List<TpSobst> getSobstList(int idTarif, boolean checked) {
         return tPolRepository.getSobstList(idTarif, checked);
     }
 
     /**
-     * save {@link TPolSobst} list
+     * save {@link TpSobst} list
      *
-     * @param idTarif {@link TPolDocument#id}
-     * @param list    {@link TPolSobst} list
+     * @param idTarif {@link TpDocument#id}
+     * @param list    {@link TpSobst} list
      */
     @Override
-    public boolean saveSobstList(int idTarif, List<TPolSobst> list) {
+    public boolean saveSobstList(int idTarif, List<TpSobst> list) {
         return tPolRepository.saveSobstList(idTarif, list);
     }
 
@@ -118,19 +118,19 @@ public class TPolServiceImpl implements TPolService {
      * @return
      */
     @Override
-    public List<TpolGroup> getGroups() {
+    public List<TpGroup> getGroups() {
         return tPolRepository.getGroups();
     }
 
     /**
-     * save {@link TPolDocument}
+     * save {@link TpDocument}
      *
-     * @param tPolDocument {@link TPolDocument}
+     * @param tpDocument {@link TpDocument}
      * @return
      */
     @Override
-    public int saveDocument(TPolDocument tPolDocument) {
-        return tPolRepository.saveDocument(tPolDocument);
+    public int saveDocument(TpDocument tpDocument) {
+        return tPolRepository.saveDocument(tpDocument);
     }
 
     private int getTPNumber(String type_code) {
@@ -138,9 +138,9 @@ public class TPolServiceImpl implements TPolService {
     }
 
     /**
-     * delete {@link TPolDocument}
+     * delete {@link TpDocument}
      *
-     * @param id {@link TPolDocument#id}
+     * @param id {@link TpDocument#id}
      * @return
      */
     @Override

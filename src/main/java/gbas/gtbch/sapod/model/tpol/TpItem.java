@@ -1,4 +1,4 @@
-package gbas.gtbch.sapod.model;
+package gbas.gtbch.sapod.model.tpol;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import gbas.tvk.tpol3.service.ColumnInfo;
@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class TpolItem {
+public class TpItem {
 
     /**
      * TarifPolicy item object {@link TPItem}
@@ -61,11 +61,11 @@ public class TpolItem {
      */
     private List<String[]> nsiData;
 
-    public TpolItem(TPItem item) {
+    public TpItem(TPItem item) {
         this(item, 0);
     }
 
-    public TpolItem(TPItem item, int set) {
+    public TpItem(TPItem item, int set) {
         this.item = item;
         if (item != null) {
             this.name = item.getName();

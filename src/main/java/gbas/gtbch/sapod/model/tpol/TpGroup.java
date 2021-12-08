@@ -1,11 +1,11 @@
-package gbas.gtbch.sapod.model;
+package gbas.gtbch.sapod.model.tpol;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * tpol groups
  */
-public class TpolGroup {
+public class TpGroup {
     /**
      * code
      */

@@ -1,6 +1,6 @@
 package gbas.gtbch.sapod.service;
 
-import gbas.gtbch.sapod.model.TpRow;
+import gbas.gtbch.sapod.model.tpol.TpRow;
 
 import java.util.List;
 

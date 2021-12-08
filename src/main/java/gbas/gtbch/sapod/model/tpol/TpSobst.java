@@ -1,9 +1,9 @@
-package gbas.gtbch.sapod.model;
+package gbas.gtbch.sapod.model.tpol;
 
 /**
  *
  */
-public class TPolSobst {
+public class TpSobst {
 
     /**
      * administration code
@@ -21,7 +21,7 @@ public class TPolSobst {
     public String name;
 
     /**
-     * use administration in TPolDocument
+     * use administration in TpDocument
      */
     public boolean checked;
 

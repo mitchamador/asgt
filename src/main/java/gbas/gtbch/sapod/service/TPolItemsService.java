@@ -1,6 +1,6 @@
 package gbas.gtbch.sapod.service;
 
-import gbas.gtbch.sapod.model.TpolItem;
+import gbas.gtbch.sapod.model.tpol.TpItem;
 
 import java.util.List;
 
@@ -10,7 +10,7 @@ public interface TPolItemsService {
      * @param item
      * @return
      */
-    List<String[]> getNsi(TpolItem item);
+    List<String[]> getNsi(TpItem item);
 
     /**
      *
@@ -18,7 +18,7 @@ public interface TPolItemsService {
      * @param id_tpol
      * @return
      */
-    List<String[]> getData(TpolItem item, int id_tpol);
+    List<String[]> getData(TpItem item, int id_tpol);
 
     /**
      *
@@ -27,7 +27,7 @@ public interface TPolItemsService {
      * @param data
      * @return
      */
-    Boolean checkData(TpolItem item, int id, String[] data);
+    Boolean checkData(TpItem item, int id, String[] data);
 
     /**
      *
@@ -36,7 +36,7 @@ public interface TPolItemsService {
      * @param data
      * @return
      */
-    boolean addData(TpolItem item, int id, String[] data);
+    boolean addData(TpItem item, int id, String[] data);
 
     /**
      *
@@ -45,5 +45,5 @@ public interface TPolItemsService {
      * @param data
      * @return
      */
-    Boolean deleteData(TpolItem item, int id, String data);
+    Boolean deleteData(TpItem item, int id, String data);
 }

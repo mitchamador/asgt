@@ -1,8 +1,8 @@
 package gbas.gtbch.web;
 
-import gbas.gtbch.sapod.model.TPolItemData;
-import gbas.gtbch.sapod.model.TpRow;
-import gbas.gtbch.sapod.model.TpolItem;
+import gbas.gtbch.sapod.model.tpol.TpItem;
+import gbas.gtbch.sapod.model.tpol.TpItemData;
+import gbas.gtbch.sapod.model.tpol.TpRow;
 import gbas.gtbch.sapod.service.TPolItemsService;
 import gbas.gtbch.sapod.service.TPolRowService;
 import gbas.gtbch.web.controlleradvice.annotations.DuplicateKeyExceptionHandler;
@@ -92,12 +92,12 @@ public class TPolRowController {
      * @return
      */
     @RequestMapping(value = "/{id:[\\d]+}/items", method = RequestMethod.GET)
-    public ResponseEntity<List<TpolItem>> getItems(
+    public ResponseEntity<List<TpItem>> getItems(
             @PathVariable int id,
             @RequestParam(required = false) boolean all) {
-        List<TpolItem> items = new ArrayList<>();
+        List<TpItem> items = new ArrayList<>();
         for (TPItems enumItems : TPItems.values()) {
-            TpolItem item = new TpolItem(enumItems.getItem());
+            TpItem item = new TpItem(enumItems.getItem());
 
             List<String[]> data = tPolItemsService.getData(item, id);
 
@@ -111,9 +111,9 @@ public class TPolRowController {
     }
 
     /**
-     * get or check data for {@link TpolItem}
+     * get or check data for {@link TpItem}
      * @param id {@link TpRow} id
-     * @param name {@link TpolItem} name
+     * @param name {@link TpItem} name
      * @param data data
      * @return
      */
@@ -128,7 +128,7 @@ public class TPolRowController {
         TPItem tpItem = TPItems.getTpItem(name);
         if (tpItem != null) {
             if (data == null) {
-                return new ResponseEntity<>(tPolItemsService.getData(new TpolItem(tpItem, set), id), HttpStatus.OK);
+                return new ResponseEntity<>(tPolItemsService.getData(new TpItem(tpItem, set), id), HttpStatus.OK);
             } else {
                 return ResponseEntity.ok().build();
             }
@@ -137,32 +137,32 @@ public class TPolRowController {
     }
 
     /**
-     * save data for {@link TpolItem}
+     * save data for {@link TpItem}
      * @param id {@link TpRow} id
-     * @param name {@link TpolItem} name
-     * @param tPolItemData {@link TPolItemData}
+     * @param name {@link TpItem} name
+     * @param tpItemData {@link TpItemData}
      * @return
      */
     @RequestMapping(value = "/{id:[\\d]+}/item/{name}", method = RequestMethod.POST)
     public ResponseEntity<Boolean> saveItemData(
             @PathVariable int id,
             @PathVariable String name,
-            @RequestBody TPolItemData tPolItemData) {
+            @RequestBody TpItemData tpItemData) {
 
-        List<String[]> dataArray = tPolItemData.getData() != null ? Collections.singletonList(tPolItemData.getData()) : tPolItemData.getArray();
+        List<String[]> dataArray = tpItemData.getData() != null ? Collections.singletonList(tpItemData.getData()) : tpItemData.getArray();
 
         TPItem tpItem = TPItems.getTpItem(name);
 
         boolean result = false;
         if (dataArray != null && tpItem != null) {
-            TpolItem tpolItem = new TpolItem(tpItem, tPolItemData.getSet());
+            TpItem tpolItem = new TpItem(tpItem, tpItemData.getSet());
             for (String[] d : dataArray) {
                 if (!tPolItemsService.checkData(tpolItem, id, d)) {
                     tPolItemsService.addData(tpolItem, id, d);
-                    logger.info("save item data: rowId = {}, item = {}, set = {}, data = {}", id, tpItem.getName(), tPolItemData.getSet(), d);
+                    logger.info("save item data: rowId = {}, item = {}, set = {}, data = {}", id, tpItem.getName(), tpItemData.getSet(), d);
                     result = true;
                 } else {
-                    logger.info("item data exists: rowId = {}, item = {}, set = {}, data = {}", id, tpItem.getName(), tPolItemData.getSet(), d);
+                    logger.info("item data exists: rowId = {}, item = {}, set = {}, data = {}", id, tpItem.getName(), tpItemData.getSet(), d);
                 }
             }
         }
@@ -171,31 +171,31 @@ public class TPolRowController {
     }
 
     /**
-     * delete data for {@link TpolItem}
+     * delete data for {@link TpItem}
      * @param id {@link TpRow} id
-     * @param name {@link TpolItem} name
-     * @param tPolItemData {@link TPolItemData}
+     * @param name {@link TpItem} name
+     * @param tpItemData {@link TpItemData}
      * @return
      */
     @RequestMapping(value = "/{id:[\\d]+}/item/{name}", method = RequestMethod.DELETE)
     public ResponseEntity<Boolean> deleteItemData(
             @PathVariable int id,
             @PathVariable String name,
-            @RequestBody TPolItemData tPolItemData) {
+            @RequestBody TpItemData tpItemData) {
 
-        List<String[]> dataArray = tPolItemData.getData() != null ? Collections.singletonList(tPolItemData.getData()) : tPolItemData.getArray();
+        List<String[]> dataArray = tpItemData.getData() != null ? Collections.singletonList(tpItemData.getData()) : tpItemData.getArray();
 
         TPItem tpItem = TPItems.getTpItem(name);
 
         boolean result = false;
         if (dataArray != null && tpItem != null) {
-            TpolItem tpolItem = new TpolItem(tpItem, tPolItemData.getSet());
+            TpItem tpolItem = new TpItem(tpItem, tpItemData.getSet());
             for (String[] d : dataArray) {
                 if (Arrays.asList("ClassItem", "Distance", "StationTargetItem", "StationSourceItem").contains(name)) {
                     d[0] = d[1];
                 }
                 result |= tPolItemsService.deleteData(tpolItem, id, d[0]);
-                logger.info("delete item data: rowId = {}, item = {}, set = {}, data = {}", id, tpItem.getName(), tPolItemData.getSet(), d);
+                logger.info("delete item data: rowId = {}, item = {}, set = {}, data = {}", id, tpItem.getName(), tpItemData.getSet(), d);
             }
         }
         return new ResponseEntity<>(result, HttpStatus.OK);
