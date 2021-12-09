@@ -125,6 +125,16 @@ public class CurrencyController {
     }
 
     /**
+     * get currency's list
+     * @return
+     */
+    @RequestMapping(value = "/api/currencies", method = RequestMethod.GET)
+    public ResponseEntity<List<Currency>> getCurrencies() {
+        List<Currency> currencyList = currencyService.getCurrencies();
+        return new ResponseEntity<>(currencyList, HttpStatus.OK);
+    }
+
+    /**
      * delete exchange rate by id
      * @param id
      * @return
