@@ -8,7 +8,7 @@
         $(document).ready($(function () {
 
             var documentTable = $('#documentTable').DataTable({
-                scrollY: "calc(100vh - 280px)",
+                scrollY: "calc(100vh - 290px)",
                 scrollCollapse: true,
                 paging: false,
                 searching: true,
@@ -68,13 +68,15 @@
 
             documentTable.setTableHeight = function(count) {
                 if (count === 0) {
-                    $(this.table().container()).find('.dataTables_scrollBody').css('height', "calc(100vh - 280px)");
+                    $(this.table().container()).find('.dataTables_scrollBody').css('height', "calc(100vh - 290px)");
                 } else {
-                    $(this.table().container()).find('.dataTables_scrollBody').css('height', "calc(50vh - 180px)");
+                    $(this.table().container()).find('.dataTables_scrollBody').css('height', "calc(50vh - 190px)");
                 }
             };
 
             documentTable.reloadTable = function(id) {
+                $("#loadButton").prop("disabled", true);
+
                 var data = {};
                 data.date_begin = $("#datetime_begin_text").val();
                 data.date_end = $("#datetime_end_text").val();
@@ -98,6 +100,9 @@
                         $("#divTableRows").html("");
 
                         documentTable.selectRow(id);
+                    },
+                    complete: function () {
+                        $("#loadButton").prop("disabled", false);
                     }
                 });
             };
@@ -891,7 +896,7 @@
             /*]]>*/
 
             var itemTable = $('#itemDataTable').DataTable({
-                scrollY: "calc(100vh - 300px)",
+                scrollY: "calc(100vh - 315px)",
                 scrollCollapse: true,
                 paging: false,
                 data: item.itemData,
