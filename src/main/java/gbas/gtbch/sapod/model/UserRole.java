@@ -22,7 +22,7 @@ public enum UserRole {
     public static String getRoleName(String roleMnemo) {
         try {
             return valueOf(roleMnemo).getRoleName();
-        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
             return valueOf(ROLE_NONE.name()).getRoleName();
         }
     }

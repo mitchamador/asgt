@@ -39,7 +39,7 @@ public class Role implements Serializable {
     }
 
     public String getMnemo() {
-        return mnemo;
+        return mnemo == null ? "ROLE_NONE" : mnemo;
     }
 
     public void setMnemo(String mnemo) {
@@ -55,7 +55,7 @@ public class Role implements Serializable {
     }
 
     public String getName() {
-        return UserRole.getRoleName(mnemo);
+        return UserRole.getRoleName(getMnemo());
     }
 
     public boolean isChecked() {
