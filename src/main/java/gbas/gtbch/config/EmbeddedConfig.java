@@ -1,13 +1,17 @@
 package gbas.gtbch.config;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ibm.mq.jms.MQConnectionFactory;
 import com.ibm.mq.jms.MQConnectionFactoryFactory;
 import com.ibm.mq.jms.MQQueue;
 import com.ibm.mq.jms.MQQueueFactory;
+import gbas.gtbch.config.settings.SettingsProperties;
 import gbas.gtbch.mq.properties.JndiMQConfigurationProperties;
 import gbas.gtbch.mq.properties.QueueConfigurationProperties;
 import org.apache.catalina.Context;
 import org.apache.catalina.startup.Tomcat;
+import org.apache.tomcat.util.descriptor.web.ContextEnvironment;
 import org.apache.tomcat.util.descriptor.web.ContextResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -34,9 +38,11 @@ public class EmbeddedConfig {
     public TomcatServletWebServerFactory containerFactory(
             final DataSourceProperties sapodDataSourceProperties,
             final DataSourceProperties pensiDataSourceProperties,
+            @Qualifier("propSettinsProperties") final SettingsProperties settingsProperties,
             @Autowired(required = false) final JndiMQConfigurationProperties jndiMqConfigurationProperties,
             @Autowired(required = false) @Qualifier("inboundQueueProperties") final QueueConfigurationProperties inboundQueueConfigurationProperties,
-            @Autowired(required = false) @Qualifier("outboundQueueProperties") final QueueConfigurationProperties outboundQueueConfigurationProperties
+            @Autowired(required = false) @Qualifier("outboundQueueProperties") final QueueConfigurationProperties outboundQueueConfigurationProperties,
+            ObjectMapper objectMapper
             ) {
         return new TomcatServletWebServerFactory() {
 
@@ -68,6 +74,9 @@ public class EmbeddedConfig {
                 // jndi ресурс для outbound queue
                 if (outboundQueueConfigurationProperties != null && outboundQueueConfigurationProperties.getJndiName() != null) {
                     context.getNamingResources().addResource(createJndiQueue(outboundQueueConfigurationProperties));
+                }
+                if (settingsProperties != null && settingsProperties.getJndiName() != null) {
+                    context.getNamingResources().addEnvironment(createSettingsProperties(settingsProperties, objectMapper));
                 }
             }
 
@@ -149,6 +158,20 @@ public class EmbeddedConfig {
         resource.setProperty("QU", queueConfigurationProperties.getName());
 
         return resource;
+    }
+
+    private ContextEnvironment createSettingsProperties(SettingsProperties settingsProperties, ObjectMapper objectMapper) {
+        ContextEnvironment contextEnvironment = new ContextEnvironment();
+        contextEnvironment.setName(settingsProperties.getJndiName());
+        contextEnvironment.setType(String.class.getName());
+        contextEnvironment.setValue("[AES key in Base64 format]");
+        String jsonString = "";
+        try {
+            jsonString = objectMapper.writeValueAsString(settingsProperties);
+        } catch (JsonProcessingException ignored) {
+        }
+        contextEnvironment.setValue(jsonString);
+        return contextEnvironment;
     }
 
 }

@@ -10,12 +10,11 @@ server:
   port: 8080
 
 app:
+#  settings:
+#    newServiceCodes: true
   sapod:
     datasource:
       jndi-name: "jdbc/GTMAIN"
-#        url: jdbc:db2://10.4.253.43:50000/TEST:currentSchema=GTMAIN;
-#        username: dbgtuser
-#        password: 123qwe
       url: jdbc:db2://10.4.253.161:50000/GTTEST:currentSchema=GTMAIN;
       username: u352gtdb
       password: 165#z15fa3&
@@ -25,9 +24,6 @@ app:
   pensi:
     datasource:
       jndi-name: "jdbc/GTPENSI"
-#      url: jdbc:db2://10.4.253.43:50000/TEST:currentSchema=GTPENSI;
-#      username: dbgtuser
-#      password: 123qwe
       url: jdbc:db2://10.4.253.161:50000/GTTEST:currentSchema=GTPENSI;
       username: u352gtdb
       password: 165#z15fa3&
@@ -38,18 +34,14 @@ app:
     #enable: true
     queue-manager:
       jndi-name: "jms/GT.QCF"
-      queueManager: TEST_QUEUE_MANAGER
-      channel: MQ.CLIENT.CHANNEL
-      connName: 10.4.253.43(1414)
-      user: mqclient
-      password: 123qwe
+      queueManager: QM1
+      channel: TEST.CHANNEL
+      connName: 10.4.253.58(1414)
+      user: mqmuser01
+      password: Py33705
     inbound:
       jndi-name: "jms/GT.IN.Q"
-      name: "Q.IN"
+      name: "IN.TEST"
     outbound:
       jndi-name: "jms/GT.OUT.Q"
-      name: "Q.OUT"
-
-logging:
-  level:
-    org.springframework.transaction.interceptor: trace
+      name: "OUT.TEST"

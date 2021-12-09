@@ -2,13 +2,13 @@ package gbas.gtbch.web;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import gbas.gtbch.config.settings.SettingsProperties;
 import gbas.gtbch.model.ServerResponse;
 import gbas.gtbch.sapod.model.CalculationLog;
 import gbas.gtbch.sapod.model.TpImportDate;
 import gbas.gtbch.sapod.model.User;
 import gbas.gtbch.sapod.service.CalculationLogService;
 import gbas.gtbch.sapod.service.TpImportDateService;
-import gbas.gtbch.security.jwt.JWTToken;
 import gbas.gtbch.util.SystemInfoProperties;
 import gbas.gtbch.util.UtilDate8;
 import gbas.gtbch.util.XmlFormatter;
@@ -18,7 +18,6 @@ import gbas.gtbch.web.request.KeyValue;
 import gbas.tvk.nsi.cash.Func;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,8 +33,10 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static gbas.gtbch.util.CropString.getCroppedString;
+import static org.springframework.http.ResponseEntity.ok;
 
 @RestController
+@RequestMapping(value = "/api")
 public class ApiController {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
@@ -45,16 +46,16 @@ public class ApiController {
     private final TpImportDateService tpImportDateService;
     private final CalculationLogService calculationLogService;
     private final ObjectMapper mapper;
+    private final SystemInfoProperties systemInfoProperties;
+    private final SettingsProperties settingsProperties;
 
-    @Autowired
-    private JWTToken jwtToken;
-
-    public ApiController(CalcHandler calcHandler, TpImportDateService tpImportDateService, CalculationLogService calculationLogService, ObjectMapper mapper, SystemInfoProperties systemInfoProperties) {
+    public ApiController(CalcHandler calcHandler, TpImportDateService tpImportDateService, CalculationLogService calculationLogService, ObjectMapper mapper, SystemInfoProperties systemInfoProperties, SettingsProperties settingsProperties) {
         this.calcHandler = calcHandler;
         this.tpImportDateService = tpImportDateService;
         this.calculationLogService = calculationLogService;
         this.mapper = mapper;
         this.systemInfoProperties = systemInfoProperties;
+        this.settingsProperties = settingsProperties;
     }
 
     private Map<String, String> addUserPrincipal(Principal principal, Map<String, String> params) {
@@ -78,17 +79,17 @@ public class ApiController {
         return calculationLog;
     }
 
-    @RequestMapping(value = "/api/calc", method = RequestMethod.POST)
+    @RequestMapping(value = "/calc", method = RequestMethod.POST)
     public ResponseEntity<String> calc(Principal principal, @RequestParam(required = false) Map<String,String> params, @RequestBody String data) {
 
         String response = calcHandler.calc(new CalcData(data, createCalculationLog(addUserPrincipal(principal, params)))).getTextResult();
 
         logger.info(String.format("/api/calc response: \"%s\"", getCroppedString(response)));
 
-        return ResponseEntity.ok(response);
+        return ok(response);
     }
 
-    @RequestMapping(value = "/api/calcdata", method = RequestMethod.POST)
+    @RequestMapping(value = "/calcdata", method = RequestMethod.POST)
     public ResponseEntity<CalcData> calcdata(Principal principal, @RequestParam(required = false) Map<String, String> params, @RequestBody String data) {
 
         CalcData calcData = calcHandler.calc(new CalcData(data, createCalculationLog(addUserPrincipal(principal, params))));
@@ -98,20 +99,20 @@ public class ApiController {
 
         logger.info(String.format("/api/calc response: \"%s\"", getCroppedString(calcData.getTextResult())));
 
-        return ResponseEntity.ok(calcData);
+        return ok(calcData);
     }
 
-    @RequestMapping(value = "/api/calcxml", method = RequestMethod.POST)
+    @RequestMapping(value = "/calcxml", method = RequestMethod.POST)
     public ResponseEntity<String> calcxml(Principal principal, @RequestParam(required = false) Map<String,String> params, @RequestBody String data) {
 
         String response = calcHandler.calc(new CalcData(data, createCalculationLog(addUserPrincipal(principal, params)))).getOutputXml();
 
         logger.info(String.format("/api/calcxml response: \"%s\"", getCroppedString(response)));
 
-        return ResponseEntity.ok(response);
+        return ok(response);
     }
 
-    @RequestMapping(value = "/api/tpdate", method = RequestMethod.GET)
+    @RequestMapping(value = "/tpdate", method = RequestMethod.GET)
     public ServerResponse getTpImportDate() {
 
         TpImportDate tpImportDate = tpImportDateService.getTpImportDate();
@@ -137,7 +138,7 @@ public class ApiController {
      * @param dateEnd
      * @return
      */
-    @RequestMapping(value = "/api/calclog", method = RequestMethod.GET)
+    @RequestMapping(value = "/calclog", method = RequestMethod.GET)
     public ResponseEntity getCalculationLogList(
             HttpServletRequest request,
             @RequestParam Map<String,String> params,
@@ -165,7 +166,7 @@ public class ApiController {
      * @param id
      * @return
      */
-    @RequestMapping(value = "/api/calclog/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/calclog/{id}", method = RequestMethod.GET)
     public ResponseEntity getCalculationLog(
             HttpServletRequest request,
             @PathVariable int id,
@@ -188,7 +189,7 @@ public class ApiController {
      *
      * @return
      */
-    @RequestMapping(value = "/api/calclog/sources", method = RequestMethod.GET)
+    @RequestMapping(value = "/calclog/sources", method = RequestMethod.GET)
     public ResponseEntity<List<KeyValue>> getCalculationLogSources() {
         List<KeyValue> list = new ArrayList<>();
         list.add(new KeyValue(null, "Все"));
@@ -202,7 +203,7 @@ public class ApiController {
      *
      * @return
      */
-    @RequestMapping(value = "/api/calclog/types", method = RequestMethod.GET)
+    @RequestMapping(value = "/calclog/types", method = RequestMethod.GET)
     public ResponseEntity<List<KeyValue>> getCalculationLogTypes() {
         List<KeyValue> list = new ArrayList<>();
         list.add(new KeyValue(null, "Все"));
@@ -212,10 +213,21 @@ public class ApiController {
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
-    private final SystemInfoProperties systemInfoProperties;
-
-    @RequestMapping(value = "/api/sysinfo", method = RequestMethod.GET)
+    /**
+     *
+     * @return
+     */
+    @RequestMapping(value = "/sysinfo", method = RequestMethod.GET)
     public ResponseEntity<List<KeyValue>> getSystemInfo() {
-        return ResponseEntity.ok(systemInfoProperties.getSystemProperties());
+        return ok(systemInfoProperties.getSystemProperties());
+    }
+
+    /**
+     *
+     * @return
+     */
+    @RequestMapping(value = "/settings", method = RequestMethod.GET)
+    public ResponseEntity<SettingsProperties> getGtSettings() {
+        return new ResponseEntity<>(settingsProperties, HttpStatus.OK);
     }
 }
