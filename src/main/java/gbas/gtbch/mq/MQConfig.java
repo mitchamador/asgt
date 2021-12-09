@@ -4,10 +4,9 @@ import com.ibm.mq.jms.MQConnectionFactory;
 import com.ibm.mq.jms.MQQueue;
 import com.ibm.mq.spring.boot.MQConnectionFactoryFactory;
 import com.ibm.msg.client.wmq.WMQConstants;
-import gbas.gtbch.mq.jndi.JndiConnectionFactoryLookup;
-import gbas.gtbch.mq.jndi.JndiQueueLookup;
 import gbas.gtbch.mq.properties.JndiMQConfigurationProperties;
 import gbas.gtbch.mq.properties.QueueConfigurationProperties;
+import gbas.gtbch.util.jndi.JndiLookup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -71,7 +70,7 @@ public class MQConfig {
     @ConditionalOnExpression("!'${app.mq.queue-manager.jndi-name:}'.isEmpty()")
     public ConnectionFactory jndiConnectionFactory(JndiMQConfigurationProperties jndiMQConfigurationProperties) {
         try {
-            return new JndiConnectionFactoryLookup().getConnectionFactory(jndiMQConfigurationProperties.getJndiName());
+            return new JndiLookup<>(ConnectionFactory.class).getResource(jndiMQConfigurationProperties.getJndiName());
         } catch (NamingException e) {
             e.printStackTrace();
         }
@@ -140,7 +139,8 @@ public class MQConfig {
     private String getQueueName(QueueConfigurationProperties queueConfigurationProperties) {
         if (queueConfigurationProperties.getJndiName() != null) {
             try {
-                return ((MQQueue) new JndiQueueLookup().getQueue(queueConfigurationProperties.getJndiName())).getBaseQueueName();
+                //return ((MQQueue) new JndiQueueLookup().getQueue(queueConfigurationProperties.getJndiName())).getBaseQueueName();
+                return ((MQQueue) new JndiLookup<>(javax.jms.Queue.class).getResource(queueConfigurationProperties.getJndiName())).getBaseQueueName();
             } catch (NamingException e) {
                 e.printStackTrace();
             }
