@@ -1,6 +1,6 @@
 package gbas.gtbch.sapod.repository;
 
-import gbas.tvk.tpol3.TvkTVes;
+import gbas.gtbch.sapod.model.tpol.TpTvkTVes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -27,8 +27,8 @@ public class TPolTVesRepository {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public static TvkTVes mapVORow(ResultSet rs, int i) throws SQLException {
-        TvkTVes tvkTVes = new TvkTVes();
+    public static TpTvkTVes mapVORow(ResultSet rs, int i) throws SQLException {
+        TpTvkTVes tvkTVes = new TpTvkTVes();
         tvkTVes.id = rs.getInt("id");
         tvkTVes.id_group_t_ves = rs.getInt("id_tab");
         tvkTVes.minV = rs.getDouble("min_v");
@@ -44,8 +44,8 @@ public class TPolTVesRepository {
      * @param id
      * @return
      */
-    public TvkTVes getVO(int id) {
-        List<TvkTVes> list = jdbcTemplate.query("select v.*, t.n_tab\n" +
+    public TpTvkTVes getVO(int id) {
+        List<TpTvkTVes> list = jdbcTemplate.query("select v.*, t.n_tab\n" +
                         "from tvk_t_ves v\n" +
                         "left outer join tvk_group_t_ves t\n" +
                         "on v.id_tab = t.id\n" +
@@ -59,7 +59,7 @@ public class TPolTVesRepository {
     /**
      * @return
      */
-    public List<TvkTVes> getVOList() {
+    public List<TpTvkTVes> getVOList() {
         return getVOList(0);
     }
 
@@ -67,7 +67,7 @@ public class TPolTVesRepository {
      * @param idTPol
      * @return
      */
-    public List<TvkTVes> getVOList(int idTPol) {
+    public List<TpTvkTVes> getVOList(int idTPol) {
         return jdbcTemplate.query("select v.*, t.n_tab\n" +
                         "from tvk_t_ves v\n" +
                         "left outer join tvk_group_t_ves t\n" +
@@ -83,22 +83,22 @@ public class TPolTVesRepository {
      * @return
      */
     @Transactional(transactionManager = "sapodTransactionManager")
-    public int saveVO(TvkTVes tVes) {
+    public int saveVO(TpTvkTVes tVes) {
         Integer id = jdbcTemplate.query("select id from tvk_group_t_ves where n_tab = ?",
                 new Object[]{tVes.nTab},
                 resultSet -> resultSet.next() ? resultSet.getInt("id") : null);
 
         if (id == null) {
-            // todo (check if need to insert)
-            return 0;
-//            KeyHolder keyHolder = new GeneratedKeyHolder();
-//            jdbcTemplate.update(connection -> {
-//                PreparedStatement preparedStatement = connection.prepareStatement("insert into tvk_group_t_ves (n_tab) values (?)");
-//                preparedStatement.setInt(1, tVes.nTab);
-//                return preparedStatement;
-//            }, keyHolder);
-//            id = (Integer) keyHolder.getKey();
+            KeyHolder keyHolder = new GeneratedKeyHolder();
+            jdbcTemplate.update(connection -> {
+                PreparedStatement preparedStatement = connection.prepareStatement("insert into tvk_group_t_ves (n_tab) values (?)");
+                preparedStatement.setInt(1, tVes.nTab);
+                return preparedStatement;
+            }, keyHolder);
+            id = (Integer) keyHolder.getKey();
         }
+
+        if (id == null) return 0;
 
         tVes.id_group_t_ves = id;
 

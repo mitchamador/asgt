@@ -1,6 +1,6 @@
 package gbas.gtbch.sapod.repository;
 
-import gbas.tvk.tpol3.TvkTOsr;
+import gbas.gtbch.sapod.model.tpol.TpTvkTOsr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,8 +28,8 @@ public class TPolTOsrRepository {
     public TPolTOsrRepository(@Qualifier("sapodDataSource") DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
-    public static TvkTOsr mapContRow(ResultSet rs, int i) throws SQLException {
-        TvkTOsr tvkTOsr = new TvkTOsr();
+    public static TpTvkTOsr mapContRow(ResultSet rs, int i) throws SQLException {
+        TpTvkTOsr tvkTOsr = new TpTvkTOsr();
         tvkTOsr.id = rs.getInt("id");
         tvkTOsr.nTab = rs.getInt("n_tab");
         tvkTOsr.grpk = rs.getInt("grpk");
@@ -44,8 +44,8 @@ public class TPolTOsrRepository {
      * @param id
      * @return
      */
-    public TvkTOsr getCont(int id) {
-        List<TvkTOsr> list = jdbcTemplate.query("select b.id, a.n_tab, b.grpk, c.n_str, b.kof, b.id_group_kont, c.id as id_group_ts\n" +
+    public TpTvkTOsr getCont(int id) {
+        List<TpTvkTOsr> list = jdbcTemplate.query("select b.id, a.n_tab, b.grpk, c.n_str, b.kof, b.id_group_kont, c.id as id_group_ts\n" +
                         "from tvk_t_osr b\n" +
                         "left outer join tvk_group_t_kont a\n" +
                         "on b.id_group_kont = a.id\n" +
@@ -62,7 +62,7 @@ public class TPolTOsrRepository {
     /**
      * @return
      */
-    public List<TvkTOsr> getContList() {
+    public List<TpTvkTOsr> getContList() {
         return getContList(0);
     }
 
@@ -70,7 +70,7 @@ public class TPolTOsrRepository {
      * @param idTPol
      * @return
      */
-    public List<TvkTOsr> getContList(int idTPol) {
+    public List<TpTvkTOsr> getContList(int idTPol) {
         return jdbcTemplate.query("select b.id, a.n_tab, b.grpk, c.n_str, b.kof, b.id_group_kont, c.id as id_group_ts\n" +
                         "from tvk_t_osr b\n" +
                         "left outer join tvk_group_t_kont a\n" +
@@ -88,7 +88,7 @@ public class TPolTOsrRepository {
      * @return
      */
     @Transactional(transactionManager = "sapodTransactionManager")
-    public int saveCont(TvkTOsr osr) {
+    public int saveCont(TpTvkTOsr osr) {
         Integer id;
 
         {

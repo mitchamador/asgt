@@ -1,6 +1,6 @@
 package gbas.gtbch.sapod.repository;
 
-import gbas.tvk.tpol3.TvkKof;
+import gbas.gtbch.sapod.model.tpol.TpTvkKof;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +20,10 @@ public class TPolRepositoriesTest {
 
     @Test
     public void getKofList() {
-        List<TvkKof> list = tPolKofRepository.getKofList();
+        List<TpTvkKof> list = tPolKofRepository.getKofList();
         if (list != null && !list.isEmpty()) {
 
-            TvkKof tvkKof = tPolKofRepository.getKof(list.get(0).id);
+            TpTvkKof tvkKof = tPolKofRepository.getKof(list.get(0).id);
             if (tvkKof == null) return;
 
             tvkKof.id = 0;

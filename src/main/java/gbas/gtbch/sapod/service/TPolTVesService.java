@@ -1,6 +1,6 @@
 package gbas.gtbch.sapod.service;
 
-import gbas.tvk.tpol3.TvkTVes;
+import gbas.gtbch.sapod.model.tpol.TpTvkTVes;
 
 import java.util.List;
 
@@ -10,27 +10,27 @@ public interface TPolTVesService {
      * @param id
      * @return
      */
-    TvkTVes getVO(int id);
+    TpTvkTVes getVO(int id);
 
     /**
      *
      * @return
      */
-    List<TvkTVes> getVOList();
+    List<TpTvkTVes> getVOList();
 
     /**
      *
      * @param idTPol
      * @return
      */
-    List<TvkTVes> getVOList(int idTPol);
+    List<TpTvkTVes> getVOList(int idTPol);
 
     /**
      *
      * @param tVes
      * @return
      */
-    int saveVO(TvkTVes tVes);
+    int saveVO(TpTvkTVes tVes);
 
     /**
      *

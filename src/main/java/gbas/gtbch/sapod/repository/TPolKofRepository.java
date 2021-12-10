@@ -1,6 +1,6 @@
 package gbas.gtbch.sapod.repository;
 
-import gbas.tvk.tpol3.TvkKof;
+import gbas.gtbch.sapod.model.tpol.TpTvkKof;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +29,8 @@ public class TPolKofRepository {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    private static TvkKof mapRasstRow(ResultSet rs, int i) throws SQLException {
-        TvkKof tvkKof = new TvkKof();
+    private static TpTvkKof mapRasstRow(ResultSet rs, int i) throws SQLException {
+        TpTvkKof tvkKof = new TpTvkKof();
         tvkKof.id = rs.getInt("id");
         tvkKof.nTab = rs.getInt("n_tab");
         tvkKof.minRast = rs.getDouble("min_rast");
@@ -48,8 +48,8 @@ public class TPolKofRepository {
      * @param id
      * @return
      */
-    public TvkKof getKof(int id) {
-        List<TvkKof> list = jdbcTemplate.query("select a.id, b.n_tab, a.min_rast, a.max_rast, a.min_ves, a.max_ves, a.kof, a.id_tab, a.nz\n" +
+    public TpTvkKof getKof(int id) {
+        List<TpTvkKof> list = jdbcTemplate.query("select a.id, b.n_tab, a.min_rast, a.max_rast, a.min_ves, a.max_ves, a.kof, a.id_tab, a.nz\n" +
                         "from tvk_kof a\n" +
                         "left outer join tvk_group_t_kof b\n" +
                         "on a.id_tab = b.id\n" +
@@ -64,7 +64,7 @@ public class TPolKofRepository {
     /**
      * @return
      */
-    public List<TvkKof> getKofList() {
+    public List<TpTvkKof> getKofList() {
         return _getKofList(0, null);
     }
 
@@ -72,7 +72,7 @@ public class TPolKofRepository {
      * @param idTPol
      * @return
      */
-    public List<TvkKof> getKofList(int idTPol) {
+    public List<TpTvkKof> getKofList(int idTPol) {
         return _getKofList(idTPol, "id_tab_kof");
     }
 
@@ -80,11 +80,11 @@ public class TPolKofRepository {
      * @param idTPol
      * @return
      */
-    public List<TvkKof> getKofBsList(int idTPol) {
+    public List<TpTvkKof> getKofBsList(int idTPol) {
         return _getKofList(idTPol, "id_tab_kofbs");
     }
 
-    private List<TvkKof> _getKofList(int idTPol, String columnName) {
+    private List<TpTvkKof> _getKofList(int idTPol, String columnName) {
         return jdbcTemplate.query("select a.id, b.n_tab, a.min_rast, a.max_rast, a.min_ves, a.max_ves, a.kof, a.id_tab, a.nz\n" +
                         "from tvk_kof a\n" +
                         "left outer join tvk_group_t_kof b\n" +
@@ -100,7 +100,7 @@ public class TPolKofRepository {
      * @return
      */
     @Transactional(transactionManager = "sapodTransactionManager")
-    public int saveKof(TvkKof kof) {
+    public int saveKof(TpTvkKof kof) {
 
         Integer id = jdbcTemplate.query("select id from tvk_group_t_kof where n_tab = ?",
                 new Object[]{kof.nTab},
@@ -122,7 +122,6 @@ public class TPolKofRepository {
 
         kof.id_group_t_kof = id;
 
-/*
         {
             id = jdbcTemplate.query("select id from tvk_kof where id_tab = ? and min_rast = ?",
                     new Object[]{kof.id_group_t_kof, kof.minRast},
@@ -134,7 +133,6 @@ public class TPolKofRepository {
                 kof.id = id;
             }
         }
-*/
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -167,7 +165,6 @@ public class TPolKofRepository {
 
         if (kof.id == 0) {
             kof.id = (int) (keyHolder.getKey() != null ? keyHolder.getKey() : 0);
-            ;
         }
 
         return kof.id;

@@ -1,6 +1,6 @@
 package gbas.gtbch.sapod.service;
 
-import gbas.tvk.tpol3.TvkTOsr;
+import gbas.gtbch.sapod.model.tpol.TpTvkTOsr;
 
 import java.util.List;
 
@@ -10,27 +10,27 @@ public interface TPolTOsrService {
      * @param id
      * @return
      */
-    TvkTOsr getCont(int id);
+    TpTvkTOsr getCont(int id);
 
     /**
      *
      * @return
      */
-    List<TvkTOsr> getContList();
+    List<TpTvkTOsr> getContList();
 
     /**
      *
      * @param idTPol
      * @return
      */
-    List<TvkTOsr> getContList(int idTPol);
+    List<TpTvkTOsr> getContList(int idTPol);
 
     /**
      *
      * @param osr
      * @return
      */
-    int saveCont(TvkTOsr osr);
+    int saveCont(TpTvkTOsr osr);
 
     /**
      *

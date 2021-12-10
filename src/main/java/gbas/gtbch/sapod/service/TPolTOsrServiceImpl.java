@@ -1,7 +1,7 @@
 package gbas.gtbch.sapod.service;
 
+import gbas.gtbch.sapod.model.tpol.TpTvkTOsr;
 import gbas.gtbch.sapod.repository.TPolTOsrRepository;
-import gbas.tvk.tpol3.TvkTOsr;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,7 +20,7 @@ public class TPolTOsrServiceImpl implements TPolTOsrService {
      * @return
      */
     @Override
-    public TvkTOsr getCont(int id) {
+    public TpTvkTOsr getCont(int id) {
         return tPolTOsrRepository.getCont(id);
     }
 
@@ -28,7 +28,7 @@ public class TPolTOsrServiceImpl implements TPolTOsrService {
      * @return
      */
     @Override
-    public List<TvkTOsr> getContList() {
+    public List<TpTvkTOsr> getContList() {
         return tPolTOsrRepository.getContList();
     }
 
@@ -37,7 +37,7 @@ public class TPolTOsrServiceImpl implements TPolTOsrService {
      * @return
      */
     @Override
-    public List<TvkTOsr> getContList(int idTPol) {
+    public List<TpTvkTOsr> getContList(int idTPol) {
         return tPolTOsrRepository.getContList(idTPol);
     }
 
@@ -46,7 +46,7 @@ public class TPolTOsrServiceImpl implements TPolTOsrService {
      * @return
      */
     @Override
-    public int saveCont(TvkTOsr osr) {
+    public int saveCont(TpTvkTOsr osr) {
         return tPolTOsrRepository.saveCont(osr);
     }
 

@@ -1,7 +1,7 @@
 package gbas.gtbch.sapod.service;
 
+import gbas.gtbch.sapod.model.tpol.TpTvkTVes;
 import gbas.gtbch.sapod.repository.TPolTVesRepository;
-import gbas.tvk.tpol3.TvkTVes;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,7 +20,7 @@ public class TPolTVesServiceImpl implements TPolTVesService {
      * @return
      */
     @Override
-    public TvkTVes getVO(int id) {
+    public TpTvkTVes getVO(int id) {
         return tPolTVesRepository.getVO(id);
     }
 
@@ -28,7 +28,7 @@ public class TPolTVesServiceImpl implements TPolTVesService {
      * @return
      */
     @Override
-    public List<TvkTVes> getVOList() {
+    public List<TpTvkTVes> getVOList() {
         return tPolTVesRepository.getVOList();
     }
 
@@ -37,7 +37,7 @@ public class TPolTVesServiceImpl implements TPolTVesService {
      * @return
      */
     @Override
-    public List<TvkTVes> getVOList(int idTPol) {
+    public List<TpTvkTVes> getVOList(int idTPol) {
         return tPolTVesRepository.getVOList(idTPol);
     }
 
@@ -46,7 +46,7 @@ public class TPolTVesServiceImpl implements TPolTVesService {
      * @return
      */
     @Override
-    public int saveVO(TvkTVes tVes) {
+    public int saveVO(TpTvkTVes tVes) {
         return tPolTVesRepository.saveVO(tVes);
     }
 

@@ -1,8 +1,8 @@
 package gbas.gtbch.web;
 
+import gbas.gtbch.sapod.model.tpol.TpTvkKof;
 import gbas.gtbch.sapod.service.TPolKofService;
 import gbas.gtbch.web.controlleradvice.annotations.DuplicateKeyExceptionHandler;
-import gbas.tvk.tpol3.TvkKof;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +26,7 @@ public class TPolKofController {
      * @return
      */
     @RequestMapping(value = "", method = RequestMethod.GET)
-    public ResponseEntity<List<TvkKof>> getKofList() {
+    public ResponseEntity<List<TpTvkKof>> getKofList() {
         return new ResponseEntity<>(tPolKofService.getKofList(), HttpStatus.OK);
     }
 
@@ -35,33 +35,33 @@ public class TPolKofController {
      * @return
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public ResponseEntity<TvkKof> getKof(@PathVariable int id) {
+    public ResponseEntity<TpTvkKof> getKof(@PathVariable int id) {
         return new ResponseEntity<>(tPolKofService.getKof(id), HttpStatus.OK);
     }
 
     /**
-     * create new TvkKof
-     * @param obj {@link TvkKof}
+     * create new TpTvkKof
+     * @param obj {@link TpTvkKof}
      */
     @RequestMapping(value = "", method = RequestMethod.POST)
-    public ResponseEntity saveKof(@RequestBody TvkKof obj) {
+    public ResponseEntity saveKof(@RequestBody TpTvkKof obj) {
         int id = tPolKofService.saveKof(obj);
         return id != 0 ? ResponseEntity.created(URI.create("/api/tpol/kof/" + id)).build() : ResponseEntity.notFound().build();
     }
 
     /**
-     * update TvkKof
+     * update TpTvkKof
      * @param id tvk_kof.id
-     * @param obj {@link TvkKof}
+     * @param obj {@link TpTvkKof}
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
-    public ResponseEntity updateKof(@PathVariable int id, @RequestBody TvkKof obj) {
+    public ResponseEntity updateKof(@PathVariable int id, @RequestBody TpTvkKof obj) {
         obj.id = id;
         return tPolKofService.saveKof(obj) != 0 ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
     }
 
     /**
-     * delete TvkKof
+     * delete TpTvkKof
      * @param id - tvk_kof.id
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)

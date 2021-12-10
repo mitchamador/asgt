@@ -1,7 +1,7 @@
 package gbas.gtbch.sapod.service;
 
+import gbas.gtbch.sapod.model.tpol.TpTvkKof;
 import gbas.gtbch.sapod.repository.TPolKofRepository;
-import gbas.tvk.tpol3.TvkKof;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,7 +20,7 @@ public class TPolKofServiceImpl implements TPolKofService {
      * @return
      */
     @Override
-    public TvkKof getKof(int id) {
+    public TpTvkKof getKof(int id) {
         return tPolKofRepository.getKof(id);
     }
 
@@ -29,7 +29,7 @@ public class TPolKofServiceImpl implements TPolKofService {
      * @return
      */
     @Override
-    public List<TvkKof> getKofList() {
+    public List<TpTvkKof> getKofList() {
         return tPolKofRepository.getKofList();
     }
 
@@ -38,7 +38,7 @@ public class TPolKofServiceImpl implements TPolKofService {
      * @return
      */
     @Override
-    public List<TvkKof> getKofList(int idTPol) {
+    public List<TpTvkKof> getKofList(int idTPol) {
         return tPolKofRepository.getKofList(idTPol);
     }
 
@@ -48,7 +48,7 @@ public class TPolKofServiceImpl implements TPolKofService {
      * @return
      */
     @Override
-    public List<TvkKof> getKofBsList(int idTPol) {
+    public List<TpTvkKof> getKofBsList(int idTPol) {
         return tPolKofRepository.getKofBsList(idTPol);
     }
 
@@ -57,7 +57,7 @@ public class TPolKofServiceImpl implements TPolKofService {
      * @return
      */
     @Override
-    public int saveKof(TvkKof kof) {
+    public int saveKof(TpTvkKof kof) {
         return tPolKofRepository.saveKof(kof);
     }
 
