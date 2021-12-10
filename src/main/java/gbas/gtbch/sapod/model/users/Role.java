@@ -1,4 +1,4 @@
-package gbas.gtbch.sapod.model;
+package gbas.gtbch.sapod.model.users;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;

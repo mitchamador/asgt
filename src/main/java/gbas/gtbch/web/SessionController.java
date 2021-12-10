@@ -1,6 +1,6 @@
 package gbas.gtbch.web;
 
-import gbas.gtbch.sapod.model.User;
+import gbas.gtbch.sapod.model.users.User;
 import gbas.gtbch.security.SessionHandler;
 import gbas.gtbch.security.jwt.JWTToken;
 import gbas.gtbch.web.response.Response;

@@ -1,6 +1,6 @@
 package gbas.gtbch.security.jwt;
 
-import gbas.gtbch.sapod.model.User;
+import gbas.gtbch.sapod.model.users.User;
 import gbas.gtbch.sapod.service.UserService;
 import gbas.gtbch.security.ApiAccess;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;

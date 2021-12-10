@@ -6,7 +6,7 @@ import gbas.gtbch.config.settings.SettingsProperties;
 import gbas.gtbch.model.ServerResponse;
 import gbas.gtbch.sapod.model.CalculationLog;
 import gbas.gtbch.sapod.model.TpImportDate;
-import gbas.gtbch.sapod.model.User;
+import gbas.gtbch.sapod.model.users.User;
 import gbas.gtbch.sapod.service.CalculationLogService;
 import gbas.gtbch.sapod.service.TpImportDateService;
 import gbas.gtbch.util.SystemInfoProperties;

@@ -1,4 +1,4 @@
-package gbas.gtbch.sapod.model;
+package gbas.gtbch.sapod.model.users;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,6 +1,6 @@
 package gbas.gtbch.security;
 
-import gbas.gtbch.sapod.model.User;
+import gbas.gtbch.sapod.model.users.User;
 import gbas.gtbch.sapod.service.UserService;
 import gbas.gtbch.security.jwt.JWTToken;
 import gbas.gtbch.util.UtilDate8;

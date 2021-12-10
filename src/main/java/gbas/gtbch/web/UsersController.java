@@ -1,8 +1,9 @@
 package gbas.gtbch.web;
 
-import gbas.gtbch.sapod.model.Role;
-import gbas.gtbch.sapod.model.User;
-import gbas.gtbch.sapod.model.UserRole;
+import gbas.gtbch.sapod.model.users.Role;
+import gbas.gtbch.sapod.model.users.User;
+import gbas.gtbch.sapod.model.users.UserItem;
+import gbas.gtbch.sapod.model.users.UserRole;
 import gbas.gtbch.sapod.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,8 +74,15 @@ public class UsersController {
      * @return
      */
     @RequestMapping(value = "/api/users", method = RequestMethod.GET)
-    public ResponseEntity<List<User>> getUsers(@RequestParam(required = false) boolean active) {
-        return new ResponseEntity<>(active ? getUsersFromSessionRegistry() : userService.findAll(), HttpStatus.OK);
+    public ResponseEntity<List<UserItem>> getUsers(@RequestParam(required = false) boolean active) {
+        return new ResponseEntity<>(getUserItemList(active ? getUsersFromSessionRegistry() : userService.findAll()), HttpStatus.OK);
+    }
+
+    private List<UserItem> getUserItemList(List<User> users) {
+        if (users != null) {
+            return users.stream().map(UserItem::new).collect(Collectors.toList());
+        }
+        return null;
     }
 
     /**

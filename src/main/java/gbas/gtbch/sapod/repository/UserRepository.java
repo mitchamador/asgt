@@ -1,6 +1,6 @@
 package gbas.gtbch.sapod.repository;
 
-import gbas.gtbch.sapod.model.User;
+import gbas.gtbch.sapod.model.users.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

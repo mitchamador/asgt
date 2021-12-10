@@ -1,6 +1,6 @@
 package gbas.gtbch.sapod.service;
 
-import gbas.gtbch.sapod.model.User;
+import gbas.gtbch.sapod.model.users.User;
 
 import java.util.List;
 
