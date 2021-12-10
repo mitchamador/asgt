@@ -1074,6 +1074,23 @@
                     columns: columns
                 });
 
+                // override default search algorith, search if column 1 (code) starts with value in search box
+                $('#nsiDataTable_filter input').unbind().bind('keyup', function() {
+                    nsiTable.column(1).search("^" + this.value, true).draw();
+                });
+
+                $(nsiTable.table().header()).on('click', 'th', function () {
+                    if (nsiTable.column(this).index() === 0) {
+                        var selected = nsiTable.rows({filter: 'applied', selected: true}).count();
+                        var total = nsiTable.rows({filter: 'applied'}).count();
+                        if (selected === total) {
+                            nsiTable.rows({filter: 'applied'}).deselect();
+                        } else {
+                            nsiTable.rows({filter: 'applied'}).select();
+                        }
+                    }
+                });
+
                 addCounterToDataTable(nsiTable);
             }
 
