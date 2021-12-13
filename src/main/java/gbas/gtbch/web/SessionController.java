@@ -3,6 +3,7 @@ package gbas.gtbch.web;
 import gbas.gtbch.sapod.model.users.User;
 import gbas.gtbch.security.SessionHandler;
 import gbas.gtbch.security.jwt.JWTToken;
+import gbas.gtbch.web.response.AuthResponse;
 import gbas.gtbch.web.response.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +56,7 @@ public class SessionController {
      * @return
      */
     @RequestMapping(value = "login", method = RequestMethod.POST)
-    public ResponseEntity<Response> login(HttpSession session,
+    public ResponseEntity<AuthResponse> login(HttpSession session,
                                               @RequestParam(value = "username", required = false) String userName,
                                               @RequestParam(value = "password", required = false) String password) {
         try {
@@ -77,14 +78,14 @@ public class SessionController {
 
                 String token = authentication.getPrincipal() instanceof User ? ((User) authentication.getPrincipal()).getToken() : "";
 
-                return ResponseEntity.ok().header(jwtToken.getHeaderString(), token).body(new Response(String.format("User %s logged in", userName)));
+                return ResponseEntity.ok().header(jwtToken.getHeaderString(), token).body(new AuthResponse(String.format("User %s logged in", userName), token.replaceAll(jwtToken.getTokenPrefix(), "")));
             }
 
         } catch (BadCredentialsException e) {
             logger.debug("login failed for user {}", userName);
         }
 
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Response("Login failed"));
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new AuthResponse("Login failed"));
     }
 
     /**
