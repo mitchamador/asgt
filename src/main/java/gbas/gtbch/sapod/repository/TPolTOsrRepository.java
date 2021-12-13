@@ -189,6 +189,9 @@ public class TPolTOsrRepository {
      */
     @Transactional(transactionManager = "sapodTransactionManager")
     public boolean deleteCont(int id) {
-        return jdbcTemplate.update("delete from tvk_t_osr where id = " + id) != 0;
+        return jdbcTemplate.update(
+                "delete from tvk_t_osr where id = ?",
+                ps -> ps.setInt(1, id)
+        ) != 0;
     }
 }

@@ -176,6 +176,9 @@ public class TPolKofRepository {
      */
     @Transactional(transactionManager = "sapodTransactionManager")
     public boolean deleteKof(int id) {
-        return jdbcTemplate.update("delete from tvk_kof where id = " + id) != 0;
+        return jdbcTemplate.update(
+                "delete from tvk_kof where id = ?",
+                ps -> ps.setInt(1, id)
+        ) != 0;
     }
 }

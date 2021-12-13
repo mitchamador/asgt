@@ -152,6 +152,9 @@ public class TPolTVesRepository {
      */
     @Transactional(transactionManager = "sapodTransactionManager")
     public boolean deleteVO(int id) {
-        return jdbcTemplate.update("delete from tvk_t_ves where id = " + id) != 0;
+        return jdbcTemplate.update(
+                "delete from tvk_t_ves where id = ?",
+                ps -> ps.setInt(1, id)
+        ) != 0;
     }
 }

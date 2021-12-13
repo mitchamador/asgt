@@ -105,9 +105,14 @@ public class TPolRowRepository {
     @Transactional(transactionManager = "sapodTransactionManager")
     public boolean deleteRow(int id) {
         for (ItemTable itemTable : ItemTable.values()) {
-            jdbcTemplate.update("delete from " + itemTable.name() + "  where id_t_pol = " + id);
+            jdbcTemplate.update(
+                    "delete from " + itemTable.name() + "  where id_t_pol = ?",
+                    ps -> ps.setInt(1, id)
+            );
         }
-        return jdbcTemplate.update("delete from tvk_t_pol where id = " + id) != 0;
+        return jdbcTemplate.update("delete from tvk_t_pol where id = ?",
+                ps -> ps.setInt(1, id)
+        ) != 0;
     }
 
     /**
