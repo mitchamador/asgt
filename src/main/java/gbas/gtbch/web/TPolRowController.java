@@ -63,7 +63,7 @@ public class TPolRowController {
     @RequestMapping(value = "", method = RequestMethod.POST)
     public ResponseEntity saveRow(@RequestBody TpRow row) {
         int id = tpolRowService.saveRow(row);
-        return id != 0 ? ResponseEntity.created(URI.create("/api/tpol/row/" + id)).build() : ResponseEntity.notFound().build();
+        return id != 0 ? ResponseEntity.created(URI.create("/api/tpol/row/" + id)).build() : ResponseEntity.noContent().build();
     }
 
     /**
@@ -73,7 +73,7 @@ public class TPolRowController {
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
     public ResponseEntity updateRow(@PathVariable int id, @RequestBody TpRow row) {
         row.id = id;
-        return tpolRowService.saveRow(row) != 0 ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+        return tpolRowService.saveRow(row) != 0 ? ResponseEntity.ok().build() : ResponseEntity.noContent().build();
     }
 
     /**
@@ -133,7 +133,7 @@ public class TPolRowController {
                 return ResponseEntity.ok().build();
             }
         }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.noContent().build();
     }
 
     /**

@@ -90,7 +90,7 @@ public class TPolController {
     @RequestMapping(value = "/document", method = RequestMethod.POST)
     public ResponseEntity<Integer> saveDocument(@RequestBody TpDocument obj) {
         int id = tpolService.saveDocument(obj);
-        return id != 0 ? ResponseEntity.created(URI.create("/api/tpol/document/" + id)).body(id) : ResponseEntity.notFound().build();
+        return id != 0 ? ResponseEntity.created(URI.create("/api/tpol/document/" + id)).body(id) : ResponseEntity.noContent().build();
     }
 
     /**
@@ -100,7 +100,7 @@ public class TPolController {
     @RequestMapping(value = "/document/{id:[\\d]+}", method = RequestMethod.PUT)
     public ResponseEntity<Integer> updateDocument(@PathVariable int id, @RequestBody TpDocument obj) {
         obj.id = id;
-        return tpolService.saveDocument(obj) != 0 ? ResponseEntity.ok().body(obj.id) : ResponseEntity.notFound().build();
+        return tpolService.saveDocument(obj) != 0 ? ResponseEntity.ok().body(obj.id) : ResponseEntity.noContent().build();
     }
 
     /**

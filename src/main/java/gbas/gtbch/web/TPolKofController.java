@@ -46,7 +46,7 @@ public class TPolKofController {
     @RequestMapping(value = "", method = RequestMethod.POST)
     public ResponseEntity saveKof(@RequestBody TpTvkKof obj) {
         int id = tPolKofService.saveKof(obj);
-        return id != 0 ? ResponseEntity.created(URI.create("/api/tpol/kof/" + id)).build() : ResponseEntity.notFound().build();
+        return id != 0 ? ResponseEntity.created(URI.create("/api/tpol/kof/" + id)).build() : ResponseEntity.noContent().build();
     }
 
     /**
@@ -57,7 +57,7 @@ public class TPolKofController {
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
     public ResponseEntity updateKof(@PathVariable int id, @RequestBody TpTvkKof obj) {
         obj.id = id;
-        return tPolKofService.saveKof(obj) != 0 ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+        return tPolKofService.saveKof(obj) != 0 ? ResponseEntity.ok().build() : ResponseEntity.noContent().build();
     }
 
     /**

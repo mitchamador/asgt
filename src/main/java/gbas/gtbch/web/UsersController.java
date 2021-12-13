@@ -111,7 +111,7 @@ public class UsersController {
     @RequestMapping(value = "/api/user", method = RequestMethod.POST)
     public ResponseEntity<Integer> createUser(@RequestBody User user) {
         user = userService.saveUser(user);
-        return user != null ? ResponseEntity.created(URI.create("/api/user/" + user.getId())).body(user.getId()) : ResponseEntity.notFound().build();
+        return user != null ? ResponseEntity.created(URI.create("/api/user/" + user.getId())).body(user.getId()) : ResponseEntity.noContent().build();
     }
 
     /**
@@ -122,7 +122,7 @@ public class UsersController {
     @RequestMapping(value = "/api/user/{id:[\\d]+}", method = RequestMethod.PUT)
     public ResponseEntity<Integer> saveUser(@PathVariable int id, @RequestBody User user) {
         user.setId(id);
-        return userService.saveUser(user) != null ? ResponseEntity.ok().body(user.getId()) : ResponseEntity.notFound().build();
+        return userService.saveUser(user) != null ? ResponseEntity.ok().body(user.getId()) : ResponseEntity.noContent().build();
     }
 
     /**

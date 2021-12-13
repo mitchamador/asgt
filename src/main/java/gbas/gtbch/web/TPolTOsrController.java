@@ -46,7 +46,7 @@ public class TPolTOsrController {
     @RequestMapping(value = "", method = RequestMethod.POST)
     public ResponseEntity saveTOsr(@RequestBody TpTvkTOsr obj) {
         int id = tPolTOsrService.saveCont(obj);
-        return id != 0 ? ResponseEntity.created(URI.create("/api/tpol/tosr/" + id)).build() : ResponseEntity.notFound().build();
+        return id != 0 ? ResponseEntity.created(URI.create("/api/tpol/tosr/" + id)).build() : ResponseEntity.noContent().build();
     }
 
     /**
@@ -56,7 +56,7 @@ public class TPolTOsrController {
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
     public ResponseEntity updateTOsr(@PathVariable int id, @RequestBody TpTvkTOsr obj) {
         obj.id = id;
-        return tPolTOsrService.saveCont(obj) != 0 ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+        return tPolTOsrService.saveCont(obj) != 0 ? ResponseEntity.ok().build() : ResponseEntity.noContent().build();
     }
 
     /**
