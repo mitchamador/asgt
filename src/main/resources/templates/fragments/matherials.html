@@ -1,0 +1,199 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<th:block th:fragment="matherials">
+
+    <script type="application/javascript">
+        $(document).ready($(function () {
+
+            var matherialTable = $('#matherialTable').DataTable({
+                scrollY: "calc(100vh - 295px)",
+                scrollCollapse: true,
+                paging: true,
+                pageLength: 100,
+                pagingType: "full_numbers",
+                searching: true,
+                info: false,
+                language : {
+                    "zeroRecords": " ",
+                    searchPlaceholder: "Поиск",
+                    "search": "Поиск:",
+                    paginate: {
+                        first:    '«',
+                        previous: '‹',
+                        next:     '›',
+                        last:     '»'
+                    }
+                },
+                //dom: 't<"row col-sm-1 margin-top-sm"f>',
+                dom: //"<'row'<'col-sm-12'f>>" +
+                    "<'row'<'col-sm-12'tr>>" +
+                    "<<'pull-left'f><'pull-right'p>>",
+                style: 'single',
+                select: { style: 'single'},
+                columnDefs: [
+                    {
+                        "searchable": false,
+                        "orderable": false,
+                        "targets": 0
+                    },
+                    {
+                        targets:   -1,
+                        render: function ( data, type, row ) {
+                            if ( type === 'display' ) {
+                                return '<div style="display: flex; max-width: 650px; width: 100%; height: 100%; vertical-align: center">' +
+                                    '<span style="flex-grow: 1; align-self: center;">' + data + '</span>'+
+                                    '<a id="matherialEdit" class="invisible btn-success btn-sm" style="align-self: center; margin-right: 3px; padding: 1px 4px; cursor: pointer"><i class="fa fa-edit"></i></a>' +
+                                    '<a id="matherialDelete" class="invisible btn-danger btn-sm" style="align-self: center; padding: 1px 5px; cursor: pointer"><i class="fa fa-trash"></i></a>' +
+                                    '</div>';
+                            }
+                            return data;
+                        }
+                    }
+                ],
+                rowId: "id",
+                columns: [
+                    { "data": "id" },
+                    { "data": "codeEkisufr"},
+                    { "data": "code" },
+                    { "data": "name" },
+                    { "data": "descriptorName" },
+                    { "data": "measureName" },
+                    { "data": "rate" },
+                    { "data": "serviceKoef" },
+                    { "data": "serviceNds" }
+                ],
+                order: [
+                    [1, "asc"],
+                    [2, "asc"]
+                ]
+            });
+
+            matherialTable.reloadTable = function(id) {
+                $("#loadButton").prop("disabled", true);
+
+                var data = {};
+                data.date_begin = $("#datetime_begin_text").val();
+                data.date_end = $("#datetime_end_text").val();
+
+                $.ajax({
+                    url: contextRoot + "api/matherials",
+                    type: "get",
+                    data: data,
+                    cache: false,
+                    success: function (data) {
+                        matherialTable.rows().clear();
+                        matherialTable.rows.add(data).draw();
+
+                        matherialTable.selectRow(id);
+                    },
+                    complete: function () {
+                        $("#loadButton").prop("disabled", false);
+                    }
+                });
+            };
+
+            matherialTable.selectRow = function(id) {
+                this.row("#" + id).select();
+                var rowElement = $('#matherialTable').find("[id=" + id + "]").get(0);
+                if (rowElement !== undefined) {
+                    rowElement.scrollIntoViewIfNeeded();
+                }
+            };
+
+            addCounterToDataTable(matherialTable);
+
+            addDataTableRowListener(matherialTable,
+                {
+                    "matherialEdit" : function(tr) {
+                        var row = matherialTable.row(tr);
+
+                        // var d = row.data();
+                        // console.log("Редактирование услуги с id=" + d.id);
+                        //
+                        // $("#matherialEditor").load(
+                        //     "./matherials/" + d.id + "/editor"
+                        // );
+                    },
+                    "matherialDelete" : function(tr) {
+                        var row = matherialTable.row(tr);
+
+                        // showYesNoModal("Удалить услугу?",
+                        //     function() {
+                        //         var d = row.data();
+                        //         console.log("Удаление услуги с id=" + d.id);
+                        //
+                        //         $.ajax({
+                        //             url: contextRoot + "api/matherials/" + d.id,
+                        //             type: "DELETE",
+                        //             cache: false,
+                        //             success: function (msg) {
+                        //                 if (msg === true) {
+                        //                     row.remove().draw();
+                        //                 } else {
+                        //                     console.log("no data reloading needed");
+                        //                 }
+                        //             }
+                        //         });
+                        //     },
+                        //     function() {
+                        //         var d = row.data();
+                        //         console.log("Отмена удаления услуги с id=" + d.id);
+                        //     }
+                        // );
+                    }
+                }
+            );
+
+            window.MatherialData = {
+                matherialTable : matherialTable,
+            };
+
+            $("#matherialCreate").click(function (e) {
+
+                // $("#matherialEditor").load(
+                //     "./matherials/0/editor"
+                // );
+
+                //e.preventDefault();
+                //e.stopPropagation();
+            });
+
+            matherialTable.reloadTable();
+
+        }));
+
+    </script>
+
+    <div id="matherialEditor">
+    </div>
+
+    <table id="matherialTable" class="table-condensed table-bordered" style="width:100%; font-size: 0.9em">
+        <thead>
+        <tr>
+            <th class="text-nowrap" style="width: 5%">
+                <!--                № п/п-->
+                <div style="display: flex; width: 100%; height: 100%">
+                    <a id="matherialCreate" class="btn-success btn-sm" style="align-self: center; margin-right: 3px; padding: 1px 5px; cursor: pointer"><i class="fa fa-plus"></i></a>
+                    <span class="text-nowrap" style="flex-grow: 1; align-self: center;">№ п/п</span>
+                </div>
+            </th>
+
+            <th style="width: 7%">Код ЕК ИСУФР</th>
+            <th style="width: 7%">Код ГТ</th>
+            <th style="width: 33%">Наименование</th>
+            <th style="width: 20%">Предназначение</th>
+            <th style="width: 12%">Единица измерения</th>
+            <th style="width: 9%">Ставка</th>
+            <th style="width: 6%">Коэф.</th>
+            <th style="width: 6%">НДС</th>
+
+        </tr>
+        </thead>
+    </table>
+
+</th:block>
+
+</body>
+</html>
