@@ -2,6 +2,7 @@ package gbas.gtbch.sapod.service;
 
 import gbas.gtbch.sapod.model.tpol.TpTvkTOsr;
 import gbas.gtbch.sapod.repository.TPolTOsrRepository;
+import gbas.gtbch.web.request.KeyValue;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -57,6 +58,16 @@ public class TPolTOsrServiceImpl implements TPolTOsrService {
     @Override
     public boolean deleteCont(int id) {
         return tPolTOsrRepository.deleteCont(id);
+    }
+
+    @Override
+    public List<KeyValue> getNstrValues() {
+        return tPolTOsrRepository.getNstrValues();
+    }
+
+    @Override
+    public List<KeyValue> getGrpkValues() {
+        return tPolTOsrRepository.getGrpkValues();
     }
 
 }

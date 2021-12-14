@@ -40,7 +40,7 @@ public class TPolRowController {
      * get TpRow
      * @param id tvk_t_pol.id
      */
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{id:[\\d]+}", method = RequestMethod.GET)
     public ResponseEntity<TpRow> getRow(@PathVariable int id) {
         return new ResponseEntity<>(tpolRowService.getRow(id), HttpStatus.OK);
     }
@@ -50,7 +50,7 @@ public class TPolRowController {
      * @param id tvk_t_pol.id
      * @param documentId - destinatation documentId
      */
-    @RequestMapping(value = "/{id}/copy", method = RequestMethod.GET)
+    @RequestMapping(value = "/{id:[\\d]+}/copy", method = RequestMethod.GET)
     public ResponseEntity<TpRow> copyRow(@PathVariable int id, @RequestParam(required = false, name = "doc_id") Integer documentId) {
         logger.info("copy source tp row with id = {} to tp document with id {}", id, documentId);
         return new ResponseEntity<>(tpolRowService.copyRow(id, documentId != null ? documentId : 0), HttpStatus.OK);
@@ -70,7 +70,7 @@ public class TPolRowController {
      * update TpRow
      * @param id - tvk_t_pol.id
      */
-    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/{id:[\\d]+}", method = RequestMethod.PUT)
     public ResponseEntity updateRow(@PathVariable int id, @RequestBody TpRow row) {
         row.id = id;
         return tpolRowService.saveRow(row) != 0 ? ResponseEntity.ok().build() : ResponseEntity.noContent().build();
@@ -80,7 +80,7 @@ public class TPolRowController {
      * delete TPRow
      * @param id - tvk_t_pol.id
      */
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/{id:[\\d]+}", method = RequestMethod.DELETE)
     public ResponseEntity<Boolean> deleteRow(@PathVariable int id) {
         logger.info("delete tp row with id = {}", id);
         return new ResponseEntity<>(tpolRowService.deleteRow(id), HttpStatus.OK);

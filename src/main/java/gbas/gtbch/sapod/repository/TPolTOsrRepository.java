@@ -1,6 +1,8 @@
 package gbas.gtbch.sapod.repository;
 
 import gbas.gtbch.sapod.model.tpol.TpTvkTOsr;
+import gbas.gtbch.web.request.KeyValue;
+import gbas.tvk.nsi.cash.Func;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -191,5 +193,19 @@ public class TPolTOsrRepository {
                 "delete from tvk_t_osr where id = ?",
                 ps -> ps.setInt(1, id)
         ) != 0;
+    }
+
+    public List<KeyValue> getNstrValues() {
+        return jdbcTemplate.query("SELECT n_str, name FROM tvk_group_ts\n" +
+                        "ORDER BY 1\n ",
+                (rs, rowNum) -> new KeyValue(rs.getString("n_str"), Func.iif(rs.getString("name")))
+        );
+    }
+
+    public List<KeyValue> getGrpkValues() {
+        return jdbcTemplate.query("SELECT grpk, rem FROM tvk_s_grp_kon\n" +
+                        "ORDER BY 1\n ",
+                (rs, rowNum) -> new KeyValue(rs.getString("grpk"), Func.iif(rs.getString("rem")))
+        );
     }
 }

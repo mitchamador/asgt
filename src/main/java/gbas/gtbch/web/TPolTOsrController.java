@@ -3,6 +3,7 @@ package gbas.gtbch.web;
 import gbas.gtbch.sapod.model.tpol.TpTvkTOsr;
 import gbas.gtbch.sapod.service.TPolTOsrService;
 import gbas.gtbch.web.controlleradvice.annotations.DuplicateKeyExceptionHandler;
+import gbas.gtbch.web.request.KeyValue;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,7 +35,7 @@ public class TPolTOsrController {
      *
      * @return
      */
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{id:[\\d]+}", method = RequestMethod.GET)
     public ResponseEntity<TpTvkTOsr> getTOsr(@PathVariable int id) {
         return new ResponseEntity<>(tPolTOsrService.getCont(id), HttpStatus.OK);
     }
@@ -53,7 +54,7 @@ public class TPolTOsrController {
      * update TpTvkTOsr
      * @param id - tvk_t_osr.id
      */
-    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/{id:[\\d]+}", method = RequestMethod.PUT)
     public ResponseEntity updateTOsr(@PathVariable int id, @RequestBody TpTvkTOsr obj) {
         obj.id = id;
         return tPolTOsrService.saveCont(obj) != 0 ? ResponseEntity.ok().build() : ResponseEntity.noContent().build();
@@ -63,9 +64,27 @@ public class TPolTOsrController {
      * delete TpTvkTOsr
      * @param id - tvk_t_osr.id
      */
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/{id:[\\d]+}", method = RequestMethod.DELETE)
     public ResponseEntity<Boolean> deleteTOsr(@PathVariable int id) {
         return new ResponseEntity<>(tPolTOsrService.deleteCont(id), HttpStatus.OK);
+    }
+
+    /**
+     * get list of values for {@link TpTvkTOsr#nSt}
+     * @return
+     */
+    @RequestMapping(value = "/nstr", method = RequestMethod.GET)
+    public ResponseEntity<List<KeyValue>> getNstrValues() {
+        return new ResponseEntity<>(tPolTOsrService.getNstrValues(), HttpStatus.OK);
+    }
+
+    /**
+     * get list of values for {@link TpTvkTOsr#grpk}
+     * @return
+     */
+    @RequestMapping(value = "/grpk", method = RequestMethod.GET)
+    public ResponseEntity<List<KeyValue>> getGrpkValues() {
+        return new ResponseEntity<>(tPolTOsrService.getGrpkValues(), HttpStatus.OK);
     }
 
 }

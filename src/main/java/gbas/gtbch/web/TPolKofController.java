@@ -34,7 +34,7 @@ public class TPolKofController {
      *
      * @return
      */
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{id:[\\d]+}", method = RequestMethod.GET)
     public ResponseEntity<TpTvkKof> getKof(@PathVariable int id) {
         return new ResponseEntity<>(tPolKofService.getKof(id), HttpStatus.OK);
     }
@@ -54,7 +54,7 @@ public class TPolKofController {
      * @param id tvk_kof.id
      * @param obj {@link TpTvkKof}
      */
-    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/{id:[\\d]+}", method = RequestMethod.PUT)
     public ResponseEntity updateKof(@PathVariable int id, @RequestBody TpTvkKof obj) {
         obj.id = id;
         return tPolKofService.saveKof(obj) != 0 ? ResponseEntity.ok().build() : ResponseEntity.noContent().build();
@@ -64,7 +64,7 @@ public class TPolKofController {
      * delete TpTvkKof
      * @param id - tvk_kof.id
      */
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/{id:[\\d]+}", method = RequestMethod.DELETE)
     public ResponseEntity<Boolean> deleteKof(@PathVariable int id) {
         return new ResponseEntity<>(tPolKofService.deleteKof(id), HttpStatus.OK);
     }
