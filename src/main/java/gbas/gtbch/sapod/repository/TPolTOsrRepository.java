@@ -153,17 +153,17 @@ public class TPolTOsrRepository {
         jdbcTemplate.update(connection -> {
             PreparedStatement preparedStatement;
             if (osr.id == 0) {
-                preparedStatement = connection.prepareStatement("insert into tvk_t_osr (id_group_kont, id_grpk, id_group_ts, grpk, kof) " +
+                preparedStatement = connection.prepareStatement("insert into tvk_t_osr (id_group_kont, id_grpk, id_group_ts, grpk, kof)" +
                                 " values (?, ?, ?, ?, ?)",
                         Statement.RETURN_GENERATED_KEYS);
             } else {
-                preparedStatement = connection.prepareStatement("update tvk_t_osr set id_group_kont = ?, id_grpk = ?, id_group_ts = ?, kof = ?, grpk = ? " +
+                preparedStatement = connection.prepareStatement("update tvk_t_osr set id_group_kont = ?, id_grpk = ?, id_group_ts = ?, grpk = ?, kof = ?" +
                         " where id = ?");
             }
 
             preparedStatement.setInt(1, osr.id_group_kont);
-            preparedStatement.setInt(2, osr.id_group_ts);
-            preparedStatement.setInt(3, osr.id_grpk);
+            preparedStatement.setInt(2, osr.id_grpk);
+            preparedStatement.setInt(3, osr.id_group_ts);
             preparedStatement.setInt(4, (int) osr.grpk);
             preparedStatement.setDouble(5, osr.kof);
 
