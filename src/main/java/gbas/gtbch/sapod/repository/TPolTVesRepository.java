@@ -86,7 +86,8 @@ public class TPolTVesRepository {
     public int saveVO(TpTvkTVes tVes) {
         Integer id = jdbcTemplate.query("select id from tvk_group_t_ves where n_tab = ?",
                 new Object[]{tVes.nTab},
-                resultSet -> resultSet.next() ? resultSet.getInt("id") : null);
+                resultSet -> resultSet.next() ? resultSet.getInt("id") : null
+        );
 
         if (id == null) {
             KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -105,7 +106,8 @@ public class TPolTVesRepository {
         {
             id = jdbcTemplate.query("select id, id_tab, min_v from tvk_t_ves where id_tab = ? and min_v = ?",
                     new Object[]{tVes.id_group_t_ves, tVes.minV},
-                    resultSet -> resultSet.next() ? resultSet.getInt("id") : null);
+                    resultSet -> resultSet.next() ? resultSet.getInt("id") : null
+            );
 
             if (id != null) {
                 tVes.id = id;

@@ -94,7 +94,8 @@ public class TPolTOsrRepository {
         {
             id = jdbcTemplate.query("select id from tvk_group_t_kont where n_tab = ?",
                     new Object[]{osr.nTab},
-                    resultSet -> resultSet.next() ? resultSet.getInt("id") : null);
+                    resultSet -> resultSet.next() ? resultSet.getInt("id") : null
+            );
 
             if (id == null) {
                 KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -117,9 +118,8 @@ public class TPolTOsrRepository {
         {
             id = jdbcTemplate.query("select id from tvk_group_ts where n_str = ?",
                     new Object[]{osr.nSt},
-                    resultSet -> {
-                        return resultSet.getInt("id");
-                    });
+                    resultSet -> resultSet.next() ? resultSet.getInt("id") : null
+            );
 
             if (id == null) return 0;
 
@@ -129,9 +129,8 @@ public class TPolTOsrRepository {
         {
             id = jdbcTemplate.query("select id from tvk_s_grp_kon where grpk = ?",
                     new Object[]{osr.grpk},
-                    resultSet -> {
-                        return resultSet.getInt("id");
-                    });
+                    resultSet -> resultSet.next() ? resultSet.getInt("id") : null
+            );
 
             if (id == null) return 0;
 
@@ -141,9 +140,8 @@ public class TPolTOsrRepository {
         {
             id = jdbcTemplate.query("select id from tvk_t_osr where id_group_kont = ? and grpk = ?",
                     new Object[]{osr.id_group_kont, osr.grpk},
-                    resultSet -> {
-                        return resultSet.getInt("id");
-                    });
+                    resultSet -> resultSet.next() ? resultSet.getInt("id") : null
+            );
 
             if (id != null) {
                 osr.id = id;

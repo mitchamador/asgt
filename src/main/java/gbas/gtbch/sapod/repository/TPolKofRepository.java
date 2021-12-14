@@ -104,7 +104,8 @@ public class TPolKofRepository {
 
         Integer id = jdbcTemplate.query("select id from tvk_group_t_kof where n_tab = ?",
                 new Object[]{kof.nTab},
-                resultSet -> resultSet.next() ? resultSet.getInt("id") : null);
+                resultSet -> resultSet.next() ? resultSet.getInt("id") : null
+        );
 
         if (id == null) {
             KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -125,9 +126,8 @@ public class TPolKofRepository {
         {
             id = jdbcTemplate.query("select id from tvk_kof where id_tab = ? and min_rast = ?",
                     new Object[]{kof.id_group_t_kof, kof.minRast},
-                    resultSet -> {
-                        return resultSet.getInt("id");
-                    });
+                    resultSet -> resultSet.next() ? resultSet.getInt("id") : null
+            );
 
             if (id != null) {
                 kof.id = id;

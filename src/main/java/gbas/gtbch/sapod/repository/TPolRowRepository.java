@@ -129,7 +129,7 @@ public class TPolRowRepository {
             Integer maxNumber = jdbcTemplate.query(
                     "select max(n_str) from tvk_t_pol where id_tarif = ?",
                     new Object[]{row.id_tarif},
-                    rs -> rs.next() ? rs.getInt(1) : null
+                    rs -> rs.next() ? rs.getInt("id") : null
             );
 
             row.nStr = maxNumber != null ? (maxNumber + 1) : 1;
@@ -157,7 +157,7 @@ public class TPolRowRepository {
                 Integer id = jdbcTemplate.query(
                         "select id from tvk_group_t_kof where n_tab = ?",
                         new Object[]{row.nTab},
-                        rs -> rs.next() ? rs.getInt(1) : null
+                        rs -> rs.next() ? rs.getInt("id") : null
                 );
                 if (id != null) {
                     row.id_tab_kof = id;
@@ -170,7 +170,7 @@ public class TPolRowRepository {
                 Integer id = jdbcTemplate.query(
                         "select id from tvk_group_t_kof where n_tab = ?",
                         new Object[]{row.bs_tab},
-                        rs -> rs.next() ? rs.getInt(1) : null
+                        rs -> rs.next() ? rs.getInt("id") : null
                 );
                 if (id != null) {
                     row.id_tab_kofbs = id;
@@ -267,15 +267,17 @@ public class TPolRowRepository {
                     sqlSelectCommand,
                     new Object[]{sourceRowId},
                     rs -> {
-                        jdbcTemplate.update(connection -> {
-                            PreparedStatement preparedStatement = connection.prepareStatement(sqlInsertCommand);
-                            int c = 1;
-                            preparedStatement.setInt(c++, row.id);
-                            for (int i = 0; i < rs.getMetaData().getColumnCount(); i++) {
-                                preparedStatement.setString(c++, rs.getString(i + 1));
-                            }
-                            return preparedStatement;
-                        });
+                        while (rs.next()) {
+                            jdbcTemplate.update(connection -> {
+                                PreparedStatement preparedStatement = connection.prepareStatement(sqlInsertCommand);
+                                int c = 1;
+                                preparedStatement.setInt(c++, row.id);
+                                for (int i = 0; i < rs.getMetaData().getColumnCount(); i++) {
+                                    preparedStatement.setString(c++, rs.getString(i + 1));
+                                }
+                                return preparedStatement;
+                            });
+                        }
                     }
             );
 
