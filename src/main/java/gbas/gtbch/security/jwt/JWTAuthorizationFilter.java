@@ -1,8 +1,12 @@
 package gbas.gtbch.security.jwt;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import gbas.gtbch.sapod.model.users.User;
 import gbas.gtbch.sapod.service.UserService;
 import gbas.gtbch.security.ApiAccess;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,6 +29,8 @@ import java.io.IOException;
  */
 @ConditionalOnExpression("'${app.api.security:}'.equals('jwt')")
 public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final UserService userService;
 
@@ -55,13 +61,7 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
         try {
             // check auth by header
-            String header = request.getHeader(jwtToken.getHeaderString());
-
-            if (header == null || !header.startsWith(jwtToken.getTokenPrefix())) {
-                return;
-            }
-
-            if ((authentication = getAuthentication(request)) == null) {
+            if ((authentication = getAuthentication(request.getHeader(jwtToken.getHeaderString()))) == null) {
                 return;
             }
 
@@ -82,23 +82,31 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
     }
 
     // Reads the JWT from the Authorization header, and then uses JWT to validate the token
-    private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
+    private UsernamePasswordAuthenticationToken getAuthentication(String _token) {
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = null;
 
-        String _token = request.getHeader(jwtToken.getHeaderString());
-
         if (_token != null) {
-            // parse the token.
-            String token = jwtToken.getToken(_token);
-
-            if (token != null) {
-                if (!jwtToken.isBlacklisted(_token)) {
-                    User user = userService.findUserByLogin(token);
-                    if (user != null) {
-                        user.setToken(_token);
-                        usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+            if (jwtToken.isBlacklisted(_token)) {
+                logger.info("token is blacklisted: {}", _token);
+            } else {
+                // parse the token.
+                try {
+                    String username = jwtToken.getUsername(_token);
+                    if (username != null) {
+                        User user = userService.findUserByLogin(username);
+                        if (user != null) {
+                            user.setToken(_token);
+                            usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                        }
+                    } else {
+                        logger.info("username from token is null: {}", _token);
                     }
+                } catch (TokenExpiredException e) {
+                    logger.info("token expired: {}", _token);
+                } catch (JWTVerificationException e) {
+                    logger.info("token verification failed: {}", _token);
                 }
+
             }
         }
 
