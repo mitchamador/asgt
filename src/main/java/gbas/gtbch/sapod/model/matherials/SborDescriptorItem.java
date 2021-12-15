@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@JsonIgnoreProperties(value = {"osob", "osobMnemo", "osobName", "osobItems"})
+@JsonIgnoreProperties(value = {"osob"})
 public class SborDescriptorItem {
 
     private int code;
@@ -38,7 +38,7 @@ public class SborDescriptorItem {
         return osob != null ? osob.name() : "";
     }
 
-    public String getOsobMnemo() {
+    public String getOsobTitle() {
         return osob != null ? osob.getNameSO() : "";
     }
 
