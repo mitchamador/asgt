@@ -1,8 +1,18 @@
 package gbas.gtbch.config.settings;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(value = {"jndiName"})
 public class SettingsProperties {
 
+    /**
+     * jndi name for configuration
+     */
     private String jndiName;
+
+    /**
+     * use new services' codes
+     */
     private boolean newServiceCodes;
 
     public String getJndiName() {

@@ -58,9 +58,9 @@ public class MatherialServiceImpl implements MatherialService {
     }
 
     @Override
-    public int saveMatherial(Matherial matherial, boolean dependencies) {
+    public int saveMatherial(Matherial matherial, boolean full) {
         matherial.setId(matherialRepository.saveMatherial(matherial));
-        if (dependencies) {
+        if (full) {
             matherialPriceRepository.savePrice(matherial);
             matherialKoefRepository.saveKoef(matherial);
             matherialNdsRepository.saveNds(matherial);

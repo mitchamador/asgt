@@ -61,8 +61,8 @@ public class MatherialsController {
      * @param obj - {@link Matherial}
      */
     @RequestMapping(value = "", method = RequestMethod.POST)
-    public ResponseEntity<Integer> saveMatherial(HttpServletRequest request, @RequestBody Matherial obj, @RequestParam(required = false) boolean dependencies) {
-        int id = matherialService.saveMatherial(obj, dependencies);
+    public ResponseEntity<Integer> saveMatherial(HttpServletRequest request, @RequestBody Matherial obj, @RequestParam(required = false) boolean full) {
+        int id = matherialService.saveMatherial(obj, full);
         return id != 0 ? ResponseEntity.created(URI.create(request.getRequestURI() + "/" + id)).body(id) : ResponseEntity.noContent().build();
     }
 
@@ -71,9 +71,9 @@ public class MatherialsController {
      * @param id - id
      */
     @RequestMapping(value = "/{id:[\\d]+}", method = RequestMethod.PUT)
-    public ResponseEntity<Integer> updateMatherial(@PathVariable int id, @RequestBody Matherial obj, @RequestParam(required = false) boolean dependencies) {
+    public ResponseEntity<Integer> updateMatherial(@PathVariable int id, @RequestBody Matherial obj, @RequestParam(required = false) boolean full) {
         obj.setId(id);
-        return matherialService.saveMatherial(obj, dependencies) != 0 ? ResponseEntity.ok().body(obj.getId()) : ResponseEntity.noContent().build();
+        return matherialService.saveMatherial(obj, full) != 0 ? ResponseEntity.ok().body(obj.getId()) : ResponseEntity.noContent().build();
     }
 
     /**

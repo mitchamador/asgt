@@ -36,10 +36,10 @@ public interface MatherialService {
     /**
      * save {@link Matherial}
      * @param matherial
-     * @param dependencies save with dependencies (price2, tvk_nds, tvk_kof_sbor)
+     * @param full save with dependencies (price2, tvk_nds, tvk_kof_sbor)
      * @return
      */
-    int saveMatherial(Matherial matherial, boolean dependencies);
+    int saveMatherial(Matherial matherial, boolean full);
 
     /**
      *

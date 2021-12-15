@@ -54,12 +54,12 @@ public class Matherial {
     /**
      * Единица измерения 1 (левая) (int	matherial.measure = measure.measure, matherial.measure_name_left = measure.name)
      */
-    protected Measure measureLeft;
+    private Measure measureLeft;
 
     /**
      * Единица измерения 2 (правая) (int	matherial.measure_right = measure.measure, matherial.measure_name_right = measure.name)
      */
-    protected Measure measureRight;
+    private Measure measureRight;
 
     /**
      * Формула расчета	Предназначение	int	matherial.descriptor (int)
@@ -69,17 +69,17 @@ public class Matherial {
     /**
      * список ставок
      */
-    protected List<MatherialPrice> priceList;
+    private List<MatherialPrice> priceList;
 
     /**
      * список коэффициентов
      */
-    protected List<MatherialKoef> koefList;
+    private List<MatherialKoef> koefList;
 
     /**
      * список значений НДС
      */
-    protected List<MatherialNds> ndsList;
+    private List<MatherialNds> ndsList;
 
     /**
      * matherial.osob_name
