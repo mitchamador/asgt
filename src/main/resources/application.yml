@@ -33,7 +33,8 @@ logging:
     by.mitchamador: INFO
     org.springframework.web: INFO
     org.springframework.security: INFO
-#    org.springframework.boot.context.web.ErrorPageFilter: OFF
+    org.hibernate.engine.jdbc.spi.SqlExceptionHelper: ERROR
+    org.springframework.boot.context.web.ErrorPageFilter: OFF
 
 app:
   api:
