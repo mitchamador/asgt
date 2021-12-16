@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@JsonIgnoreProperties(value = {"osob"})
+@JsonIgnoreProperties(value = {"osob", "osobName"})
 public class SborDescriptorItem {
 
     private int code;

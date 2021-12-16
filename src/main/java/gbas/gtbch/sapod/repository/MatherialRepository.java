@@ -5,6 +5,7 @@ import gbas.gtbch.sapod.model.matherials.MatherialListItem;
 import gbas.gtbch.sapod.model.matherials.Measure;
 import gbas.tvk.nsi.cash.Func;
 import gbas.tvk.objects.service.SborDescriptor;
+import gbas.tvk.otpravka.object.SborOsob;
 import gbas.tvk.service.db.DbHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -238,8 +239,14 @@ public class MatherialRepository {
                 preparedStatement.setNull(8, Types.VARCHAR);
             }
             preparedStatement.setString(9, Func.isEmpty(matherial.getCodeGroup()) ? "F34" : matherial.getCodeGroup());
-            preparedStatement.setString(10, matherial.getOsobName());
-            preparedStatement.setInt(11, matherial.getOsobVal());
+
+            String osobName = getOsobName(matherial.getDescriptor());
+            preparedStatement.setString(10, osobName);
+            if (osobName != null) {
+                preparedStatement.setInt(11, matherial.getOsobVal());
+            } else {
+                preparedStatement.setNull(11, Types.INTEGER);
+            }
 
             if (matherial.getId() != 0) {
                 preparedStatement.setInt(12, matherial.getId());
@@ -253,6 +260,22 @@ public class MatherialRepository {
         }
 
         return matherial.getId();
+    }
+
+    /**
+     * get SborOsob mnemocode
+     * @param descriptor
+     * @return
+     */
+    private String getOsobName(int descriptor) {
+        SborDescriptor sborDescriptor = SborDescriptor.getDescriptor(descriptor);
+        if (sborDescriptor != null) {
+            SborOsob sborOsob = sborDescriptor.getStaticSborOsob();
+            if (sborOsob != null) {
+                return sborOsob.name();
+            }
+        }
+        return null;
     }
 
     /**

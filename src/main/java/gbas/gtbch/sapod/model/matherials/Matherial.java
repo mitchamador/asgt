@@ -9,7 +9,7 @@ import java.util.List;
  * Услуга
  * GTMAIN.matherial
  */
-@JsonIgnoreProperties(value = {"nDoc", "dateBegin", "dateEnd", "codeGroup"})
+@JsonIgnoreProperties(value = {"nDoc", "dateBegin", "dateEnd", "codeGroup", "osobName"})
 public class Matherial {
 
     /**
