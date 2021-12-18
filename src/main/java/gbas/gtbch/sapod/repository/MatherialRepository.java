@@ -1,5 +1,6 @@
 package gbas.gtbch.sapod.repository;
 
+import gbas.gtbch.sapod.model.matherials.Descriptor;
 import gbas.gtbch.sapod.model.matherials.Matherial;
 import gbas.gtbch.sapod.model.matherials.MatherialListItem;
 import gbas.gtbch.sapod.model.matherials.Measure;
@@ -180,12 +181,26 @@ public class MatherialRepository {
                 matherial.setCode(Func.iif(rs.getString("code")));
                 matherial.setCodeEkisufr(Func.iif(rs.getString("code_ekisufr")));
                 matherial.setName(Func.iif(rs.getString("name")));
-                matherial.setDescriptor(rs.getInt("descriptor"));
                 matherial.setMeasureLeft(new Measure(rs.getInt("mea1_id"), Func.iif(rs.getString("mea1_name"))));
                 matherial.setMeasureRight(new Measure(rs.getInt("mea2_id"), Func.iif(rs.getString("mea2_name"))));
                 matherial.setOsobName(Func.iif(rs.getString("osob_name")));
                 matherial.setOsobVal(rs.getInt("osob_val"));
                 matherial.setCodeGroup(Func.iif(rs.getString("code_group")));
+
+                Descriptor descriptor = new Descriptor();
+                descriptor.setCode(rs.getInt("descriptor"));
+                SborDescriptor sborDescriptor = SborDescriptor.getDescriptor(descriptor.getCode());
+                if (sborDescriptor != null) {
+                    descriptor.setName(sborDescriptor.getName());
+                    SborOsob sborOsob = sborDescriptor.getStaticSborOsob();
+                    if (sborOsob != null) {
+                        descriptor.setOsobTitle(sborOsob.getNameSO());
+                        descriptor.setOsobVal(rs.getInt("osob_val"));
+                        descriptor.setOsobName(sborOsob.getName(descriptor.getOsobVal()));
+                    }
+                }
+                matherial.setDescriptor(descriptor);
+
                 return matherial;
             }, id);
         } catch (EmptyResultDataAccessException e) {
@@ -226,7 +241,7 @@ public class MatherialRepository {
             preparedStatement.setString(1, matherial.getCode());
             preparedStatement.setString(2, matherial.getCodeEkisufr());
             preparedStatement.setString(3, matherial.getName());
-            preparedStatement.setInt(4, matherial.getDescriptor());
+            preparedStatement.setInt(4, matherial.getDescriptor() != null ? matherial.getDescriptor().getCode() : 0);
             if (matherial.getMeasureLeft() != null) {
                 preparedStatement.setInt(5, matherial.getMeasureLeft().getId());
                 preparedStatement.setString(6, getMeasureName(matherial.getMeasureLeft()));
@@ -243,10 +258,10 @@ public class MatherialRepository {
             }
             preparedStatement.setString(9, Func.isEmpty(matherial.getCodeGroup()) ? "F34" : matherial.getCodeGroup());
 
-            String osobName = getOsobName(matherial.getDescriptor());
+            String osobName = getOsobName(matherial.getDescriptor() != null ? matherial.getDescriptor().getCode() : 0);
             preparedStatement.setString(10, osobName);
             if (osobName != null) {
-                preparedStatement.setInt(11, matherial.getOsobVal());
+                preparedStatement.setInt(11, matherial.getDescriptor().getOsobVal());
             } else {
                 preparedStatement.setNull(11, Types.INTEGER);
             }

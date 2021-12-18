@@ -9,7 +9,7 @@ import java.util.List;
  * Услуга
  * GTMAIN.matherial
  */
-@JsonIgnoreProperties(value = {"nDoc", "dateBegin", "dateEnd", "codeGroup", "osobName"})
+@JsonIgnoreProperties(value = {"nDoc", "dateBegin", "dateEnd", "codeGroup", "osobName", "osobVal"})
 public class Matherial {
 
     /**
@@ -62,9 +62,9 @@ public class Matherial {
     private Measure measureRight;
 
     /**
-     * Формула расчета	Предназначение	int	matherial.descriptor (int)
+     * {@link Descriptor}
      */
-    private int descriptor;
+    private Descriptor descriptor;
 
     /**
      * список ставок
@@ -168,11 +168,11 @@ public class Matherial {
         this.measureRight = measureRight;
     }
 
-    public int getDescriptor() {
+    public Descriptor getDescriptor() {
         return descriptor;
     }
 
-    public void setDescriptor(int descriptor) {
+    public void setDescriptor(Descriptor descriptor) {
         this.descriptor = descriptor;
     }
 
@@ -199,6 +199,7 @@ public class Matherial {
     public void setNdsList(List<MatherialNds> ndsList) {
         this.ndsList = ndsList;
     }
+
 
     public String getOsobName() {
         return osobName;
