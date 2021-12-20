@@ -89,6 +89,21 @@ public class MatherialServiceImpl implements MatherialService {
     }
 
     @Override
+    public MatherialKoef getMatherialKoef(int idItem) {
+        return matherialKoefRepository.getKoef(idItem);
+    }
+
+    @Override
+    public MatherialPrice getMatherialPrice(int idItem) {
+        return matherialPriceRepository.getPrice(idItem);
+    }
+
+    @Override
+    public MatherialNds getMatherialNds(int idItem) {
+        return matherialNdsRepository.getNds(idItem);
+    }
+
+    @Override
     public int saveMatherialPrice(MatherialPrice matherialPrice) {
         matherialPrice.setCodeMatherial(getCodeMatherial(matherialPrice.getIdMatherial()));
         return matherialPriceRepository.savePrice(matherialPrice);
@@ -121,17 +136,17 @@ public class MatherialServiceImpl implements MatherialService {
     }
 
     @Override
-    public boolean deleteMatherialPriceItem(int idMatherialPrice) {
-        return matherialPriceRepository.deletePriceItem(idMatherialPrice);
+    public boolean deleteMatherialPriceItem(int idItem) {
+        return matherialPriceRepository.deletePriceItem(idItem);
     }
 
     @Override
-    public boolean deleteMatherialKoefItem(int idMatherialKoef) {
-        return matherialKoefRepository.deleteKoefItem(idMatherialKoef);
+    public boolean deleteMatherialKoefItem(int idItem) {
+        return matherialKoefRepository.deleteKoefItem(idItem);
     }
 
     @Override
-    public boolean deleteMatherialNdsItem(int idMatherialNds) {
-        return matherialNdsRepository.deleteNdsItem(idMatherialNds);
+    public boolean deleteMatherialNdsItem(int idItem) {
+        return matherialNdsRepository.deleteNdsItem(idItem);
     }
 }

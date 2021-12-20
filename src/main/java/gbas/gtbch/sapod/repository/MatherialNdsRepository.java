@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -15,9 +16,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.util.List;
 
 @Component
@@ -31,21 +30,42 @@ public class MatherialNdsRepository {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
+    private MatherialNds getMatherialNds(ResultSet rs) throws SQLException {
+        MatherialNds matherialNds = new MatherialNds();
+        matherialNds.setId(rs.getInt("id"));
+        matherialNds.setIdMatherial(rs.getInt("id_matherial"));
+        matherialNds.setCodeMatherial(Func.iif(rs.getString("code_object")));
+        matherialNds.setDate(rs.getDate("date_begin"));
+        matherialNds.setValue(rs.getInt("value"));
+        return matherialNds;
+    }
+
     /**
      * get all {@link MatherialNds} for {@link Matherial}
      * @param idMatherial
      * @return
      */
     public List<MatherialNds> getNdsList(int idMatherial) {
-        return jdbcTemplate.query("select * from tvk_nds where id_matherial = ? order by date_begin desc", (rs, i) -> {
-            MatherialNds matherialNds = new MatherialNds();
-            matherialNds.setId(rs.getInt("id"));
-            matherialNds.setIdMatherial(rs.getInt("id_matherial"));
-            matherialNds.setCodeMatherial(Func.iif(rs.getString("code_object")));
-            matherialNds.setDate(rs.getDate("date_begin"));
-            matherialNds.setValue(rs.getInt("value"));
-            return matherialNds;
-        }, idMatherial);
+        return jdbcTemplate.query(
+                "select * from tvk_nds where id_matherial = ? order by date_begin desc",
+                (rs, i) -> getMatherialNds(rs),
+                idMatherial);
+    }
+
+    /**
+     * get {@link MatherialNds}
+     * @param idItem
+     * @return
+     */
+    public MatherialNds getNds(int idItem) {
+        try {
+            return jdbcTemplate.queryForObject(
+                    "select * from tvk_nds where id = ? order by date_begin desc",
+                    (rs, i) -> getMatherialNds(rs),
+                    idItem);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
     }
 
     /**

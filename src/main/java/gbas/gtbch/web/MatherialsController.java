@@ -103,6 +103,7 @@ public class MatherialsController {
      */
     @RequestMapping(value = "/{id:[\\d]+}/price", method = RequestMethod.POST)
     public ResponseEntity createMatherialPrice(HttpServletRequest request, @PathVariable int id, @RequestBody MatherialPrice matherialPrice) {
+        matherialPrice.setId(0);
         matherialPrice.setIdMatherial(id);
         int idItem = matherialService.saveMatherialPrice(matherialPrice);
         return idItem != 0 ? ResponseEntity.created(URI.create(request.getRequestURI() + "/" + idItem)).body(idItem) : ResponseEntity.noContent().build();
@@ -110,13 +111,15 @@ public class MatherialsController {
 
     /**
      * update {@link MatherialPrice}
-     * @param id
+     * @param idMatherial
+     * @param idItem
      * @return
      */
-    @RequestMapping(value = "/{id:[\\d]+}/price", method = RequestMethod.PUT)
-    public ResponseEntity updateMatherialPrice(@PathVariable int id, @RequestBody MatherialPrice matherialPrice) {
-        matherialPrice.setIdMatherial(id);
-        int idItem = matherialService.saveMatherialPrice(matherialPrice);
+    @RequestMapping(value = "/{id:[\\d]+}/price/{id_item:[\\d]+}", method = RequestMethod.PUT)
+    public ResponseEntity updateMatherialPrice(@PathVariable(name = "id") int idMatherial, @PathVariable(name = "id_item") int idItem, @RequestBody MatherialPrice matherialPrice) {
+        matherialPrice.setId(idItem);
+        matherialPrice.setIdMatherial(idMatherial);
+        idItem = matherialService.saveMatherialPrice(matherialPrice);
         return idItem != 0 ? ResponseEntity.ok().body(idItem) : ResponseEntity.noContent().build();
     }
 
@@ -141,6 +144,49 @@ public class MatherialsController {
     }
 
     /**
+     * get {@link MatherialPrice}
+     * @param id
+     * @return
+     */
+    @RequestMapping(value = "/price/{id:[\\d]+}", method = RequestMethod.GET)
+    public ResponseEntity<MatherialPrice> getPriceItem(@PathVariable int id) {
+        return new ResponseEntity<>(matherialService.getMatherialPrice(id), HttpStatus.OK);
+    }
+
+    /**
+     * create new {@link MatherialPrice}
+     * @return
+     */
+    @RequestMapping(value = "/price", method = RequestMethod.POST)
+    public ResponseEntity createPriceItem(HttpServletRequest request, @RequestBody MatherialPrice matherialPrice) {
+        matherialPrice.setId(0);
+        int idItem = matherialService.saveMatherialPrice(matherialPrice);
+        return idItem != 0 ? ResponseEntity.created(URI.create(request.getRequestURI() + "/" + idItem)).body(idItem) : ResponseEntity.noContent().build();
+    }
+
+    /**
+     * update {@link MatherialPrice}
+     * @param idItem
+     * @return
+     */
+    @RequestMapping(value = "/price/{id:[\\d]+}", method = RequestMethod.PUT)
+    public ResponseEntity updatePriceItem(@PathVariable(name = "id") int idItem, @RequestBody MatherialPrice matherialPrice) {
+        matherialPrice.setId(idItem);
+        idItem = matherialService.saveMatherialPrice(matherialPrice);
+        return idItem != 0 ? ResponseEntity.ok().body(idItem) : ResponseEntity.noContent().build();
+    }
+
+    /**
+     * delete {@link MatherialPrice} item
+     * @param idItem
+     * @return
+     */
+    @RequestMapping(value = "/price/{id:[\\d]+}", method = RequestMethod.DELETE)
+    public ResponseEntity<Boolean> deletePriceItem(@PathVariable(name = "id") int idItem) {
+        return new ResponseEntity<>(matherialService.deleteMatherialPriceItem(idItem), HttpStatus.OK);
+    }
+
+    /**
      * get {@link MatherialKoef} list
      * @param id
      * @return
@@ -157,6 +203,7 @@ public class MatherialsController {
      */
     @RequestMapping(value = "/{id:[\\d]+}/koef", method = RequestMethod.POST)
     public ResponseEntity createMatherialKoef(HttpServletRequest request, @PathVariable int id, @RequestBody MatherialKoef matherialKoef) {
+        matherialKoef.setId(0);
         matherialKoef.setIdMatherial(id);
         int idItem = matherialService.saveMatherialKoef(matherialKoef);
         return idItem != 0 ? ResponseEntity.created(URI.create(request.getRequestURI() + "/" + idItem)).body(idItem) : ResponseEntity.noContent().build();
@@ -164,13 +211,15 @@ public class MatherialsController {
 
     /**
      * update {@link MatherialKoef}
-     * @param id
+     * @param idItem
+     * @param idMatherial
      * @return
      */
-    @RequestMapping(value = "/{id:[\\d]+}/koef", method = RequestMethod.PUT)
-    public ResponseEntity updateMatherialKoef(@PathVariable int id, @RequestBody MatherialKoef matherialKoef) {
-        matherialKoef.setIdMatherial(id);
-        int idItem = matherialService.saveMatherialKoef(matherialKoef);
+    @RequestMapping(value = "/{id:[\\d]+}/koef/{id_item:[\\d]+}", method = RequestMethod.PUT)
+    public ResponseEntity updateMatherialKoef(@PathVariable(name = "id") int idMatherial, @PathVariable(name = "id_item") int idItem, @RequestBody MatherialKoef matherialKoef) {
+        matherialKoef.setId(idItem);
+        matherialKoef.setIdMatherial(idMatherial);
+        idItem = matherialService.saveMatherialKoef(matherialKoef);
         return idItem != 0 ? ResponseEntity.ok().body(idItem) : ResponseEntity.noContent().build();
     }
 
@@ -195,6 +244,49 @@ public class MatherialsController {
     }
 
     /**
+     * get {@link MatherialKoef}
+     * @param id
+     * @return
+     */
+    @RequestMapping(value = "/koef/{id:[\\d]+}", method = RequestMethod.GET)
+    public ResponseEntity<MatherialKoef> getKoefItem(@PathVariable int id) {
+        return new ResponseEntity<>(matherialService.getMatherialKoef(id), HttpStatus.OK);
+    }
+
+    /**
+     * create new {@link MatherialKoef}
+     * @return
+     */
+    @RequestMapping(value = "/koef", method = RequestMethod.POST)
+    public ResponseEntity createKoefItem(HttpServletRequest request, @RequestBody MatherialKoef matherialKoef) {
+        matherialKoef.setId(0);
+        int idItem = matherialService.saveMatherialKoef(matherialKoef);
+        return idItem != 0 ? ResponseEntity.created(URI.create(request.getRequestURI() + "/" + idItem)).body(idItem) : ResponseEntity.noContent().build();
+    }
+
+    /**
+     * update {@link MatherialKoef}
+     * @param idItem
+     * @return
+     */
+    @RequestMapping(value = "/koef/{id:[\\d]+}", method = RequestMethod.PUT)
+    public ResponseEntity updateKoefItem(@PathVariable(name = "id") int idItem, @RequestBody MatherialKoef matherialKoef) {
+        matherialKoef.setId(idItem);
+        idItem = matherialService.saveMatherialKoef(matherialKoef);
+        return idItem != 0 ? ResponseEntity.ok().body(idItem) : ResponseEntity.noContent().build();
+    }
+
+    /**
+     * delete {@link MatherialKoef} item
+     * @param idItem
+     * @return
+     */
+    @RequestMapping(value = "/koef/{id:[\\d]+}", method = RequestMethod.DELETE)
+    public ResponseEntity<Boolean> deleteKoefItem(@PathVariable(name = "id") int idItem) {
+        return new ResponseEntity<>(matherialService.deleteMatherialKoefItem(idItem), HttpStatus.OK);
+    }
+
+    /**
      * get {@link MatherialNds} list
      * @param id
      * @return
@@ -206,26 +298,28 @@ public class MatherialsController {
 
     /**
      * create new {@link MatherialNds}
-     * @param id
+     * @param idMatherial
      * @return
      */
     @RequestMapping(value = "/{id:[\\d]+}/nds", method = RequestMethod.POST)
-    public ResponseEntity createMatherialNds(HttpServletRequest request, @PathVariable int id, @RequestBody MatherialNds matherialNds) {
+    public ResponseEntity createMatherialNds(HttpServletRequest request, @PathVariable(name = "id") int idMatherial, @RequestBody MatherialNds matherialNds) {
         matherialNds.setId(0);
-        matherialNds.setIdMatherial(id);
+        matherialNds.setIdMatherial(idMatherial);
         int idItem = matherialService.saveMatherialNds(matherialNds);
         return idItem != 0 ? ResponseEntity.created(URI.create(request.getRequestURI() + "/" + idItem)).body(idItem) : ResponseEntity.noContent().build();
     }
 
     /**
      * update {@link MatherialNds}
-     * @param id
+     * @param idMatherial
+     * @param idItem
      * @return
      */
-    @RequestMapping(value = "/{id:[\\d]+}/nds", method = RequestMethod.PUT)
-    public ResponseEntity updateMatherialNds(@PathVariable int id, @RequestBody MatherialNds matherialNds) {
-        matherialNds.setIdMatherial(id);
-        int idItem = matherialService.saveMatherialNds(matherialNds);
+    @RequestMapping(value = "/{id:[\\d]+}/nds/{id_item:[\\d]+}", method = RequestMethod.PUT)
+    public ResponseEntity updateMatherialNds(@PathVariable(name = "id") int idMatherial, @PathVariable(name = "id_item") int idItem, @RequestBody MatherialNds matherialNds) {
+        matherialNds.setId(idItem);
+        matherialNds.setIdMatherial(idMatherial);
+        idItem = matherialService.saveMatherialNds(matherialNds);
         return idItem != 0 ? ResponseEntity.ok().body(idItem) : ResponseEntity.noContent().build();
     }
 
@@ -245,7 +339,50 @@ public class MatherialsController {
      * @return
      */
     @RequestMapping(value = "/{id:[\\d]+}/nds/{id_item:[\\d]+}", method = RequestMethod.DELETE)
-    public ResponseEntity<Boolean> deleteMatherialNdsItem(@PathVariable int id, @PathVariable(name = "id_item") int idItem) {
+    public ResponseEntity<Boolean> deleteMatherialNdsItem(@PathVariable(name = "id") int id, @PathVariable(name = "id_item") int idItem) {
+        return new ResponseEntity<>(matherialService.deleteMatherialNdsItem(idItem), HttpStatus.OK);
+    }
+
+    /**
+     * get {@link MatherialNds}
+     * @param id
+     * @return
+     */
+    @RequestMapping(value = "/nds/{id:[\\d]+}", method = RequestMethod.GET)
+    public ResponseEntity<MatherialNds> getNdsItem(@PathVariable int id) {
+        return new ResponseEntity<>(matherialService.getMatherialNds(id), HttpStatus.OK);
+    }
+
+    /**
+     * create new {@link MatherialNds}
+     * @return
+     */
+    @RequestMapping(value = "/nds", method = RequestMethod.POST)
+    public ResponseEntity createNdsItem(HttpServletRequest request, @RequestBody MatherialNds matherialNds) {
+        matherialNds.setId(0);
+        int idItem = matherialService.saveMatherialNds(matherialNds);
+        return idItem != 0 ? ResponseEntity.created(URI.create(request.getRequestURI() + "/" + idItem)).body(idItem) : ResponseEntity.noContent().build();
+    }
+
+    /**
+     * update {@link MatherialNds}
+     * @param idItem
+     * @return
+     */
+    @RequestMapping(value = "/nds/{id:[\\d]+}", method = RequestMethod.PUT)
+    public ResponseEntity updateNdsItem(@PathVariable(name = "id") int idItem, @RequestBody MatherialNds matherialNds) {
+        matherialNds.setId(idItem);
+        idItem = matherialService.saveMatherialNds(matherialNds);
+        return idItem != 0 ? ResponseEntity.ok().body(idItem) : ResponseEntity.noContent().build();
+    }
+
+    /**
+     * delete {@link MatherialNds} item
+     * @param idItem
+     * @return
+     */
+    @RequestMapping(value = "/nds/{id:[\\d]+}", method = RequestMethod.DELETE)
+    public ResponseEntity<Boolean> deleteNdsItem(@PathVariable(name = "id") int idItem) {
         return new ResponseEntity<>(matherialService.deleteMatherialNdsItem(idItem), HttpStatus.OK);
     }
 

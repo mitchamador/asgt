@@ -49,25 +49,46 @@ public interface MatherialService {
     boolean deleteMatherial(int id);
 
     /**
-     *
+     * get {@link MatherialKoef} list
      * @param idMatherial
      * @return
      */
     List<MatherialKoef> getMatherialKoefList(int idMatherial);
 
     /**
-     *
+     * get {@link MatherialPrice} list
      * @param idMatherial
      * @return
      */
     List<MatherialPrice> getMatherialPriceList(int idMatherial);
 
     /**
-     *
+     * get {@link MatherialNds} list
      * @param idMatherial
      * @return
      */
     List<MatherialNds> getMatherialNdsList(int idMatherial);
+
+    /**
+     * git {@link MatherialKoef}
+     * @param idItem
+     * @return
+     */
+    MatherialKoef getMatherialKoef(int idItem);
+
+    /**
+     * get {@link MatherialPrice}
+     * @param idItem
+     * @return
+     */
+    MatherialPrice getMatherialPrice(int idItem);
+
+    /**
+     * get {@link MatherialNds}
+     * @param idItem
+     * @return
+     */
+    MatherialNds getMatherialNds(int idItem);
 
     /**
      * save {@link MatherialPrice}

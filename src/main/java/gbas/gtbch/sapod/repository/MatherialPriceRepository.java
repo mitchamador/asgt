@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -16,10 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
-import java.sql.Timestamp;
-import java.sql.Types;
+import java.sql.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +35,17 @@ public class MatherialPriceRepository {
         this.currencyRepository = currencyRepository;
     }
 
+    private MatherialPrice getMatherialPrice(Map<Integer, Currency> currencyMap, ResultSet rs) throws SQLException {
+        MatherialPrice matherialPrice = new MatherialPrice();
+        matherialPrice.setId(rs.getInt("id"));
+        matherialPrice.setIdMatherial(rs.getInt("id_matherial"));
+        matherialPrice.setCodeMatherial(Func.iif(rs.getString("code_object")));
+        matherialPrice.setDate(rs.getDate("dat_home"));
+        matherialPrice.setRate(rs.getDouble("cena_1"));
+        matherialPrice.setCurrency(getCurrency(currencyMap, rs.getInt("id_currency")));
+        return matherialPrice;
+    }
+
     /**
      * get all {@link MatherialPrice} for {@link Matherial}
      * @param idMatherial
@@ -45,16 +54,28 @@ public class MatherialPriceRepository {
     public List<MatherialPrice> getPriceList(int idMatherial) {
         Map<Integer, Currency> currencyMap = new HashMap<>();
 
-        return jdbcTemplate.query("select codp as id, matherial as id_matherial, code_object, dat_home, cena_1, code as id_currency from price2 where matherial = ? order by dat_home desc", (rs, i) -> {
-            MatherialPrice matherialPrice = new MatherialPrice();
-            matherialPrice.setId(rs.getInt("id"));
-            matherialPrice.setIdMatherial(rs.getInt("id_matherial"));
-            matherialPrice.setCodeMatherial(Func.iif(rs.getString("code_object")));
-            matherialPrice.setDate(rs.getDate("dat_home"));
-            matherialPrice.setRate(rs.getDouble("cena_1"));
-            matherialPrice.setCurrency(getCurrency(currencyMap, rs.getInt("id_currency")));
-            return matherialPrice;
-        }, idMatherial);
+        return jdbcTemplate.query(
+                "select codp as id, matherial as id_matherial, code_object, dat_home, cena_1, code as id_currency from price2 where matherial = ? order by dat_home desc",
+                (rs, i) -> getMatherialPrice(currencyMap, rs),
+                idMatherial);
+    }
+
+    /**
+     * get {@link MatherialPrice}
+     * @param idItem
+     * @return
+     */
+    public MatherialPrice getPrice(int idItem) {
+        Map<Integer, Currency> currencyMap = new HashMap<>();
+
+        try {
+            return jdbcTemplate.queryForObject(
+                    "select codp as id, matherial as id_matherial, code_object, dat_home, cena_1, code as id_currency from price2 where codp = ? order by dat_home desc",
+                    (rs, i) -> getMatherialPrice(currencyMap, rs),
+                    idItem);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
     }
 
     /**

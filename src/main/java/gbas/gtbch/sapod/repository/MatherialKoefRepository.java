@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -15,9 +16,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.util.List;
 
 @Component
@@ -31,21 +30,40 @@ public class MatherialKoefRepository {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
+    private MatherialKoef getMatherialKoef(ResultSet rs) throws SQLException {
+        MatherialKoef matherialKoef = new MatherialKoef();
+        matherialKoef.setId(rs.getInt("id"));
+        matherialKoef.setIdMatherial(rs.getInt("id_object"));
+        matherialKoef.setCodeMatherial(Func.iif(rs.getString("code_object")));
+        matherialKoef.setDate(rs.getDate("date_begin"));
+        matherialKoef.setKoef(rs.getDouble("koef"));
+        return matherialKoef;
+    }
+
     /**
      * get all {@link MatherialKoef} for {@link Matherial}
      * @param idMatherial
      * @return
      */
     public List<MatherialKoef> getKoefList(int idMatherial) {
-        return jdbcTemplate.query("select * from tvk_kof_sbor where id_object = ? order by date_begin desc", (rs, i) -> {
-            MatherialKoef matherialKoef = new MatherialKoef();
-            matherialKoef.setId(rs.getInt("id"));
-            matherialKoef.setIdMatherial(rs.getInt("id_object"));
-            matherialKoef.setCodeMatherial(Func.iif(rs.getString("code_object")));
-            matherialKoef.setDate(rs.getDate("date_begin"));
-            matherialKoef.setKoef(rs.getDouble("koef"));
-            return matherialKoef;
-        }, idMatherial);
+        return jdbcTemplate.query("select * from tvk_kof_sbor where id_object = ? order by date_begin desc",
+                (rs, i) -> getMatherialKoef(rs),
+                idMatherial);
+    }
+
+    /**
+     * get {@link MatherialKoef}
+     * @param idItem
+     * @return
+     */
+    public MatherialKoef getKoef(int idItem) {
+        try {
+            return jdbcTemplate.queryForObject("select * from tvk_kof_sbor where id = ? order by date_begin desc",
+                    (rs, i) -> getMatherialKoef(rs),
+                    idItem);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
     }
 
     /**
