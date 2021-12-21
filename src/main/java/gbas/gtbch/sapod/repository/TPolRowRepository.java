@@ -127,9 +127,9 @@ public class TPolRowRepository {
         if (row.id == 0) {
             // insert new row
             Integer maxNumber = jdbcTemplate.query(
-                    "select max(n_str) from tvk_t_pol where id_tarif = ?",
+                    "select max(n_str) as max_num from tvk_t_pol where id_tarif = ?",
                     new Object[]{row.id_tarif},
-                    rs -> rs.next() ? rs.getInt("id") : null
+                    rs -> rs.next() ? rs.getInt("max_num") : null
             );
 
             row.nStr = maxNumber != null ? (maxNumber + 1) : 1;
