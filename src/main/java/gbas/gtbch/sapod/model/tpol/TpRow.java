@@ -1,5 +1,6 @@
 package gbas.gtbch.sapod.model.tpol;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import gbas.tvk.tpol3.service.TPRow;
 
 import java.text.DecimalFormat;
@@ -7,31 +8,10 @@ import java.text.DecimalFormat;
 /**
  * class for formatting {@link TPRow} fields with {@link DecimalFormat} for using with thymeleaf's templates
  */
+@JsonIgnoreProperties(value = {"id_ves_norm", "id_tab_ves", "id_tab_kof", "id_tab_kofbs"})
 public class TpRow extends TPRow {
 
     public TpRow() {
-    }
-
-    public TpRow(TPRow row) {
-        this.id = row.id;
-        this.tPol = row.tPol;
-        this.nStr = row.nStr;
-        this.prim = row.prim;
-        this.tipTTar = row.tipTTar;
-        this.tVes = row.tVes;
-        this.klas = row.klas;
-        this.vesNorm = row.vesNorm;
-        this.id_ves_norm = row.id_ves_norm;
-        this.id_tab_ves = row.id_tab_ves;
-        this.id_tab_kof = row.id_tab_kof;
-        this.nTab = row.nTab;
-        this.kof = row.kof;
-        this.kof_sobst = row.kof_sobst;
-        this.skid = row.skid;
-        this.id_tarif = row.id_tarif;
-        this.id_tab_kofbs = row.id_tab_kofbs;
-        this.bs_tab = row.bs_tab;
-        this.koleya = row.koleya;
     }
 
     private DecimalFormat df = new DecimalFormat("###########0.##########");

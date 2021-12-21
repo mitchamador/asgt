@@ -3,7 +3,6 @@ package gbas.gtbch.web;
 import gbas.gtbch.sapod.model.tpol.TpDocument;
 import gbas.gtbch.sapod.model.tpol.TpGroup;
 import gbas.gtbch.sapod.model.tpol.TpItem;
-import gbas.gtbch.sapod.model.tpol.TpRow;
 import gbas.gtbch.sapod.service.TPolItemsService;
 import gbas.gtbch.sapod.service.TPolRowService;
 import gbas.gtbch.sapod.service.TPolService;
@@ -17,7 +16,6 @@ import org.springframework.web.servlet.ModelAndView;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/user/nsi/tpol")
@@ -61,7 +59,7 @@ public class NsiTpolController {
     public ModelAndView getRows(@PathVariable int id) {
         ModelAndView model = new ModelAndView("fragments/tpol :: rows");
 
-        model.addObject("tpolRows", tPolRowService.getRows(id).stream().map(TpRow::new).collect(Collectors.toList()));
+        model.addObject("tpolRows", tPolRowService.getRows(id));
 
         return model;
     }

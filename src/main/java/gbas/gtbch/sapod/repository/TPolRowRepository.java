@@ -179,6 +179,32 @@ public class TPolRowRepository {
                 row.id_tab_kofbs = 0;
             }
 
+            if (row.tVes != 0) {
+                Integer id = jdbcTemplate.query(
+                        "select id from tvk_group_t_ves where n_tab = ?",
+                        new Object[]{row.tVes},
+                        rs -> rs.next() ? rs.getInt("id") : null
+                );
+                if (id != null) {
+                    row.id_tab_ves = id;
+                }
+            } else {
+                row.id_tab_ves = 0;
+            }
+
+            if (row.vesNorm != 0) {
+                Integer id = jdbcTemplate.query(
+                        "select id from tvk_group_t_kont where n_tab = ?",
+                        new Object[]{row.vesNorm},
+                        rs -> rs.next() ? rs.getInt("id") : null
+                );
+                if (id != null) {
+                    row.id_ves_norm = id;
+                }
+            } else {
+                row.id_ves_norm = 0;
+            }
+
             jdbcTemplate.update(connection -> {
                 DecimalFormat df = new DecimalFormat("####.##########");
                 DecimalFormatSymbols dfs = new DecimalFormatSymbols();
@@ -212,9 +238,11 @@ public class TPolRowRepository {
                 } else {
                     preparedStatement.setNull(7, Types.INTEGER);
                 }
+
                 preparedStatement.setInt(8, row.skid);
                 preparedStatement.setString(9, df.format(row.kof));
                 preparedStatement.setString(10, df.format(row.kof_sobst));
+
                 if (row.id_tab_kofbs != 0)
                     preparedStatement.setInt(11, row.id_tab_kofbs);
                 else
