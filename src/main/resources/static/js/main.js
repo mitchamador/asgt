@@ -561,7 +561,7 @@ Date.prototype.getStringDate = function(format) {
     ].join('.');
 };
 
-function parseJwt (token) {
+function parseJwt(token) {
     var base64Url = token.split('.')[1];
     var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
     var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
@@ -569,4 +569,20 @@ function parseJwt (token) {
     }).join(''));
 
     return JSON.parse(jsonPayload);
-};
+}
+
+function verticalCenteredModal(modal) {
+    /* Centering the modal vertically */
+    function alignModal() {
+        var modalDialog = $(modal).find(".modal-dialog");
+        modalDialog.css("margin-top", Math.max(0,
+            ($(window).height() - modalDialog.height()) / 2));
+    }
+    $(modal).on("shown.bs.modal", alignModal);
+
+    /* Resizing the modal according the screen size */
+    $(window).on("resize", function() {
+        $(modal).each(alignModal);
+    });
+}
+
