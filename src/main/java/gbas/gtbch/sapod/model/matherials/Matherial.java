@@ -1,7 +1,9 @@
 package gbas.gtbch.sapod.model.matherials;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import gbas.gtbch.util.JpaTruncator;
 
+import javax.persistence.Column;
 import java.util.Date;
 import java.util.List;
 
@@ -20,17 +22,20 @@ public class Matherial {
     /**
      * Код статьи	Код из справочника  статей дополнительных работ (услуг)	char(3) matherial.code_ekisufr
      */
+    @Column(length = 3, name = "code_ekisufr")
     private String codeEkisufr;
 
     /**
      * Код работы(услуги)	Кодировка по маске
      * «Код статьи».«порядковый номер условия»	char(10)	matherial.code (будет равно коду ГТ в новой версии справочника) matherial.code_calc
      */
+    @Column(length = 10, name = "code")
     private String code;
 
     /**
      * Полное наименование	Без ограничения длины в том виде, в котором отображается в первичном учетном документе	varchar(150) matherial.name
      */
+    @Column(length = 450, name = "name")
     private String name;
 
     /**
@@ -84,6 +89,7 @@ public class Matherial {
     /**
      * matherial.osob_name
      */
+    @Column(length = 30, name = "osob_name")
     private String osobName;
 
     /**
@@ -109,7 +115,7 @@ public class Matherial {
     }
 
     public void setCodeEkisufr(String codeEkisufr) {
-        this.codeEkisufr = codeEkisufr;
+        this.codeEkisufr = JpaTruncator.truncate(codeEkisufr);
     }
 
     public String getCode() {
@@ -117,7 +123,7 @@ public class Matherial {
     }
 
     public void setCode(String code) {
-        this.code = code;
+        this.code = JpaTruncator.truncate(code);
     }
 
     public String getName() {
@@ -125,7 +131,7 @@ public class Matherial {
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.name = JpaTruncator.truncate(name);
     }
 
     public String getnDoc() {
@@ -206,7 +212,7 @@ public class Matherial {
     }
 
     public void setOsobName(String osobName) {
-        this.osobName = osobName;
+        this.osobName = JpaTruncator.truncate(osobName);
     }
 
     public int getOsobVal() {
