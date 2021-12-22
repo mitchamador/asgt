@@ -242,14 +242,14 @@ public class MatherialRepository {
             preparedStatement.setString(2, matherial.getCodeEkisufr());
             preparedStatement.setString(3, matherial.getName());
             preparedStatement.setInt(4, matherial.getDescriptor() != null ? matherial.getDescriptor().getCode() : 0);
-            if (matherial.getMeasureLeft() != null) {
+            if (matherial.getMeasureLeft() != null && matherial.getMeasureLeft().getId() != 0) {
                 preparedStatement.setInt(5, matherial.getMeasureLeft().getId());
                 preparedStatement.setString(6, getMeasureName(matherial.getMeasureLeft()));
             } else {
                 preparedStatement.setNull(5, Types.INTEGER);
                 preparedStatement.setNull(6, Types.VARCHAR);
             }
-            if (matherial.getMeasureRight() != null) {
+            if (matherial.getMeasureRight() != null && matherial.getMeasureRight().getId() != 0) {
                 preparedStatement.setInt(7, matherial.getMeasureRight().getId());
                 preparedStatement.setString(8, getMeasureName(matherial.getMeasureRight()));
             } else {
