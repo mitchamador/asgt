@@ -3,7 +3,6 @@ package gbas.gtbch.web;
 import gbas.gtbch.sapod.model.matherials.*;
 import gbas.gtbch.sapod.service.MatherialService;
 import gbas.gtbch.sapod.service.MeasureService;
-import gbas.tvk.objects.service.SborDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -14,11 +13,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/api/matherials")
@@ -401,9 +397,6 @@ public class MatherialsController {
      */
     @RequestMapping(value = "/descriptors", method = RequestMethod.GET)
     public ResponseEntity<List<SborDescriptorItem>> getDescriptors() {
-        return new ResponseEntity<>(Arrays.stream(SborDescriptor.values())
-                .map(sd -> new SborDescriptorItem(sd.getCode(), sd.getName(), sd.getStaticSborOsob()))
-                .sorted(Comparator.comparing(SborDescriptorItem::getName)) //.sorted((o1, o2) -> o1.getName().compareTo(o2.getName()))
-                .collect(Collectors.toList()), HttpStatus.OK);
+        return new ResponseEntity<>(SborDescriptorItem.getList(), HttpStatus.OK);
     }
 }
