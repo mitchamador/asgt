@@ -28,7 +28,7 @@ public class MeasureRepository {
      * @return
      */
     public List<Measure> getMeasures() {
-        return jdbcTemplate.query("select measure as id, name, shortname, type from measure",
+        return jdbcTemplate.query("select measure as id, name, shortname, type from measure order by name",
                 (rs, i) -> {
                     Measure measure = new Measure();
                     measure.setId(rs.getInt("id"));
