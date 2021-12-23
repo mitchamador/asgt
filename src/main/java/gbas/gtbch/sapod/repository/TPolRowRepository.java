@@ -12,14 +12,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
-import java.sql.Types;
+import java.sql.*;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Component
 public class TPolRowRepository {
@@ -261,7 +261,15 @@ public class TPolRowRepository {
         return row.id;
     }
 
+    private Object getResultSetObject(ResultSet rs, int i) {
+        try {
+            return rs.getObject(i);
+        } catch (SQLException ignored) {
+        }
+        return null;
+    }
 
+    @Transactional(transactionManager = "sapodTransactionManager")
     public TpRow copyRow(int sourceRowId, int destinationDocumentId) {
 
         // read source row
@@ -287,26 +295,23 @@ public class TPolRowRepository {
                     "from " + table + " " +
                     "where id_t_pol = ?";
 
+            List<List<Object>> sourceList = jdbcTemplate.query(
+                    sqlSelectCommand,
+                    (rs, rowNum) -> IntStream.rangeClosed(1, rs.getMetaData().getColumnCount()).mapToObj(i -> getResultSetObject(rs, i)).collect(Collectors.toList()),
+                    sourceRowId
+            );
+
+            if (sourceList == null || sourceList.isEmpty()) continue;
+
             String sqlInsertCommand = "insert into " + table + " " +
                     "(id_t_pol, " + String.join(", ", itemTable.getFields()) + ") " +
                     "values (?," + String.join(",", Collections.nCopies(itemTable.getFields().length, "?")) + ")";
 
-            jdbcTemplate.query(
-                    sqlSelectCommand,
-                    new Object[]{sourceRowId},
-                    rs -> {
-                        while (rs.next()) {
-                            jdbcTemplate.update(connection -> {
-                                PreparedStatement preparedStatement = connection.prepareStatement(sqlInsertCommand);
-                                int c = 1;
-                                preparedStatement.setInt(c++, row.id);
-                                for (int i = 0; i < rs.getMetaData().getColumnCount(); i++) {
-                                    preparedStatement.setString(c++, rs.getString(i + 1));
-                                }
-                                return preparedStatement;
-                            });
-                        }
-                    }
+            List<Object[]> destinationList = sourceList.stream().peek(list -> list.add(0, row.id)).map(list -> list.toArray(new Object[0])).collect(Collectors.toList());
+
+            jdbcTemplate.batchUpdate(
+                    sqlInsertCommand,
+                    destinationList
             );
 
         }
