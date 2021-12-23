@@ -70,4 +70,14 @@ public class TPolKofServiceImpl implements TPolKofService {
         return tPolKofRepository.deleteKof(id);
     }
 
+    @Override
+    public int copyKofTable(int tab) {
+        return tPolKofRepository.copyKofTab(tab);
+    }
+
+    @Override
+    public boolean deleteKofTable(int tab) {
+        return tPolKofRepository.deleteKofTab(tab);
+    }
+
 }

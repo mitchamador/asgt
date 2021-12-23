@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -17,6 +18,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Component
 public class TPolKofRepository {
@@ -103,8 +106,8 @@ public class TPolKofRepository {
     public int saveKof(TpTvkKof kof) {
 
         Integer id = jdbcTemplate.query("select id from tvk_group_t_kof where n_tab = ?",
-                new Object[]{kof.nTab},
-                resultSet -> resultSet.next() ? resultSet.getInt("id") : null
+                resultSet -> resultSet.next() ? resultSet.getInt("id") : null,
+                kof.nTab
         );
 
         if (id == null) {
@@ -125,9 +128,8 @@ public class TPolKofRepository {
 
         {
             id = jdbcTemplate.query("select id from tvk_kof where id_tab = ? and min_rast = ?",
-                    new Object[]{kof.id_group_t_kof, kof.minRast},
-                    resultSet -> resultSet.next() ? resultSet.getInt("id") : null
-            );
+                    resultSet -> resultSet.next() ? resultSet.getInt("id") : null,
+                    kof.id_group_t_kof, kof.minRast);
 
             if (id != null) {
                 kof.id = id;
@@ -178,7 +180,100 @@ public class TPolKofRepository {
     public boolean deleteKof(int id) {
         return jdbcTemplate.update(
                 "delete from tvk_kof where id = ?",
-                ps -> ps.setInt(1, id)
+                id
         ) != 0;
+    }
+
+    private Object getResultSetObject(ResultSet rs, int i) {
+        try {
+            return rs.getObject(i);
+        } catch (SQLException ignored) {
+        }
+        return null;
+    }
+
+    /**
+     * copy table
+     * @param tab
+     * @return
+     */
+    @Transactional(transactionManager = "sapodTransactionManager")
+    public int copyKofTab(int tab) {
+
+        List<List<Object>> sourceTab = jdbcTemplate.query(
+                "SELECT k.min_rast, k.max_rast, k.min_ves, k.max_ves, k.kof, k.nz\n" +
+                        "FROM tvk_kof k\n" +
+                        "JOIN tvk_group_t_kof g ON g.id = k.id_tab\n" +
+                        "WHERE g.n_tab = ?",
+                (rs, rowNum) -> IntStream.rangeClosed(1, 6).mapToObj(i -> getResultSetObject(rs, i)).collect(Collectors.toList()),
+                tab);
+
+        if (sourceTab == null || sourceTab.isEmpty()) {
+            return 0;
+        }
+
+        // get max table's number
+        Integer maxNumber = jdbcTemplate.query(
+                "select max(n_tab) as max_num from tvk_group_t_kof",
+                rs -> rs.next() ? rs.getInt("max_num") : null
+        );
+
+        if (maxNumber == null) {
+            return 0;
+        }
+        int finalMaxNumber = maxNumber + 1;
+
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement preparedStatement = connection.prepareStatement(
+                    "insert into tvk_group_t_kof (n_tab) values (?)",
+                    Statement.RETURN_GENERATED_KEYS);
+            preparedStatement.setInt(1, finalMaxNumber);
+            return preparedStatement;
+        }, keyHolder);
+
+        Integer id = (Integer) keyHolder.getKey();
+
+        if (id == null) {
+            return 0;
+        }
+
+        List<Object[]> insertList = sourceTab.stream().peek(list -> list.add(0, id)).map(list -> list.toArray(new Object[0])).collect(Collectors.toList());
+
+        jdbcTemplate.batchUpdate(
+                "insert into tvk_kof (id_tab, min_rast, max_rast, min_ves, max_ves, kof, nz)\n" +
+                        "values (?, ?, ?, ?, ?, ?, ?)",
+                insertList
+        );
+
+        return finalMaxNumber;
+    }
+
+    /**
+     *
+     * @param tab
+     * @return
+     */
+    public boolean deleteKofTab(int tab) {
+
+        Integer id = jdbcTemplate.query(
+                "select id from tvk_group_t_kof where n_tab = ?",
+                rs -> rs.next() ? rs.getInt("id") : null,
+                tab
+        );
+
+        if (id == null) return false;
+
+        try {
+            jdbcTemplate.update("delete from tvk_kof where id_tab = ?", id);
+
+            jdbcTemplate.update("delete from tvk_group_t_kof where id = ?", id);
+
+            return true;
+        } catch (DataAccessException e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 }

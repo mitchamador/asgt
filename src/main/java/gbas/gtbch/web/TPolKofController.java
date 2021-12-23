@@ -69,4 +69,24 @@ public class TPolKofController {
         return new ResponseEntity<>(tPolKofService.deleteKof(id), HttpStatus.OK);
     }
 
+    /**
+     * copy table
+     * @param tab
+     * @return
+     */
+    @RequestMapping(value = "/table/{tab:[\\d]+}/copy", method = RequestMethod.POST)
+    public ResponseEntity<Integer> copyKofTab(@PathVariable int tab) {
+        return ResponseEntity.ok(tPolKofService.copyKofTable(tab));
+    }
+
+    /**
+     * delete table
+     * @param tab
+     * @return
+     */
+    @RequestMapping(value = "/table/{tab:[\\d]+}", method = RequestMethod.DELETE)
+    public ResponseEntity<Boolean> deleteKofTab(@PathVariable int tab) {
+        return ResponseEntity.ok(tPolKofService.deleteKofTable(tab));
+    }
+
 }

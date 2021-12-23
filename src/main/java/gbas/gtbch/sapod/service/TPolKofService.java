@@ -45,4 +45,18 @@ public interface TPolKofService {
      * @return
      */
     boolean deleteKof(int id);
+
+    /**
+     * copy table
+     * @param tab
+     * @return
+     */
+    int copyKofTable(int tab);
+
+    /**
+     * delete table
+     * @param tab
+     * @return
+     */
+    boolean deleteKofTable(int tab);
 }
