@@ -44,7 +44,7 @@ public class TPolTVesController {
      * @param obj - {@link TpTvkTVes}
      */
     @RequestMapping(value = "", method = RequestMethod.POST)
-    public ResponseEntity saveKof(@RequestBody TpTvkTVes obj) {
+    public ResponseEntity saveTVes(@RequestBody TpTvkTVes obj) {
         int id = tPolTVesService.saveVO(obj);
         return id != 0 ? ResponseEntity.created(URI.create("/api/tpol/tves/" + id)).build() : ResponseEntity.noContent().build();
     }
@@ -54,7 +54,7 @@ public class TPolTVesController {
      * @param id - tvk_t_ves.id
      */
     @RequestMapping(value = "/{id:[\\d]+}", method = RequestMethod.PUT)
-    public ResponseEntity updateKof(@PathVariable int id, @RequestBody TpTvkTVes obj) {
+    public ResponseEntity updateTVes(@PathVariable int id, @RequestBody TpTvkTVes obj) {
         obj.id = id;
         return tPolTVesService.saveVO(obj) != 0 ? ResponseEntity.ok().build() : ResponseEntity.noContent().build();
     }
@@ -64,7 +64,7 @@ public class TPolTVesController {
      * @param id - tvk_t_ves.id
      */
     @RequestMapping(value = "/{id:[\\d]+}", method = RequestMethod.DELETE)
-    public ResponseEntity<Boolean> deleteKof(@PathVariable int id) {
+    public ResponseEntity<Boolean> deleteTVes(@PathVariable int id) {
         return new ResponseEntity<>(tPolTVesService.deleteVO(id), HttpStatus.OK);
     }
 
