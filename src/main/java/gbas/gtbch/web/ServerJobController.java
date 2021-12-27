@@ -13,13 +13,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.DeferredResult;
 
 @RestController
+@RequestMapping(value = "/api/job")
 public class ServerJobController {
 
     private final static Logger logger = LoggerFactory.getLogger(ServerJobController.class.getName());
@@ -102,8 +100,8 @@ public class ServerJobController {
         return serverJob;
     }
 
-    @RequestMapping(value = "/api/jobstart", method = RequestMethod.GET)
-    public ServerJobResponse syncStart(@RequestParam("job") String job) {
+    @RequestMapping(value = "/start/{job}", method = RequestMethod.GET)
+    public ServerJobResponse syncStart(@PathVariable("job") String job) {
 
         ServerJob serverJob = getServerJob(job);
 
@@ -130,8 +128,8 @@ public class ServerJobController {
     @Value("${app.defferedtimeout:60}")
     int defferedTimeout;
 
-    @RequestMapping(value = "/api/jobstatus", method = RequestMethod.GET)
-    public DeferredResult<ServerJobResponse> syncStatus(@RequestParam("job") String job, @RequestParam("jobStep") Long timeUpdate) {
+    @RequestMapping(value = "status/{job}", method = RequestMethod.GET)
+    public DeferredResult<ServerJobResponse> syncStatus(@PathVariable("job") String job, @RequestParam("jobStep") Long timeUpdate) {
 
         DeferredResult<ServerJobResponse> deferredResult = new DeferredResult<>(defferedTimeout * 1000L);
 

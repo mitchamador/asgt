@@ -388,8 +388,8 @@ function start(params) {
 
     // fire off the request to MatchUpdateController
     var request = $.ajax({
-        url: contextRoot + "api/jobstart",
-        data: { job: pollParams.job },
+        url: contextRoot + "api/job/start/" + pollParams.job,
+        data: {},
         type: "get",
         cache: false
     });
@@ -420,9 +420,8 @@ function poll(pollParams) {
     $(pollParams.button).prop("disabled", true);
     (function _poll(){
         $.ajax({
-            url: contextRoot + "api/jobstatus",
+            url: contextRoot + "api/job/status/" + pollParams.job,
             data: {
-                job: pollParams.job,
                 jobStep: typeof pollParams.jobStep === "undefined" ? null : pollParams.jobStep
             },
             type: "get",
