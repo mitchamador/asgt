@@ -1,3 +1,5 @@
+
+
 /**
  * add counter to first column of DataTable
  * @param table
@@ -367,6 +369,38 @@ function upload(params) {
         }
     });
 
+}
+
+function createSyncData(set) {
+    var req = new XMLHttpRequest();
+    req.open("GET", contextRoot + "api/sync/create/" + set + "?_timestamp=" + new Date().getTime(), true);
+    req.responseType = "blob";
+    req.onload = function (event) {
+        var blob = req.response;
+        if (blob.type === 'application/json') {
+            var reader = new FileReader();
+            reader.onload = function() {
+                var result = JSON.parse(reader.result);
+                showInfoModal(result.message);
+            };
+            reader.readAsText(blob);
+        } else {
+            var filename = "";
+            var disposition = req.getResponseHeader('Content-Disposition');
+            if (disposition && disposition.indexOf('attachment') !== -1) {
+                var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                var matches = filenameRegex.exec(disposition);
+                if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '');
+            }
+            if (filename !== undefined && filename !== '') {
+                var link = document.createElement('a');
+                link.href = window.URL.createObjectURL(blob);
+                link.download = filename;
+                link.click();
+            }
+        }
+    };
+    req.send();
 }
 
 function start(params) {
