@@ -12,8 +12,9 @@ public class SettingsProperties {
 
     /**
      * use new services' codes
+     * set default to true
      */
-    private boolean newServiceCodes;
+    private boolean newServiceCodes = true;
 
     public String getJndiName() {
         return jndiName;
