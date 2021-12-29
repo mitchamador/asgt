@@ -393,10 +393,15 @@ function createSyncData(set) {
                 if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '');
             }
             if (filename !== undefined && filename !== '') {
-                var link = document.createElement('a');
-                link.href = window.URL.createObjectURL(blob);
-                link.download = filename;
-                link.click();
+                if(window.navigator.msSaveOrOpenBlob) {
+                    // IE11
+                    window.navigator.msSaveOrOpenBlob(blob, filename);
+                } else {
+                    var link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(blob);
+                    link.download = filename;
+                    link.click();
+                }
             }
         }
     };
