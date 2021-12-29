@@ -6,9 +6,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.context.request.async.DeferredResult;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -105,10 +102,20 @@ public abstract class ServerJob {
         return progress.get();
     }
 
-    protected void setRunning(boolean running) {
-        logger.trace("set job running to {}", running);
-        this.running.set(running);
+    protected boolean setRunning(boolean running) {
+        if (running) {
+            if (this.running.compareAndSet(false, true)) {
+                logger.trace("set job running to {}", true);
+            } else {
+                logger.trace("cannot set job running to {}", true);
+                running = false;
+            }
+        } else {
+            this.running.set(false);
+            logger.trace("set job running to {}", false);
+        }
         updateJob();
+        return running;
     }
 
     private long getJobStep() {
@@ -135,13 +142,10 @@ public abstract class ServerJob {
     public abstract void run();
 
     protected void run(Runnable task) {
-        if (!isRunning()) {
+        if (setRunning(true)) {
             try {
-                setRunning(true);
                 logger.info(getJobName() + " task started", false);
-
                 task.run();
-
             } catch (Error | Exception e) {
                 log(e.getMessage());
                 //e.printStackTrace();

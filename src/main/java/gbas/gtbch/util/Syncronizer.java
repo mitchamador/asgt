@@ -4,9 +4,10 @@ import gbas.gtbch.sapod.model.TpImportDate;
 import gbas.gtbch.sapod.service.TpImportDateService;
 import gbas.tvk.nsi.cash.Func;
 import gbas.tvk.util.synchronizator.Syncronizator;
+import gbas.tvk.util.synchronizator.entity.ExcludeTables;
 import gbas.tvk.util.synchronizator.entity.InsertMode;
-import gbas.tvk.util.synchronizator.synchroObjects.SynDist;
-import gbas.tvk.util.synchronizator.synchroObjects.SynStyck;
+import gbas.tvk.util.synchronizator.entity.SyncFileData;
+import gbas.tvk.util.synchronizator.entity.SyncGroupsSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -50,6 +52,14 @@ public class Syncronizer extends ServerJob {
     @Value("${app.jobs.syncronizer.insertmode:normal}")
     private String insertMode;
 
+    private InsertMode getInsertMode() {
+        try {
+            return InsertMode.valueOf(insertMode.toUpperCase());
+        } catch (IllegalArgumentException ignored) {
+        }
+        return InsertMode.NORMAL;
+    }
+
     @Bean
     public Syncronizer init() {
         return new Syncronizer();
@@ -75,91 +85,69 @@ public class Syncronizer extends ServerJob {
     @Async
     public void run() {
 
-        synchronized (this) {
-            if (isRunning()) {
-                return;
-            } else {
-                setRunning(true);
-            }
-        }
-
         boolean syncronizerAcquired = false;
 
-        try (Connection con = sapodDataSource.getConnection()) {
-            // waiting for calculation threads to finish and block new calculation threads until syncronization done
-            if (!semaphore.tryAcquire(SEMAPHORE_MAX, 0, TimeUnit.SECONDS)) {
-                log("Waiting for completion of calculation jobs...");
-                semaphore.acquire(SEMAPHORE_MAX);
-            }
-            syncronizerAcquired = true;
+        if (setRunning(true)) {
+            try (Connection con = sapodDataSource.getConnection()) {
+                // waiting for calculation threads to finish and block new calculation threads until syncronization done
+                if (!semaphore.tryAcquire(SEMAPHORE_MAX, 0, TimeUnit.SECONDS)) {
+                    log("Waiting for completion of calculation jobs...");
+                    semaphore.acquire(SEMAPHORE_MAX);
+                }
+                syncronizerAcquired = true;
 
-            clearJob();
+                clearJob();
 
-            Syncronizator s = new Syncronizator(con, bytes) {
-                @Override
-                public void process(String[] logs) {
-                    super.process(logs);
+                Syncronizator s = new Syncronizator(con) {
+                    @Override
+                    public void process(String[] logs) {
+                        super.process(logs);
+                        Syncronizer.this.process(logs);
+                    }
 
-                    if (!logs[0].isEmpty()) {
-                        for (String s : logs[0].split("\n")) {
-                            log(s.isEmpty() ? " " : s);
+                    @Override
+                    public void finish() {
+                        super.finish();
+
+                        setProgress(100);
+                        if (filename != null) {
+                            String dateStr = (filename.substring(12, 14) + "") + '.' + (filename.substring(9, 11) + "") + '.' +
+                                    (filename.substring(4, 8) + "") + ' ' + (filename.substring(15, 17) + "") + ':' + (filename.substring(18, 20) + "");
+                            Date dateCreate = UtilDate8.getDate(dateStr);
+                            if (dateCreate != null) {
+                                TpImportDate tpImportDate = new TpImportDate();
+                                tpImportDate.setDateCreate(dateCreate);
+                                tpImportDate.setDateImport(new Date());
+                                tpImportDateService.save(tpImportDate);
+                            }
                         }
                     }
+                };
 
-                    try {
-                        setProgress(Integer.parseInt(logs[3]));
-                    } catch (NumberFormatException ignored) {
-                    }
+                s.setFullInsertMerge(fullInsertMerge);
+                s.setCacheable(cacheable);
+                s.setInsertMode(getInsertMode());
+
+                s.sync(new SyncFileData(null, bytes), SyncGroupsSet.GT, true);
+
+                String errors = s.getErr();
+                if (!Func.isEmpty(s.getErr())) {
+                    System.err.println(errors);
                 }
 
-                @Override
-                public void finish() {
-                    super.finish();
-
-                    setProgress(100);
-
-                    if (filename != null) {
-                        String dateStr = (filename.substring(12, 14) + "") + '.' + (filename.substring(9, 11) + "") + '.' +
-                                (filename.substring(4, 8) + "") + ' ' + (filename.substring(15, 17) + "") + ':' + (filename.substring(18, 20) + "");
-                        Date dateCreate = UtilDate8.getDate(dateStr);
-                        if (dateCreate != null) {
-                            TpImportDate tpImportDate = new TpImportDate();
-                            tpImportDate.setDateCreate(dateCreate);
-                            tpImportDate.setDateImport(new Date());
-                            tpImportDateService.save(tpImportDate);
-                        }
-                    }
+            } catch (InterruptedException e) {
+                logger.error("Syncronizer.acquire(MAX) interrupted exception");
+                e.printStackTrace();
+            } catch (Exception e) {
+                logger.error("Syncronizer exception: {}", e.getMessage());
+                e.printStackTrace();
+            } finally {
+                if (syncronizerAcquired) {
+                    // unblock calculation threads
+                    semaphore.release(SEMAPHORE_MAX);
                 }
-            };
-            s.setFullInsertMerge(fullInsertMerge);
-            s.setCacheable(cacheable);
-            try {
-                s.setInsertMode(InsertMode.valueOf(insertMode.toUpperCase()));
-            } catch (IllegalArgumentException ignored) {
+                setRunning(false);
             }
-
-            s.setExcludeGroups(SynStyck.class, SynDist.class/*, SynMatherial.class, SynSpec.class*/);
-            s.setExcludeNsiTables("tvk_stan", "tvk_algng", "tvk_etsng", "tvk_gng_etsng", "tvk_algng_etsng", "tvk_algng_dan", "tvk_algng_dang");
-
-            s.run(true);
-
-            String errors = s.getErr();
-            if (!Func.isEmpty(s.getErr())) {
-                System.err.println(errors);
-            }
-
-        } catch (InterruptedException e) {
-            logger.error("Suncronizer.acquire(MAX) interrupted exception");
-            e.printStackTrace();
-        } catch (Exception e) {
-            logger.error("Suncronizer exception: {}", e.getMessage());
-            e.printStackTrace();
-        } finally {
-            if (syncronizerAcquired) {
-                // unblock calculation threads
-                semaphore.release(SEMAPHORE_MAX);
-            }
-            setRunning(false);
         }
     }
 
@@ -183,4 +171,59 @@ public class Syncronizer extends ServerJob {
         semaphore.release();
     }
 
+    public SyncFileData create(SyncGroupsSet set) throws Exception {
+
+        SyncFileData syncFileData = null;
+
+        if (setRunning(true)) {
+            try (Connection connection = sapodDataSource.getConnection()) {
+
+                clearJob();
+
+                Syncronizator s = new Syncronizator(connection) {
+                    @Override
+                    public void process(String[] logs) {
+                        super.process(logs);
+                        Syncronizer.this.process(logs);
+                    }
+
+                    @Override
+                    public void finish() {
+                        super.finish();
+                        setProgress(100);
+                    }
+                };
+
+                s.setExcludeTables(ExcludeTables.GT);
+
+                syncFileData = s.create(set, true);
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                setRunning(false);
+            }
+        } else {
+            throw new Exception("Syncronizer is already running.");
+        }
+
+        return syncFileData;
+    }
+
+    private void process(String[] logs) {
+        if (!logs[0].isEmpty()) {
+            Arrays.stream(logs[0].split("\n")).forEach(s -> log(s.isEmpty() ? " " : s));
+        }
+        try {
+            setProgress(Integer.parseInt(logs[3]));
+        } catch (NumberFormatException ignored) {
+        }
+    }
+
+    /**
+     * comment this out to default behaviour (clear logs for every new job)
+     */
+    @Override
+    public synchronized void clearJob() {
+        setProgress(0);
+    }
 }

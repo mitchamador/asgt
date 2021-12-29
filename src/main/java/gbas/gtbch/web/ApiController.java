@@ -9,17 +9,24 @@ import gbas.gtbch.sapod.model.TpImportDate;
 import gbas.gtbch.sapod.model.users.User;
 import gbas.gtbch.sapod.service.CalculationLogService;
 import gbas.gtbch.sapod.service.TpImportDateService;
+import gbas.gtbch.util.Syncronizer;
 import gbas.gtbch.util.SystemInfoProperties;
 import gbas.gtbch.util.UtilDate8;
 import gbas.gtbch.util.XmlFormatter;
 import gbas.gtbch.util.calc.CalcData;
 import gbas.gtbch.util.calc.CalcHandler;
 import gbas.gtbch.web.request.KeyValue;
+import gbas.gtbch.web.response.Response;
 import gbas.tvk.nsi.cash.Func;
+import gbas.tvk.util.synchronizator.entity.SyncFileData;
+import gbas.tvk.util.synchronizator.entity.SyncGroupsSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
@@ -48,14 +55,16 @@ public class ApiController {
     private final ObjectMapper mapper;
     private final SystemInfoProperties systemInfoProperties;
     private final SettingsProperties settingsProperties;
+    private final Syncronizer syncronizer;
 
-    public ApiController(CalcHandler calcHandler, TpImportDateService tpImportDateService, CalculationLogService calculationLogService, ObjectMapper mapper, SystemInfoProperties systemInfoProperties, SettingsProperties settingsProperties) {
+    public ApiController(CalcHandler calcHandler, TpImportDateService tpImportDateService, CalculationLogService calculationLogService, ObjectMapper mapper, SystemInfoProperties systemInfoProperties, SettingsProperties settingsProperties, Syncronizer syncronizer) {
         this.calcHandler = calcHandler;
         this.tpImportDateService = tpImportDateService;
         this.calculationLogService = calculationLogService;
         this.mapper = mapper;
         this.systemInfoProperties = systemInfoProperties;
         this.settingsProperties = settingsProperties;
+        this.syncronizer = syncronizer;
     }
 
     private Map<String, String> addUserPrincipal(Principal principal, Map<String, String> params) {
@@ -229,5 +238,34 @@ public class ApiController {
     @RequestMapping(value = "/settings", method = RequestMethod.GET)
     public ResponseEntity<SettingsProperties> getGtSettings() {
         return new ResponseEntity<>(settingsProperties, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/sync/create/{set}", method = RequestMethod.GET)
+    public ResponseEntity createSyncData(@PathVariable String set) {
+
+        try {
+            SyncFileData syncFileData = syncronizer.create(SyncGroupsSet.valueOf(set.toUpperCase()));
+            if (syncFileData == null) {
+                throw new Exception("SyncronizerDataCreator.create() result is null");
+            }
+            if (syncFileData.getData() == null) {
+                throw new Exception("SyncronizerDataCreator.create() data is null");
+            }
+            ByteArrayResource resource = new ByteArrayResource(syncFileData.getData());
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + syncFileData.getName());
+            headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
+            headers.add("Pragma", "no-cache");
+            headers.add("Expires", "0");
+
+            return ResponseEntity.ok()
+                    .contentLength(resource.contentLength())
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .headers(headers)
+                    .body(resource);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new Response(e.getMessage()), HttpStatus.OK);
+        }
     }
 }
