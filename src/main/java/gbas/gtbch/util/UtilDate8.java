@@ -6,6 +6,7 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 public class UtilDate8 {
@@ -13,7 +14,10 @@ public class UtilDate8 {
     private static final String DEFAULT_DATE_FORMAT = "dd.MM.yyyy";
     private static final String DEFAULT_DATETIME_FORMAT = "dd.MM.yyyy HH:mm";
     private static final String DEFAULT_FULLDATE_FORMAT = "dd.MM.yyyy HH:mm:ss.SSS";
+    private static final String HTTP_DATETIME_FORMAT = "EEE, dd MMM yyyy HH:mm:ss z";
+
     private static final HashMap<String, DateTimeFormatter> dateFormatHashMap = new HashMap<>();
+
     private static DateTimeFormatter DATEFORMATTER =
             new DateTimeFormatterBuilder().appendPattern("dd.MM.yyyy[ [HH][:mm][:ss][.SSS]]")
                     .parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
@@ -217,21 +221,19 @@ public class UtilDate8 {
     }
 
     /**
-     *
      * @param time
      * @return
      */
-    public static  String getStringTime(Object time) {
+    public static String getStringTime(Object time) {
         return getStringTime(time, 60);
     }
 
     /**
-     *
      * @param time
      * @param diff
      * @return
      */
-    public static  String getStringTime(Object time, int diff) {
+    public static String getStringTime(Object time, int diff) {
         if (time instanceof Instant) {
             return UtilDate8.getStringDate(new java.util.Date(((Instant) time).toEpochMilli()), "dd.MM.yyyy HH:mm:ss");
         } else if (time instanceof Duration) {
@@ -239,11 +241,19 @@ public class UtilDate8 {
             if (duration.getSeconds() > diff) {
                 return String.format("%s days %s hours %s minutes", duration.toDays(), duration.toHours() % 24, duration.toMinutes() % 60);
             } else {
-                return  (double) duration.toMillis() / TimeUnit.SECONDS.toMillis(1) + " s.";
+                return (double) duration.toMillis() / TimeUnit.SECONDS.toMillis(1) + " s.";
             }
         }
         return "n/a";
     }
 
-
+    /**
+     * get string date in http format
+     * @param date
+     * @return
+     */
+    public static String getHttpStringDate(Date date) {
+        LocalDateTime localDateTime = date == null ? LocalDateTime.now(ZoneOffset.UTC) : LocalDateTime.ofInstant(date.toInstant(), ZoneOffset.UTC);
+        return localDateTime.format(DateTimeFormatter.ofPattern(HTTP_DATETIME_FORMAT, Locale.ENGLISH).withZone(ZoneOffset.UTC));
+    }
 }
