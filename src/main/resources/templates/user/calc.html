@@ -92,6 +92,14 @@
 
                 e.stopPropagation();
             });
+
+            $("#calcData").bind("paste", function(event) {
+                var text = event.originalEvent.clipboardData.getData('text');
+                // remove empty lines
+                $(event.target).val(text.replace(/^\s*$(?:\r\n?|\n)/gm, ""));
+                return false;
+            });
+
         }));
     </script>
 
