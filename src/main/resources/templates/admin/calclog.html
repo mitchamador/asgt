@@ -124,7 +124,7 @@
 
             var currentDate = new Date();
             var dateTimeEnd = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), currentDate.getHours() + 1);
-            var dateTimeBegin = new Date(dateTimeEnd.getTime() - 24 * 60 * 60 * 1000);
+            var dateTimeBegin = new Date(dateTimeEnd.getTime() - 6 * 60 * 60 * 1000);
 
             $("#datetime_begin").datetimepicker({
                 todayHighlight: true,
@@ -210,11 +210,17 @@
                 saveXml(e);
             });
 
+            var formatXmlCheckState = localStorage.getItem('formatXmlCheck');
+            if (formatXmlCheckState !== null && formatXmlCheckState === 'true') {
+                $("#formatXml").prop("checked", true);
+            }
+
             $("#formatXml").change(function() {
                 var d = table.row( { selected: true } ).data();
                 if (d !== undefined) {
                     loadCalculationLog(d);
                 }
+                localStorage.setItem('formatXmlCheck', $("#formatXml").is(":checked"))
             });
 
         }));
