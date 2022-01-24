@@ -211,7 +211,7 @@
                                 data: {
                                     doc_id: destinationDocumentId
                                 },
-                                type: "GET",
+                                type: "POST",
                                 cache: false,
                                 success: function (msg) {
                                     if (msg !== undefined && msg.id !== 0) {
@@ -234,7 +234,7 @@
                                 data: {
                                     doc_id: destinationDocumentId
                                 },
-                                type: "GET",
+                                type: "POST",
                                 cache: false,
                                 success: function (id) {
                                     if (id !== undefined && id !== 0) {
@@ -703,7 +703,7 @@
 
                             $.ajax({
                                 url: contextRoot + "api/tpol/row/" + rowId + "/copy",
-                                type: "GET",
+                                type: "POST",
                                 cache: false,
                                 success: function (msg) {
                                     if (msg !== undefined && msg.id !== 0) {

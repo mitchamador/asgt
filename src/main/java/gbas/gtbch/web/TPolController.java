@@ -78,7 +78,7 @@ public class TPolController {
      * @param sourceId - tvk_tarif.id
      * @param destinationId - destination tvk_tarif.id
      */
-    @RequestMapping(value = "/document/{id:[\\d]+}/copy", method = RequestMethod.GET)
+    @RequestMapping(value = "/document/{id:[\\d]+}/copy", method = RequestMethod.POST)
     public ResponseEntity<Integer> copyDocument(@PathVariable(name = "id") int sourceId, @RequestParam(name = "doc_id") int destinationId) {
         return new ResponseEntity<>(tpolService.copyDocument(sourceId, destinationId), HttpStatus.OK);
     }
