@@ -195,17 +195,18 @@ public class TPolKofRepository {
     /**
      * copy table
      * @param tab
+     * @param bsTab
      * @return
      */
     @Transactional(transactionManager = "sapodTransactionManager")
-    public int copyKofTab(int tab) {
+    public int copyKofTab(int tab, boolean bsTab) {
 
         List<List<Object>> sourceTab = jdbcTemplate.query(
                 "SELECT k.min_rast, k.max_rast, k.min_ves, k.max_ves, k.kof, k.nz\n" +
                         "FROM tvk_kof k\n" +
                         "JOIN tvk_group_t_kof g ON g.id = k.id_tab\n" +
                         "WHERE g.n_tab = ?",
-                (rs, rowNum) -> IntStream.rangeClosed(1, 6).mapToObj(i -> getResultSetObject(rs, i)).collect(Collectors.toList()),
+                (rs, rowNum) -> IntStream.rangeClosed(1, bsTab ? 5 : 6).mapToObj(i -> getResultSetObject(rs, i)).collect(Collectors.toList()),
                 tab);
 
         if (sourceTab == null || sourceTab.isEmpty()) {
@@ -238,7 +239,12 @@ public class TPolKofRepository {
             return 0;
         }
 
-        List<Object[]> insertList = sourceTab.stream().peek(list -> list.add(0, id)).map(list -> list.toArray(new Object[0])).collect(Collectors.toList());
+        List<Object[]> insertList = sourceTab.stream().peek(list -> {
+            list.add(0, id);
+            if (bsTab) {
+                list.add(0);
+            }
+        }).map(list -> list.toArray(new Object[0])).collect(Collectors.toList());
 
         jdbcTemplate.batchUpdate(
                 "insert into tvk_kof (id_tab, min_rast, max_rast, min_ves, max_ves, kof, nz)\n" +

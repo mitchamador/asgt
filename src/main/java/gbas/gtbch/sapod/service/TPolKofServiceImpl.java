@@ -71,8 +71,8 @@ public class TPolKofServiceImpl implements TPolKofService {
     }
 
     @Override
-    public int copyKofTable(int tab) {
-        return tPolKofRepository.copyKofTab(tab);
+    public int copyKofTable(int tab, boolean bsTab) {
+        return tPolKofRepository.copyKofTab(tab, bsTab);
     }
 
     @Override

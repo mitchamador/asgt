@@ -49,9 +49,10 @@ public interface TPolKofService {
     /**
      * copy table
      * @param tab
+     * @param bsTab
      * @return
      */
-    int copyKofTable(int tab);
+    int copyKofTable(int tab, boolean bsTab);
 
     /**
      * delete table

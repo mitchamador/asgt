@@ -75,8 +75,8 @@ public class TPolKofController {
      * @return
      */
     @RequestMapping(value = "/table/{tab:[\\d]+}/copy", method = RequestMethod.POST)
-    public ResponseEntity<Integer> copyKofTab(@PathVariable int tab) {
-        return ResponseEntity.ok(tPolKofService.copyKofTable(tab));
+    public ResponseEntity<Integer> copyKofTab(@PathVariable int tab, @RequestParam(required = false, name = "bs") boolean bsTab) {
+        return ResponseEntity.ok(tPolKofService.copyKofTable(tab, bsTab));
     }
 
     /**
