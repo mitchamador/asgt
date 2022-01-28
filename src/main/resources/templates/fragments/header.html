@@ -47,7 +47,7 @@
                 <ul class="nav navbar-nav navbar-right">
 
                     <li class="nav-link text-white" sec:authorize="isAuthenticated()">
-                        <a th:text="${#authentication.getPrincipal().getPosition() + ' ' + #authentication.getPrincipal().getFio()}"></a>
+                        <a th:if="${#authentication.getPrincipal() instanceof T(gbas.gtbch.sapod.model.users.User)}" th:text="${#authentication.getPrincipal().getPosition() + ' ' + #authentication.getPrincipal().getFio()}"></a>
                     </li>
 
                     <li class="nav-link text-white" sec:authorize="isAuthenticated()">

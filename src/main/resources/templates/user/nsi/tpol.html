@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      xmlns:th="http://www.thymeleaf.org"
+      xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml"
       layout:decorate="~{fragments/layout}">
 <head>
     <title></title>
@@ -51,12 +51,13 @@
             $("#datetime_end").datetimepicker('setDate', yearEndDate);
 
             $("#loadButton").click(function (e) {
-/*
-                $("#divTableDocuments").load(
-                    "./documents"
-                );
-*/
                 TpData.documentTable.reloadTable();
+            });
+
+            $("#createSyncData").click(function (e) {
+                showYesNoModal("Создать архив тарифной политики?", function () {
+                    createSyncData("tp");
+                });
             });
 
         }));
@@ -98,6 +99,8 @@
                     <button id="loadButton" class="col-sm-2 btn btn-primary" type="button" style="margin-left: 5px; height: 50%">
                         Загрузить
                     </button>
+                    <label title="Сохранение архива тарифной политики" sec:authorize="isAuthenticated() && hasRole('ROLE_ADMIN')" id="createSyncData" class="btn btn-default" type="button" style="height: 50%; margin-left: 5px"><i
+                            class="fa fa-download"></i></label>
                 </div>
 
                 <div class="display" style="width: 100%;">

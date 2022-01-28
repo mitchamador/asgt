@@ -109,39 +109,39 @@
                     "matherialEdit" : function(tr) {
                         var row = matherialTable.row(tr);
 
-                        // var d = row.data();
-                        // console.log("Редактирование услуги с id=" + d.id);
-                        //
-                        // $("#matherialEditor").load(
-                        //     "./matherials/" + d.id + "/editor"
-                        // );
+                        var d = row.data();
+                        console.log("Редактирование услуги с id=" + d.id);
+
+                        $("#matherialEditor").load(
+                            "./matherials/" + d.id + "/editor"
+                        );
                     },
                     "matherialDelete" : function(tr) {
                         var row = matherialTable.row(tr);
 
-                        // showYesNoModal("Удалить услугу?",
-                        //     function() {
-                        //         var d = row.data();
-                        //         console.log("Удаление услуги с id=" + d.id);
-                        //
-                        //         $.ajax({
-                        //             url: contextRoot + "api/matherials/" + d.id,
-                        //             type: "DELETE",
-                        //             cache: false,
-                        //             success: function (msg) {
-                        //                 if (msg === true) {
-                        //                     row.remove().draw();
-                        //                 } else {
-                        //                     console.log("no data reloading needed");
-                        //                 }
-                        //             }
-                        //         });
-                        //     },
-                        //     function() {
-                        //         var d = row.data();
-                        //         console.log("Отмена удаления услуги с id=" + d.id);
-                        //     }
-                        // );
+                        showYesNoModal("Удалить услугу?",
+                            function() {
+                                var d = row.data();
+                                console.log("Удаление услуги с id=" + d.id);
+
+                                $.ajax({
+                                    url: contextRoot + "api/matherials/" + d.id,
+                                    type: "DELETE",
+                                    cache: false,
+                                    success: function (msg) {
+                                        if (msg === true) {
+                                            row.remove().draw();
+                                        } else {
+                                            console.log("no data reloading needed");
+                                        }
+                                    }
+                                });
+                            },
+                            function() {
+                                var d = row.data();
+                                console.log("Отмена удаления услуги с id=" + d.id);
+                            }
+                        );
                     }
                 }
             );
@@ -152,9 +152,9 @@
 
             $("#matherialCreate").click(function (e) {
 
-                // $("#matherialEditor").load(
-                //     "./matherials/0/editor"
-                // );
+                $("#matherialEditor").load(
+                     "./matherials/0/editor"
+                );
 
                 //e.preventDefault();
                 //e.stopPropagation();
@@ -180,10 +180,10 @@
                 </div>
             </th>
 
-            <th style="width: 7%">Код ЕК ИСУФР</th>
-            <th style="width: 7%">Код ГТ</th>
+            <th style="width: 7%">Код статьи</th>
+            <th style="width: 7%">Код услуги</th>
             <th style="width: 33%">Наименование</th>
-            <th style="width: 20%">Предназначение</th>
+            <th style="width: 20%">Формула расчета</th>
             <th style="width: 12%">Единица измерения</th>
             <th style="width: 9%">Ставка</th>
             <th style="width: 6%">Коэф.</th>
@@ -192,6 +192,465 @@
         </tr>
         </thead>
     </table>
+
+</th:block>
+
+<th:block th:fragment="matherialEditor">
+
+    <script th:inline="javascript">
+        $(document).ready($(function () {
+
+            /*<![CDATA[*/
+            var matherial = [[${matherial}]];
+            var descriptors = [[${descriptors}]];
+            var measures = [[${measures}]];
+            /*]]>*/
+
+            var currentDate = new Date();
+            if (matherial.id === 0) {
+                matherial.dateBegin = new Date(currentDate.getFullYear(), 0, 1);
+            }
+            if (matherial.id === 0) {
+                matherial.dateEnd = new Date(currentDate.getFullYear(), 11, 31);
+            }
+
+/*
+            $("#datetimeBeginMatherial").datetimepicker({
+                todayHighlight: true,
+                format: "dd.mm.yyyy",
+                language: 'ru',
+                minView: 2,
+                autoclose: true,
+                weekStart: 1
+            });
+            if (matherial.dateBegin !== null) {
+                $("#datetimeBeginMatherial").datetimepicker('setDate', new Date(matherial.dateBegin));
+            }
+
+            $("#datetimeEndMatherial").datetimepicker({
+                format: "dd.mm.yyyy",
+                language: 'ru',
+                minView: 2,
+                autoclose: true,
+                weekStart: 1
+            });
+            if (matherial.dateEnd != null) {
+                $("#datetimeEndMatherial").datetimepicker('setDate', new Date(matherial.dateEnd));
+            }
+*/
+
+            function destroyComponents() {
+                // $("#datetimeBeginMatherial").datetimepicker('remove');
+                // $("#datetimeEndMatherial").datetimepicker('remove');
+            }
+
+            var modalMatherialEditor = initModal2("#matherialEditModal", {
+                "okMatherialButton" : function (matherial) {
+
+                    matherial.code = $("#code").val();
+                    if (matherial.code === "") {
+                        showInfoModal("Не введен код услуги");
+                        return;
+                    }
+                    matherial.codeEkisufr = $("#codeEkisufr").val();
+                    if (matherial.codeEkisufr === "") {
+                        showInfoModal("Не введен код статьи");
+                        return;
+                    }
+
+                    matherial.name = $("#name").val();
+                    if (matherial.name=== "") {
+                        showInfoModal("Не введено наименование услуги");
+                        return;
+                    }
+
+                    // matherial.dateBegin = $("#dateBeginText").val() !== "" ? $("#datetimeBeginMatherial").datetimepicker('getDate') : null;
+                    // matherial.dateEnd = $("#dateEndText").val() !== "" ? $("#datetimeEndMatherial").datetimepicker('getDate') : null;
+                    // matherial.nDoc = $("#nDoc").val();
+
+                    if (matherial.descriptor === null || matherial.descriptor === undefined) {
+                        matherial.descriptor = {};
+                    }
+
+                    if ($("#descriptorEditor option:selected").val() !== undefined) {
+                        matherial.descriptor.code = $("#descriptorEditor option:selected").val();
+                    } else {
+                        matherial.descriptor.code = 0;
+                    }
+
+                    if ($("#osobValEditor option:selected").val() !== undefined) {
+                        matherial.descriptor.osobVal = $("#osobValEditor option:selected").val();
+                    } else {
+                        matherial.descriptor.osobVal = 0;
+                    }
+
+                    if (matherial.measureLeft === null || matherial.measureLeft === undefined) {
+                        matherial.measureLeft = {};
+                    }
+
+                    if ($("#measureLeftEditor option:selected").val() !== undefined) {
+                        matherial.measureLeft.id = $("#measureLeftEditor option:selected").val();
+                    } else {
+                        matherial.measureLeft.id = 0;
+                    }
+
+                    if (matherial.measureRight === null || matherial.measureRight === undefined) {
+                        matherial.measureRight = {};
+                    }
+
+                    if ($("#measureRightEditor option:selected").val() !== undefined) {
+                        matherial.measureRight.id = $("#measureRightEditor option:selected").val();
+                    } else {
+                        matherial.measureRight.id = 0;
+                    }
+
+                    var matherialId = matherial.id;
+
+                    $.ajax({
+                        url: contextRoot + "api/matherials/" + (matherial.id !== 0 ? matherial.id : ""),
+                        type: matherial.id !== 0 ? 'PUT' : 'POST',
+                        data: JSON.stringify(matherial),
+                        cache: false,
+                        contentType: "application/json",
+                        success: function(msg) {
+                            matherialId = msg;
+                        },
+                        complete: function ( jqXHR, textStatus) {
+                            if (textStatus === 'success') {
+                                destroyComponents();
+                                modalMatherialEditor.close();
+                                MatherialData.matherialTable.reloadTable(matherialId);
+                                console.log("Сохранение услуги с id=" + matherialId);
+                            } else {
+                                alert("Ошибка сохранения услуги");
+                                if (matherialId === undefined || matherialId === 0) {
+                                    console.log("Ошибка при сохранении новой услуги");
+                                } else {
+                                    console.log("Ошибка при сохранении услуги с id=" + matherialId);
+                                }
+                            }
+                        }
+                    });
+                },
+                "cancelMatherialButton": function (matherial) {
+                    console.log("Отмена сохранения услуги с id=" + matherial.id);
+                    destroyComponents();
+                }
+            });
+
+            function fillOsobVal() {
+                var osobValSelector = document.querySelector('#osobValEditor');
+                var index = osobValSelector.options.length;
+                while (index--) {
+                    osobValSelector.remove(index);
+                }
+
+                var descriptor = $('#descriptorEditor').val();
+
+                descriptors.forEach(function(d) {
+                    if (d.code == descriptor) {
+                        $('#osobValLabelEditor').text(d.osobTitle);
+                        d.osobItems.forEach(function(osob) {
+                            var option = new Option(osob.name, osob.code);
+                            if (matherial.descriptor !== undefined && matherial.descriptor !== null && d.code == matherial.descriptor.code && osob.code == matherial.descriptor.osobVal) {
+                                option.selected = true;
+                            }
+                            osobValSelector.add(option, undefined);
+                        });
+                    }
+                });
+
+            }
+
+            function fillTable(id, list, fillItem) {
+                var table = document.getElementById(id);
+                for (var index = 0; index < table.rows.length; index++) {
+                    table.deleteRow(index);
+                }
+                if (list !== null && list.length > 0) {
+                    list.sort(function(a,b){
+                        return new Date(b.date).getTime() - new Date(a.date).getTime();
+                    });
+                    fillItem(table.insertRow(), list[0]);
+                } else {
+                    table.insertRow();
+                }
+            }
+
+            function _fillTable(id) {
+                if (id === 'matherialPriceTable') {
+                    fillTable(id, matherial.priceList, function(row, item) {
+                        var cell;
+                        cell = row.insertCell();
+                        cell.innerHTML = new Date(item.date).getStringDate();
+                        cell = row.insertCell();
+                        cell.innerHTML = item.rate;
+                        cell = row.insertCell();
+                        cell.innerHTML = item.currency !== undefined ? item.currency.shortName : '';
+                    });
+                } else if (id === 'matherialKoefTable') {
+                    fillTable(id, matherial.koefList, function(row, item) {
+                        var cell;
+                        cell = row.insertCell();
+                        cell.innerHTML = new Date(item.date).getStringDate();
+                        cell = row.insertCell();
+                        cell.innerHTML = item.koef;
+                    });
+                } else if (id === 'matherialNdsTable') {
+                    fillTable(id, matherial.ndsList, function(row, item) {
+                        var cell;
+                        cell = row.insertCell();
+                        cell.innerHTML = new Date(item.date).getStringDate();
+                        cell = row.insertCell();
+                        cell.innerHTML = item.value;
+                    });
+                }
+            }
+
+
+            $("#matherialPriceCreate").click(function (e) {
+                _fillTable('matherialPriceTable');
+            });
+
+            $("#matherialKoefCreate").click(function (e) {
+                _fillTable('matherialKoefTable');
+            });
+
+            $("#matherialNdsCreate").click(function (e) {
+                _fillTable('matherialNdsTable');
+            });
+
+            fillOsobVal();
+
+            $('#descriptorEditor').on('change', function select() {
+                fillOsobVal();
+            });
+
+            _fillTable('matherialPriceTable');
+            _fillTable('matherialKoefTable');
+            _fillTable('matherialNdsTable');
+
+            verticalCenteredModal("#matherialEditModal");
+
+            modalMatherialEditor.show(matherial);
+
+
+        }));
+    </script>
+
+    <div id="matherialEditModal" class="modal" data-keyboard="true" data-backdrop="static" tabindex="-1" style="vertical-align: center">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Редактирование услуги</h5>
+                </div>
+
+                <div id="matherialEditBody" class="modal-body" style="margin-left: 10px; margin-right: 10px">
+
+                    <div class="row">
+
+                        <div class="col-sm-6" style="width: 50%;">
+
+                            <div class="form-group" style="width: 100%;">
+                                <span class="has-float-label">
+                                    <input class="form-control" id="code" type="text"
+                                           placeholder=""
+                                           th:value="${matherial.getCode()}"/>
+                                    <label for="code">Код услуги</label>
+                                </span>
+                            </div>
+
+                        </div>
+
+                        <div class="col-sm-6" style="width: 50%;">
+
+                            <div class="form-group" style="width: 100%;">
+                                <span class="has-float-label">
+                                    <input class="form-control" id="codeEkisufr" type="text"
+                                           placeholder=""
+                                           th:value="${matherial.getCodeEkisufr()}"/>
+                                    <label for="codeEkisufr">Код статьи</label>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-12">
+                            <div class="form-group" style="width: 100%;">
+                                <span class="has-float-label">
+                                    <textarea rows="3" class="form-control" id="name"
+                                              placeholder=""
+                                              th:text="${matherial.getName()}">
+                                    </textarea>
+                                    <label for="name">Наименование услуги</label>
+                                </span>
+                            </div>
+                        </div>
+
+<!--
+                        <div class="col-sm-6">
+                            <div id="datetimeBeginMatherial" class="form-group input-group date" style="width: 100%;">
+
+                                <span class="has-float-label">
+                                    <label for="dateBeginText">Дата начала действия</label>
+                                    <input id="dateBeginText" type="text" class="form-control">
+                                </span>
+                                <span class="input-group-addon">
+                                    <i class="glyphicon glyphicon-calendar"></i>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <div id="datetimeEndMatherial" class="col-sm-2 form-group input-group date" style="width: 100%;">
+                                <span class="has-float-label">
+                                    <label for="dateEndText">Дата окончания действия</label>
+                                    <input id="dateEndText" type="text" class="form-control">
+                                </span>
+                                <span class="input-group-addon">
+                                    <i class="glyphicon glyphicon-calendar"></i>
+                                </span>
+                            </div>
+                        </div>
+
+
+                        <div class="col-sm-12">
+                            <div class="form-group" style="width: 100%;">
+                                <span class="has-float-label">
+                                    <input class="form-control" id="nDoc" type="text"
+                                           placeholder=""
+                                           th:value="${matherial.getnDoc()}"/>
+                                    <label for="nDoc">Нормативный документ</label>
+                                </span>
+                            </div>
+                        </div>
+-->
+
+                        <div class="col-sm-6" style="width: 50%;">
+                            <div class="form-group" style="width: 100%">
+                                <span class="has-float-label">
+                                    <label for="descriptorEditor">Формула расчета</label>
+                                    <select id="descriptorEditor" class="form-control">
+                                        <th:block th:each="d, ix : ${descriptors}">
+                                            _c<option th:value="${d.getCode()}"
+                                                      th:selected="${matherial.getDescriptor() != null && d.getCode() == matherial.getDescriptor().getCode()}"
+                                                      th:text="${d.getName()}"></option>
+                                        </th:block>
+                                    </select>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <div class="form-group" style="width: 100%">
+                                <span class="has-float-label">
+                                    <label id="osobValLabelEditor" for="osobValEditor"></label>
+                                    <select id="osobValEditor" class="form-control">
+                                    </select>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <div class="form-group" style="width: 100%">
+                                <span class="has-float-label">
+                                    <label for="measureLeftEditor">Единица измерения</label>
+                                    <select id="measureLeftEditor" class="form-control">
+                                        <th:block th:each="m, ix : ${measures}">
+                                            _c<option th:value="${m.getId()}"
+                                                      th:selected="${matherial.getMeasureLeft() != null && m.getId() == matherial.getMeasureLeft().getId()}"
+                                                      th:text="${m.getName()}"></option>
+                                        </th:block>
+                                    </select>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <div class="form-group" style="width: 100%">
+                                <span class="has-float-label">
+                                    <label for="measureRightEditor">Единица измерения</label>
+                                    <select id="measureRightEditor" class="form-control">
+                                        <th:block th:each="m, ix : ${measures}">
+                                            _c<option th:value="${m.getId()}"
+                                                      th:selected="${matherial.getMeasureRight() != null && m.getId() == matherial.getMeasureRight().getId()}"
+                                                      th:text="${m.getName()}"></option>
+                                        </th:block>
+                                    </select>
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th scope="col">Дата</th>
+                                    <th scope="col">Ставка</th>
+                                    <th scope="col">
+                                        <div style="display: flex; width: 100%; height: 100%">
+                                            <span class="text-nowrap" style="flex-grow: 1; align-self: center;">Валюта</span>
+                                            <a id="matherialPriceCreate" class="btn-success btn-sm"
+                                               style="align-self: center; margin-right: 3px; padding: 2px 5px; cursor: pointer"><i
+                                                    class="fa fa-edit"></i></a>
+                                        </div>
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody id="matherialPriceTable"></tbody>
+                            </table>
+                        </div>
+                        <div class="col-sm-6">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th scope="col">Дата</th>
+                                    <th scope="col">
+                                        <div style="display: flex; width: 100%; height: 100%">
+                                            <span class="text-nowrap" style="flex-grow: 1; align-self: center;">Коэффициент</span>
+                                            <a id="matherialKoefCreate" class="btn-success btn-sm"
+                                               style="align-self: center; margin-right: 3px; padding: 2px 5px; cursor: pointer"><i
+                                                    class="fa fa-edit"></i></a>
+                                        </div>
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody id="matherialKoefTable"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Дата</th>
+                                        <th scope="col">
+                                            <div style="display: flex; width: 100%; height: 100%">
+                                                <span class="text-nowrap" style="flex-grow: 1; align-self: center;">НДС, %</span>
+                                                <a id="matherialNdsCreate" class="btn-success btn-sm" style="align-self: center; margin-right: 3px; padding: 2px 5px; cursor: pointer"><i class="fa fa-edit"></i></a>
+                                            </div>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody id="matherialNdsTable"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button id="okMatherialButton" type="button" data-hide="no" class="btn btn-success">Сохранить</button>
+                    <button id="cancelMatherialButton" type="button" class="btn btn-default">Выход</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
 
 </th:block>
 
