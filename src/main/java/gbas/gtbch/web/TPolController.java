@@ -1,10 +1,7 @@
 package gbas.gtbch.web;
 
 import gbas.gtbch.sapod.model.CodeName;
-import gbas.gtbch.sapod.model.tpol.TpDocument;
-import gbas.gtbch.sapod.model.tpol.TpGroup;
-import gbas.gtbch.sapod.model.tpol.TpRow;
-import gbas.gtbch.sapod.model.tpol.TpSobst;
+import gbas.gtbch.sapod.model.tpol.*;
 import gbas.gtbch.sapod.service.TPolRowService;
 import gbas.gtbch.sapod.service.TPolService;
 import org.slf4j.Logger;
@@ -66,7 +63,7 @@ public class TPolController {
 
     /**
      * get {@link TpDocument}
-     * @param id - tvk_tarif.id
+     * @param id - tvk_tarif.idTarif
      */
     @RequestMapping(value = "/document/{id:[\\d]+}", method = RequestMethod.GET)
     public ResponseEntity<TpDocument> getDocument(@PathVariable int id, @RequestParam(name = "editor", defaultValue = "false", required = false) boolean editorMode) {
@@ -75,11 +72,11 @@ public class TPolController {
 
     /**
      * copy all {@link TpRow}'s from source {@link TpDocument} to destination {@link TpDocument}
-     * @param sourceId - tvk_tarif.id
-     * @param destinationId - destination tvk_tarif.id
+     * @param sourceId - tvk_tarif.idTarif
+     * @param destinationId - destination tvk_tarif.idTarif
      */
     @RequestMapping(value = "/document/{id:[\\d]+}/copy", method = RequestMethod.POST)
-    public ResponseEntity<Integer> copyDocument(@PathVariable(name = "id") int sourceId, @RequestParam(name = "doc_id") int destinationId) {
+    public ResponseEntity<Integer> copyDocument(@PathVariable(name = "idTarif") int sourceId, @RequestParam(name = "doc_id") int destinationId) {
         return new ResponseEntity<>(tpolService.copyDocument(sourceId, destinationId), HttpStatus.OK);
     }
 
@@ -95,7 +92,7 @@ public class TPolController {
 
     /**
      * update {@link TpDocument}
-     * @param id - tvk_tarif.id
+     * @param id - tvk_tarif.idTarif
      */
     @RequestMapping(value = "/document/{id:[\\d]+}", method = RequestMethod.PUT)
     public ResponseEntity<Integer> updateDocument(@PathVariable int id, @RequestBody TpDocument obj) {
@@ -105,17 +102,17 @@ public class TPolController {
 
     /**
      * delete {@link TpDocument}
-     * @param id - tvk_tarif.id
+     * @param id - tvk_tarif.idTarif
      */
     @RequestMapping(value = "/document/{id:[\\d]+}", method = RequestMethod.DELETE)
     public ResponseEntity<Boolean> deleteDocument(@PathVariable int id) {
-        logger.info("delete tp document with id = {}", id);
+        logger.info("delete tp document with idTarif = {}", id);
         return new ResponseEntity<>(tpolService.deleteDocument(id), HttpStatus.OK);
     }
 
     /**
      * get {@link TpRow} list
-     * @param id - tvk_tarif.id
+     * @param id - tvk_tarif.idTarif
      */
     @RequestMapping(value = "/document/{id:[\\d]+}/rows", method = RequestMethod.GET)
     public ResponseEntity<List<TpRow>> getRows(@PathVariable int id) {
@@ -124,7 +121,7 @@ public class TPolController {
 
     /**
      * get {@link TpSobst} list
-     * @param id - tvk_tarif.id
+     * @param id - tvk_tarif.idTarif
      */
     @RequestMapping(value = "/document/{id:[\\d]+}/sobsts", method = RequestMethod.GET)
     public ResponseEntity<List<TpSobst>> getDocumentSobsts(@PathVariable int id, @RequestParam(defaultValue = "false") boolean checked) {
@@ -133,7 +130,7 @@ public class TPolController {
 
     /**
      * save {@link TpSobst} list
-     * @param id tvk_tarif.id
+     * @param id tvk_tarif.idTarif
      * @param list List<{@link TpSobst}>
      */
     @RequestMapping(value = "/document/{id:[\\d]+}/sobsts", method = RequestMethod.POST)
@@ -156,6 +153,44 @@ public class TPolController {
     @RequestMapping(value = "/sobsts", method = RequestMethod.GET)
     public ResponseEntity<List<TpSobst>> getSobsts() {
         return new ResponseEntity<>(tpolService.getSobstList(0, false), HttpStatus.OK);
+    }
+
+    /**
+     * get clients for linked clients
+     * @return
+     */
+    @RequestMapping(value = "/clients", method = RequestMethod.GET)
+    public ResponseEntity<List<TpClient>> getTpClients() {
+        return new ResponseEntity<>(tpolService.getTpClients(), HttpStatus.OK);
+    }
+
+    /**
+     * get linked clients for idTarif
+     * @param idTarif
+     * @return
+     */
+    @RequestMapping(value = "/document/{id:[\\d]+}/clients", method = RequestMethod.GET)
+    public ResponseEntity<List<TpLinkedClient>> getTpLinkedClients(@PathVariable(name = "id") int idTarif) {
+        return new ResponseEntity<>(tpolService.getLinkedTpClients(idTarif), HttpStatus.OK);
+    }
+
+    /**
+     * save {@link TpLinkedClient} list
+     * @param id tvk_tarif.idTarif
+     * @param list List<{@link TpLinkedClient}>
+     */
+    @RequestMapping(value = "/document/{id:[\\d]+}/clients", method = RequestMethod.POST)
+    public ResponseEntity<Boolean> setTpLinkedClients(@PathVariable int id, @RequestBody List<TpLinkedClient> list) {
+        return new ResponseEntity<>(tpolService.saveLinkedTpClients(id, list), HttpStatus.OK);
+    }
+
+    /**
+     * delete linked clients
+     * @param id tvk_tarif.idTarif
+     */
+    @RequestMapping(value = "/document/{id:[\\d]+}/clients", method = RequestMethod.DELETE)
+    public ResponseEntity<Boolean> deleteTpLinkedClients(@PathVariable int id) {
+        return new ResponseEntity<>(tpolService.deleteTpLinkedClients(id), HttpStatus.OK);
     }
 
 }

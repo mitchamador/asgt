@@ -1,9 +1,7 @@
 package gbas.gtbch.sapod.service;
 
 import gbas.gtbch.sapod.model.CodeName;
-import gbas.gtbch.sapod.model.tpol.TpDocument;
-import gbas.gtbch.sapod.model.tpol.TpGroup;
-import gbas.gtbch.sapod.model.tpol.TpSobst;
+import gbas.gtbch.sapod.model.tpol.*;
 
 import java.util.Date;
 import java.util.List;
@@ -97,4 +95,34 @@ public interface TPolService {
      * @return
      */
     Integer copyDocument(int sourceId, int destinationId);
+
+    /**
+     * get list of clients for linked client (GTPENSI.FORWARD_BCH union GTPENSI.CONSIGN_BCH)
+     * @return
+     */
+    List<TpClient> getTpClients();
+
+    /**
+     * get linked clients for tarif
+     * @param idTarif
+     * @return
+     */
+    List<TpLinkedClient> getLinkedTpClients(int idTarif);
+
+    /**
+     * save list of linked clients
+     * @param idTarif
+     * @param clientList
+     * @return
+     */
+    boolean saveLinkedTpClients(int idTarif, List<TpLinkedClient> clientList);
+
+    /**
+     * delete all linked clients for tvk_tarif
+     * @param idTarif
+     * @return
+     */
+    boolean deleteTpLinkedClients(int idTarif);
+
+
 }

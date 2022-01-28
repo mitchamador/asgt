@@ -1,10 +1,7 @@
 package gbas.gtbch.sapod.repository;
 
 import gbas.gtbch.sapod.model.CodeName;
-import gbas.gtbch.sapod.model.tpol.TpDocument;
-import gbas.gtbch.sapod.model.tpol.TpGroup;
-import gbas.gtbch.sapod.model.tpol.TpRow;
-import gbas.gtbch.sapod.model.tpol.TpSobst;
+import gbas.gtbch.sapod.model.tpol.*;
 import gbas.tvk.nsi.cash.Func;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,16 +23,22 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class TPolRepository {
     public static final Logger logger = LoggerFactory.getLogger(TPolRepository.class);
 
     private final JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplatePensi;
+    private final TPolRowRepository tPolRowRepository;
+
 
     @Autowired
-    public TPolRepository(@Qualifier("sapodDataSource") DataSource dataSource) {
+    public TPolRepository(@Qualifier("sapodDataSource") DataSource dataSource, @Qualifier("pensiDataSource") DataSource dataSourcePensi, TPolRowRepository tPolRowRepository) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
+        this.jdbcTemplatePensi = new JdbcTemplate(dataSourcePensi);
+        this.tPolRowRepository = tPolRowRepository;
     }
 
     /**
@@ -360,9 +363,6 @@ public class TPolRepository {
     }
 
 
-    @Autowired
-    private TPolRowRepository tPolRowRepository;
-
     /**
      *
      * @param sourceId
@@ -380,5 +380,100 @@ public class TPolRepository {
         }
 
         return destinationId;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public List<TpClient> getTpClients() {
+        List<TpClient> list = new ArrayList<>();
+
+        list.addAll(jdbcTemplatePensi.query("select kod, name1\n" +
+                        "from forward_bch\n" +
+                        "order by kod",
+                (rs, rowNum) -> {
+                    TpClient tpClient = new TpClient();
+                    tpClient.setCode(Func.iif(rs.getString("kod")));
+                    tpClient.setName(Func.iif(rs.getString("name1")));
+                    return tpClient;
+                }
+        ));
+
+//        list.addAll(jdbcTemplate.query("SELECT consi_bch_no, consi_bch_name, div_no\n" +
+//                        "FROM s_klient_consign_bch\n" +
+//                        "ORDER by consi_bch_no",
+        list.addAll(jdbcTemplatePensi.query("select consi_bch_no, consi_bch_name, rail_div.div_no\n" +
+                        "from consign_bch\n" +
+                        "left outer join rail_div on rail_div.div#un = consign_bch.div#un",
+                (rs, rowNum) -> {
+                    TpClient tpClient = new TpClient();
+                    tpClient.setCode(Func.iif(rs.getString("consi_bch_no")));
+                    tpClient.setName(Func.iif(rs.getString("consi_bch_name")));
+                    tpClient.setNumNod(rs.getInt("div_no"));
+                    return tpClient;
+                }
+        ));
+
+        return list;
+    }
+
+    /**
+     *
+     * @param idTarif
+     * @return
+     */
+    public List<TpLinkedClient> getLinkedTpClients(int idTarif) {
+        return jdbcTemplate.query("select id_tarif, code_client, name, sector from tvk_tarif_client where id_tarif = ?",
+                (rs, rowNum) -> {
+                    TpLinkedClient tpLinkedClient = new TpLinkedClient();
+                    tpLinkedClient.setIdTarif(rs.getInt("id_tarif"));
+                    tpLinkedClient.setCode(Func.iif(rs.getString("code_client")));
+                    tpLinkedClient.setName(Func.iif(rs.getString("name")));
+                    tpLinkedClient.setNumNod(rs.getInt("sector"));
+                    return tpLinkedClient;
+                },
+                idTarif);
+    }
+
+    /**
+     *
+     * @param idTarif
+     * @param clientList
+     * @return
+     */
+    @Transactional(transactionManager = "sapodTransactionManager")
+    public boolean saveLinkedTpClients(int idTarif, List<TpLinkedClient> clientList) {
+
+        deleteLinkedTpClients(idTarif);
+
+        List<Object[]> paramsList = clientList.stream()
+                .map(client -> {
+                    List<Object> objectList = new ArrayList<>();
+                    objectList.add(idTarif);
+                    objectList.add(client.getCode());
+                    objectList.add(client.getName());
+                    objectList.add(client.getNumNod());
+                    return objectList.toArray(new Object[0]);
+                })
+                .collect(Collectors.toList());
+
+        jdbcTemplate.batchUpdate(
+                "insert into tvk_tarif_client (id_tarif, code_client, name, sector)\n" +
+                        "values (?, ?, ?, ?)",
+                paramsList
+        );
+
+        return true;
+    }
+
+    /**
+     *
+     * @param idTarif
+     * @return
+     */
+    @Transactional(transactionManager = "sapodTransactionManager")
+    public boolean deleteLinkedTpClients(int idTarif) {
+        return jdbcTemplate.update("delete from tvk_tarif_client where id_tarif = ?", idTarif) > 0;
     }
 }

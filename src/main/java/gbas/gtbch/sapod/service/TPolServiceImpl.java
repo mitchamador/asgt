@@ -1,9 +1,7 @@
 package gbas.gtbch.sapod.service;
 
 import gbas.gtbch.sapod.model.CodeName;
-import gbas.gtbch.sapod.model.tpol.TpDocument;
-import gbas.gtbch.sapod.model.tpol.TpGroup;
-import gbas.gtbch.sapod.model.tpol.TpSobst;
+import gbas.gtbch.sapod.model.tpol.*;
 import gbas.gtbch.sapod.repository.TPolRepository;
 import org.springframework.stereotype.Service;
 
@@ -151,5 +149,25 @@ public class TPolServiceImpl implements TPolService {
     @Override
     public Integer copyDocument(int sourceId, int destinationId) {
         return tPolRepository.copyDocument(sourceId, destinationId);
+    }
+
+    @Override
+    public List<TpClient> getTpClients() {
+        return tPolRepository.getTpClients();
+    }
+
+    @Override
+    public List<TpLinkedClient> getLinkedTpClients(int idTarif) {
+        return tPolRepository.getLinkedTpClients(idTarif);
+    }
+
+    @Override
+    public boolean saveLinkedTpClients(int idTarif, List<TpLinkedClient> clientList) {
+        return tPolRepository.saveLinkedTpClients(idTarif, clientList);
+    }
+
+    @Override
+    public boolean deleteTpLinkedClients(int idTarif) {
+        return tPolRepository.deleteLinkedTpClients(idTarif);
     }
 }
