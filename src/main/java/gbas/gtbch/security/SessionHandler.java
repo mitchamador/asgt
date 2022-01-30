@@ -9,20 +9,21 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
-import org.springframework.stereotype.Component;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Date;
 
-@Component
 public class SessionHandler implements AuthenticationSuccessHandler, LogoutSuccessHandler, AccessDeniedHandler {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
@@ -30,45 +31,76 @@ public class SessionHandler implements AuthenticationSuccessHandler, LogoutSucce
     private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
     private final UserService userService;
-
     private final JWTToken jwtToken;
+    private final ApiAccess apiAccess;
+    private final SessionRegistry sessionRegistry;
 
-    public SessionHandler(UserService userService, JWTToken jwtToken) {
+    public SessionHandler(UserService userService, JWTToken jwtToken, ApiAccess apiAccess, SessionRegistry sessionRegistry) {
         this.userService = userService;
         this.jwtToken = jwtToken;
+        this.apiAccess = apiAccess;
+        this.sessionRegistry = sessionRegistry;
     }
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Authentication authentication) throws IOException, ServletException {
-        fillUserAuthInfo(authentication);
+        authenticateUser(authentication.getPrincipal(), false);
         redirectStrategy.sendRedirect(httpServletRequest, httpServletResponse, "/");
     }
 
     @Override
     public void onLogoutSuccess(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Authentication authentication) throws IOException, ServletException {
-        if (authentication.getPrincipal() instanceof User) {
-            logoutUser((User) authentication.getPrincipal());
+        if (authentication.getPrincipal() instanceof UserDetailsToken) {
+            logoutUser((UserDetailsToken) authentication.getPrincipal());
         }
         redirectStrategy.sendRedirect(httpServletRequest, httpServletResponse, "/");
     }
 
-    public void fillUserAuthInfo(Authentication auth) {
-        if (auth.getPrincipal() instanceof User) {
-            User user = (User) auth.getPrincipal();
-            logger.info("{} logged in", user.toString());
+    public void authenticateUser(Object principal, boolean expireSession) {
+        cleanupSessions(principal, expireSession);
 
-            user.setLoggedInDate(new Date());
-            logger.debug("set logged in date to {} for user {}", UtilDate8.getStringFullDate(user.getLoggedInDate()), user.getUsername());
-            userService.updateLoggedInDate(user);
+        if (principal instanceof UserDetailsToken) {
+            UserDetailsToken userDetailsToken = (UserDetailsToken) principal;
+            logger.info("{} logged in", userDetailsToken.toString());
 
-            user.setToken(jwtToken.createToken(user));
+            if (userDetailsToken instanceof User) {
+                User user = (User) userDetailsToken;
+                user.setLoggedInDate(new Date());
+                logger.debug("set logged in date to {} for user {}", UtilDate8.getStringFullDate(user.getLoggedInDate()), userDetailsToken.getUsername());
+                userService.updateLoggedInDate(user);
+            }
+
+            userDetailsToken.setToken(jwtToken.createToken(userDetailsToken));
         }
     }
 
-    public void logoutUser(User user) {
-        logger.info("{} logged out", user.toString());
+    /**
+     * expire sessions and blacklist tokens for principal
+     * @param principal
+     * @param expireSession
+     */
+    public void cleanupSessions(Object principal, boolean expireSession) {
+        if (!apiAccess.unsecure()) {
+            // expire old sessions after successful authentication
+            sessionRegistry.getAllSessions(principal, true).forEach(sessionInformation -> {
+                if (expireSession && !sessionInformation.isExpired()) {
+                    sessionInformation.expireNow();
+                }
+                if (sessionInformation.getPrincipal() instanceof UserDetailsToken) {
+                    jwtToken.blacklist(((UserDetailsToken) sessionInformation.getPrincipal()).getToken());
+                }
+                // remove expired sessions after 30 min
+                if (sessionInformation.isExpired() && Duration.between(sessionInformation.getLastRequest().toInstant(), Instant.now()).toMinutes() > 30) {
+                    sessionRegistry.removeSessionInformation(sessionInformation.getSessionId());
+                }
+            });
+        }
 
-        jwtToken.blacklist(user.getToken());
+    }
+
+    public void logoutUser(UserDetailsToken user) {
+        cleanupSessions(user, false);
+        logger.info("{} logged out", user.toString());
     }
 
     @Override
@@ -81,5 +113,4 @@ public class SessionHandler implements AuthenticationSuccessHandler, LogoutSucce
 
         httpServletResponse.sendRedirect("/error/access-denied");
     }
-
 }

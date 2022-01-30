@@ -5,28 +5,33 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import gbas.gtbch.sapod.model.users.User;
+import gbas.gtbch.security.UserDetailsToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Component
 public class JWTToken {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    public static final String SECRET = "SECRET_KEY";
+    private final static long EXPIRATION_TIME = TimeUnit.MINUTES.toMillis(120);
 
-    private static final long EXPIRATION_TIME = TimeUnit.MINUTES.toMillis(120);
+    private final static String TOKEN_PREFIX = "Bearer ";
 
-    private static final String TOKEN_PREFIX = "Bearer ";
+    private final static String HEADER_STRING = "Authorization";
 
-    private static final String HEADER_STRING = "Authorization";
+    private final static String CLAIM_AUTHORITIES = "authorities";
 
     private JWTToken() {
     }
@@ -39,11 +44,12 @@ public class JWTToken {
     /**
      * create token for {@link User}
      * @param user
-     * @return
+     * @return token
      */
-    public String createToken(User user) {
+    public String createToken(UserDetailsToken user) {
         String token = JWT.create()
                 .withSubject(user.getUsername())
+                .withClaim(CLAIM_AUTHORITIES, new ArrayList<>(user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList())))
                 .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .sign(Algorithm.HMAC512(getSecret().getBytes()));
 
@@ -65,37 +71,61 @@ public class JWTToken {
      * @return
      * @throws JWTVerificationException
      */
-    private DecodedJWT getDecodedJWT(String token) throws JWTVerificationException {
+    public DecodedJWT getDecodedJWT(String token) throws JWTVerificationException {
         return JWT.require(Algorithm.HMAC512(getSecret().getBytes()))
                 .build()
                 .verify(token.replace(TOKEN_PREFIX, ""));
     }
 
     /**
-     * get username from token
+     * get expiration date from token
      * @param token
      * @return
      */
-    public String getUsername(String token) throws JWTVerificationException {
-        String decodedToken = null;
+    public Date getExpirationDate(String token) {
+        try {
+            return JWT.decode(token).getExpiresAt();
+        } catch (Exception e) {
+            return null;
+        }
+    }
 
+    /**
+     * get user with authorities from token
+     * @param token
+     * @return
+     * @throws JWTVerificationException
+     */
+    public UserDetailsToken getUser(String token) throws JWTVerificationException {
         DecodedJWT decodedJWT = getDecodedJWT(token);
+
         if (decodedJWT != null) {
-            decodedToken = decodedJWT.getSubject();
+            UserDetailsToken user = new UserDetailsToken(decodedJWT.getSubject(), null);
+            List<String> roles = decodedJWT.getClaim(CLAIM_AUTHORITIES).asList(String.class);
+            if (roles != null) {
+                user.setRoles(roles.toArray(new String[0]));
+            }
+            return user;
         }
 
-        return decodedToken;
+        return null;
     }
 
     private ConcurrentSkipListSet<String> blacklistedTokens = new ConcurrentSkipListSet<>();
 
     /**
-     * blacklist token for logged out user and remove expired tokens from blacklist
+     * blacklist token for logged out user
      * @param token
      */
     public void blacklist(String token) {
         // add token to blacklist
-        blacklistedTokens.add(token);
+        if (token != null) {
+            token = token.replaceAll(TOKEN_PREFIX, "");
+            if (!blacklistedTokens.contains(token)) {
+                logger.debug("blacklist token: {}", token);
+                blacklistedTokens.add(token);
+            }
+        }
     }
 
     /**
@@ -112,8 +142,14 @@ public class JWTToken {
                 return true;
             }
         });
+
         // check if token is blacklisted
-        return blacklistedTokens.contains(token);
+        if (token != null && blacklistedTokens.contains(token = token.replaceAll(TOKEN_PREFIX, ""))) {
+            logger.debug("token is blacklisted: {}", token);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**

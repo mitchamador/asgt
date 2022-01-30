@@ -1,13 +1,16 @@
 package gbas.gtbch.web;
 
-import gbas.gtbch.sapod.model.users.User;
 import gbas.gtbch.security.SessionHandler;
+import gbas.gtbch.security.UserDetailsToken;
 import gbas.gtbch.security.jwt.JWTToken;
+import gbas.gtbch.util.UtilDate8;
 import gbas.gtbch.web.response.AuthResponse;
 import gbas.gtbch.web.response.Response;
+import gbas.tvk.nsi.cash.Func;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,7 +18,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,6 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.Date;
 
 @RestController
 @RequestMapping("/api/session")
@@ -39,12 +42,14 @@ public class SessionController {
     private final SessionRegistry sessionRegistry;
     private final SessionHandler sessionHandler;
     private final JWTToken jwtToken;
+    private final SecurityContextLogoutHandler securityContextLogoutHandler;
 
-    public SessionController(@Qualifier("authenticationManager") AuthenticationManager authenticationManager, SessionRegistry sessionRegistry, SessionHandler sessionHandler, JWTToken jwtToken) {
+    public SessionController(@Qualifier("authenticationManager") AuthenticationManager authenticationManager, SessionRegistry sessionRegistry, SessionHandler sessionHandler, JWTToken jwtToken, SecurityContextLogoutHandler securityContextLogoutHandler) {
         this.authenticationManager = authenticationManager;
         this.sessionRegistry = sessionRegistry;
         this.sessionHandler = sessionHandler;
         this.jwtToken = jwtToken;
+        this.securityContextLogoutHandler = securityContextLogoutHandler;
     }
 
     /**
@@ -60,6 +65,7 @@ public class SessionController {
                                               @RequestParam(value = "username", required = false) String userName,
                                               @RequestParam(value = "password", required = false) String password) {
         try {
+
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             userName,
@@ -70,15 +76,25 @@ public class SessionController {
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             if (authentication != null) {
+
+                sessionHandler.authenticateUser(authentication.getPrincipal(), true);
+
                 // add session to sessionregistry
-                sessionRegistry.removeSessionInformation(session.getId());
                 sessionRegistry.registerNewSession(session.getId(), authentication.getPrincipal());
 
-                sessionHandler.fillUserAuthInfo(authentication);
+                HttpHeaders headers = new HttpHeaders();
 
-                String token = authentication.getPrincipal() instanceof User ? ((User) authentication.getPrincipal()).getToken() : "";
+                String token = authentication.getPrincipal() instanceof UserDetailsToken ? ((UserDetailsToken) authentication.getPrincipal()).getToken() : "";
+                if (!Func.isEmpty(token)) {
+                    headers.add(jwtToken.getHeaderString(), token);
+                }
 
-                return ResponseEntity.ok().header(jwtToken.getHeaderString(), token).body(new AuthResponse(String.format("User %s logged in", userName), token.replaceAll(jwtToken.getTokenPrefix(), "")));
+                Date expirationDate = authentication.getPrincipal() instanceof UserDetailsToken ? jwtToken.getExpirationDate(((UserDetailsToken) authentication.getPrincipal()).getToken()) : null;
+                if (expirationDate != null) {
+                    headers.add(HttpHeaders.EXPIRES, UtilDate8.getHttpStringDate(expirationDate));
+                }
+
+                return ResponseEntity.ok().headers(headers).body(new AuthResponse(String.format("User %s logged in", userName), Func.iif(token).replaceAll(jwtToken.getTokenPrefix(), "")));
             }
 
         } catch (BadCredentialsException e) {
@@ -103,20 +119,15 @@ public class SessionController {
         if (authentication != null && authentication.getAuthorities().stream().noneMatch(r -> r.getAuthority().equals("ROLE_ANONYMOUS"))) {
 
             // perform logout
-            new SecurityContextLogoutHandler().logout(request, response, authentication);
+            securityContextLogoutHandler.logout(request, response, authentication);
 
-            if (authentication.getPrincipal() instanceof User) {
-                sessionHandler.logoutUser((User) authentication.getPrincipal());
+            if (authentication.getPrincipal() instanceof UserDetailsToken) {
+                sessionHandler.logoutUser((UserDetailsToken) authentication.getPrincipal());
             } else {
                 logger.info(String.format("%s logged out", authentication.getPrincipal().toString()));
             }
 
-            // remove user's sessions
-            for (SessionInformation sessionInformation : sessionRegistry.getAllSessions(authentication.getPrincipal(), true)) {
-                sessionRegistry.removeSessionInformation(sessionInformation.getSessionId());
-            }
-
-            return ResponseEntity.ok(new Response(String.format("User %s logged out", authentication.getPrincipal() instanceof User ? ((User) authentication.getPrincipal()).getUsername().trim() : authentication.getPrincipal().toString())));
+            return ResponseEntity.ok(new Response(String.format("User %s logged out", authentication.getPrincipal() instanceof UserDetailsToken ? ((UserDetailsToken) authentication.getPrincipal()).getUsername().trim() : authentication.getPrincipal().toString())));
         }
         return ResponseEntity.badRequest().body(new Response("Logout failed"));
     }
@@ -124,8 +135,8 @@ public class SessionController {
     @RequestMapping(value = "user", method = RequestMethod.GET)
     public ResponseEntity getUser(HttpServletResponse httpServletResponse) throws IOException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication.getPrincipal() instanceof User) {
-            return ResponseEntity.ok((User) authentication.getPrincipal());
+        if (authentication != null) {
+            return ResponseEntity.ok(authentication.getPrincipal());
         } else {
             httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
         }

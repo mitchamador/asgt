@@ -16,6 +16,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestController
@@ -42,8 +43,13 @@ public class UsersController {
     private List<User> getUsersFromSessionRegistry() {
         return sessionRegistry.getAllPrincipals().stream()
                 .filter(user -> !sessionRegistry.getAllSessions(user, false).isEmpty())
-                .map(user -> (User) user)
-                .collect(Collectors.toList());
+                .map(user -> {
+                    if (user instanceof User) {
+                        return (User) user;
+                    } else {
+                        return null;
+                    }
+                }).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
     @GetMapping("/admin/users")

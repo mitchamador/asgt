@@ -4,22 +4,21 @@ package gbas.gtbch.sapod.model.users;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import gbas.gtbch.security.UserDetailsToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "users")
 @Cacheable(false)
 @JsonIgnoreProperties(value = {"enabled", "username", "authorities", "accountNonExpired", "credentialsNonExpired", "accountNonLocked", "token"})
-public class User implements UserDetails, Serializable {
+public class User extends UserDetailsToken {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,17 +44,6 @@ public class User implements UserDetails, Serializable {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonManagedReference
     private Set<Role> roles = new HashSet<>();
-
-    @Transient
-    private String token;
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
 
     public int getId() {
         return id;
@@ -116,16 +104,6 @@ public class User implements UserDetails, Serializable {
         return authorities;
     }
 
-    /**
-     * Наименование ролей пользователя
-     * @return
-     */
-    public String getAuthoritiesString() {
-        return getAuthorities().stream()
-                .map(o -> UserRole.getRoleName(o.getAuthority()))
-                .sorted().collect(Collectors.joining(";"));
-    }
-
     public String getPassword() {
         return password;
     }
@@ -141,26 +119,6 @@ public class User implements UserDetails, Serializable {
 
     public void setLoggedInDate(Date loggedInDate) {
         this.loggedInDate = loggedInDate;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
     }
 
     @Override
