@@ -76,7 +76,7 @@ public class TPolController {
      * @param destinationId - destination tvk_tarif.idTarif
      */
     @RequestMapping(value = "/document/{id:[\\d]+}/copy", method = RequestMethod.POST)
-    public ResponseEntity<Integer> copyDocument(@PathVariable(name = "idTarif") int sourceId, @RequestParam(name = "doc_id") int destinationId) {
+    public ResponseEntity<Integer> copyDocument(@PathVariable(name = "id") int sourceId, @RequestParam(name = "doc_id") int destinationId) {
         return new ResponseEntity<>(tpolService.copyDocument(sourceId, destinationId), HttpStatus.OK);
     }
 
@@ -106,7 +106,7 @@ public class TPolController {
      */
     @RequestMapping(value = "/document/{id:[\\d]+}", method = RequestMethod.DELETE)
     public ResponseEntity<Boolean> deleteDocument(@PathVariable int id) {
-        logger.info("delete tp document with idTarif = {}", id);
+        logger.info("delete tp document with id = {}", id);
         return new ResponseEntity<>(tpolService.deleteDocument(id), HttpStatus.OK);
     }
 
