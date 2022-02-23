@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -135,7 +136,7 @@ public class SessionController {
     @RequestMapping(value = "user", method = RequestMethod.GET)
     public ResponseEntity getUser(HttpServletResponse httpServletResponse) throws IOException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null) {
+        if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
             return ResponseEntity.ok(authentication.getPrincipal());
         } else {
             httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
