@@ -22,7 +22,8 @@ public class WebConfig implements WebMvcConfigurer {
                 .addMapping("/**")
                 .allowedOrigins("*")
                 .allowedMethods("*")
-                .exposedHeaders(HttpHeaders.AUTHORIZATION, HttpHeaders.CONTENT_DISPOSITION)
+                .allowCredentials(true)
+                .exposedHeaders(HttpHeaders.AUTHORIZATION, HttpHeaders.SET_COOKIE)
         ;
     }
 }

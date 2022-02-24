@@ -254,6 +254,7 @@ public class ApiController {
             ByteArrayResource resource = new ByteArrayResource(syncFileData.getData());
 
             HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, HttpHeaders.CONTENT_DISPOSITION);
             headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + syncFileData.getName());
             headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
             headers.add("Pragma", "no-cache");
