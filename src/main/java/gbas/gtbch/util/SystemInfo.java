@@ -18,8 +18,7 @@ import org.springframework.stereotype.Component;
 import javax.jms.ConnectionFactory;
 import javax.servlet.ServletContext;
 import javax.sql.DataSource;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
@@ -29,7 +28,7 @@ import java.util.List;
 @Component
 public class SystemInfo {
 
-    private final static Logger logger = LoggerFactory.getLogger(SystemInfo.class);
+   private final static Logger logger = LoggerFactory.getLogger(SystemInfo.class);
 
     private final DbHelper dbHelper;
 
@@ -54,8 +53,9 @@ public class SystemInfo {
 
         String host = "";
         try {
-            host = ", host: " + InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException ignored) {
+            host = ", host: " + NetworkUtil.getInetAddress();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
         info.add(new KeyValue("Сервер приложений",
