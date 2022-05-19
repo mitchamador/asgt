@@ -127,6 +127,7 @@ public class Syncronizer extends ServerJob {
                 s.setFullInsertMerge(fullInsertMerge);
                 s.setCacheable(cacheable);
                 s.setInsertMode(getInsertMode());
+                s.setExcludeTables(ExcludeTables.GT);
 
                 s.sync(new SyncFileData(null, bytes), SyncGroupsSet.GT, true);
 
