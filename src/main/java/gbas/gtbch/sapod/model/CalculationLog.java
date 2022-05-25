@@ -181,7 +181,7 @@ public class CalculationLog {
     public CalculationLog(Source source, String jmsCorrelationId) {
         this.errorCode = CalcError.NO_ERROR.getCode();
         this.source = source;
-        this.jmsCorrelationId = jmsCorrelationId;
+        setJmsCorrelationId(jmsCorrelationId);
     }
 
     public int getId() {

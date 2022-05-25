@@ -190,6 +190,13 @@
             <artifactId>spring-boot-starter-security</artifactId>
             <scope>${package-shared.scope}</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+            <scope>${package-shared.scope}</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
