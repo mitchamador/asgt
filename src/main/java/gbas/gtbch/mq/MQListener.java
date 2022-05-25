@@ -62,7 +62,9 @@ public class MQListener implements MessageListener {
     private void processMessage(final TextMessage message) throws Exception {
         log(String.format("message received: \"%s\", messageId: %s, correlationId: %s", getCroppedString(message.getText()), message.getJMSMessageID(), message.getJMSCorrelationID()));
 
-        String response = calcHandler.calc(new CalcData(message.getText(), new CalculationLog(message.getJMSCorrelationID()))).getOutputXml();
+        String response = calcHandler.calc(
+                new CalcData(message.getText(), new CalculationLog(message.getJMSCorrelationID() == null ? null : message.getJMSCorrelationID().replaceAll("ID:", "")))
+        ).getOutputXml();
 
         if (message.getJMSCorrelationID() != null && !message.getJMSCorrelationID().isEmpty()) {
 
