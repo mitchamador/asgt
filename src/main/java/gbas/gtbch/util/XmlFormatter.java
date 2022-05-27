@@ -25,7 +25,8 @@ public class XmlFormatter {
         try {
             if (xml != null) {
 
-                String mXml = xml.replaceAll("\r?\n", "");
+                //String mXml = xml.replaceAll("\r?\n", "");
+                String mXml = xml.replaceAll("(?:>)(\\s*)<", "><");
 
                 final XMLStreamReader xmlStreamReader = XMLInputFactory.newInstance().createXMLStreamReader(new ByteArrayInputStream(mXml.getBytes()));
                 String encoding = xmlStreamReader.getCharacterEncodingScheme();
