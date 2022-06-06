@@ -570,10 +570,11 @@
 
                             <div class="form-group" style="width: 100%">
                                 <span class="has-float-label">
-                                    <label for="codDobor">Использовать при переадресовке</label>
+                                    <label for="codDobor">Признак применения</label>
                                     <select id="codDobor" class="form-control">
-                                        <option value="0" th:selected="${document.getCodDobor() == 0}">Нет</option>
-                                        <option value="1" th:selected="${document.getCodDobor() == 1}">Да</option>
+                                        <option value="0" th:selected="${document.getCodDobor() == 0}">Нет переадресовки</option>
+                                        <option value="1" th:selected="${document.getCodDobor() == 1}">Переадресовка, добор</option>
+                                        <option value="2" th:selected="${document.getCodDobor() == 2}">Переадресовка, добор фиксированная ставка $ в BYN</option>
                                     </select>
                                 </span>
                             </div>

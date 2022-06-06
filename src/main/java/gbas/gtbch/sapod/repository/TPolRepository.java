@@ -3,6 +3,7 @@ package gbas.gtbch.sapod.repository;
 import gbas.gtbch.sapod.model.CodeName;
 import gbas.gtbch.sapod.model.tpol.*;
 import gbas.tvk.nsi.cash.Func;
+import gbas.tvk.tpol3.service.TPItems;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -163,6 +164,7 @@ public class TPolRepository {
         return jdbcTemplate.query(idTPol == 0 ?
                         "select kod, name\n" +
                                 "from tvk_tip_tar\n" +
+                                (!Func.isEmpty(TPItems.getTarifListSql()) ? ("where kod in (" + TPItems.getTarifListSql() + ")\n") : "") +
                                 "order by 1" :
                         "select k.kod, k.name\n" +
                                 "from tvk_tip_tar k, tvk_t_pol t\n" +
