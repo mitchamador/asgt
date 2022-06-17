@@ -16,4 +16,7 @@ app:
       jndi-name: "jms/GT.IN.Q"
     outbound:
       jndi-name: "jms/GT.OUT.Q"
+  mailer:
+    enable: true
+    jndi-name: "mail/GT.MAIL"
 

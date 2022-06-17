@@ -45,3 +45,15 @@ app:
     outbound:
       jndi-name: "jms/GT.OUT.Q"
       name: "OUT.TEST"
+  mailer:
+    enable: false
+    jndi-name: "mail/GT.MAIL"
+    host: "mail.ktc.rw"
+    port: 25
+    username: "sapod@ktc.rw"
+    password: ""
+    properties:
+      gt.mailer.from: "AS GT <gt@ktc.rw>"
+      gt.mailer.to: "sapod@ktc.rw"
+      gt.mailer.subject: "AS GT [${gt.server.ip}]"
+      gt.mailer.rates: false

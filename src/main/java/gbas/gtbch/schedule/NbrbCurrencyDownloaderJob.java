@@ -1,12 +1,15 @@
 package gbas.gtbch.schedule;
 
+import gbas.gtbch.mailer.MailService;
 import gbas.gtbch.sapod.model.Currency;
 import gbas.gtbch.sapod.model.ExchangeRate;
 import gbas.gtbch.sapod.service.CurrencyService;
 import gbas.gtbch.sapod.service.ExchangeRateService;
 import gbas.gtbch.util.ServerJob;
+import gbas.gtbch.util.SystemInfo;
 import gbas.gtbch.util.UtilDate8;
 import gbas.tvk.interaction.nbrb.CurrencyDownloader;
+import gbas.tvk.nsi.cash.Func;
 import gbas.tvk.nsi.currency.service.CurrencyRate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -19,6 +22,8 @@ import java.util.Date;
 public class NbrbCurrencyDownloaderJob extends ServerJob {
 
     private final CurrencyDownloader cd;
+    private final MailService mailService;
+    private final String host;
 
     private void log(String s, boolean addJobLog) {
         if (addJobLog) {
@@ -27,7 +32,9 @@ public class NbrbCurrencyDownloaderJob extends ServerJob {
         logger.info(s);
     }
 
-    public NbrbCurrencyDownloaderJob(final CurrencyService currencyService, ExchangeRateService exchangeRateService) {
+    public NbrbCurrencyDownloaderJob(final CurrencyService currencyService, ExchangeRateService exchangeRateService, MailService mailService, SystemInfo systemInfo) {
+        this.mailService = mailService;
+        this.host = systemInfo.getHost();
         cd = new CurrencyDownloader("BYN") {
             @Override
             public boolean setCurrencyRate(CurrencyRate currencyRate) {
@@ -69,7 +76,24 @@ public class NbrbCurrencyDownloaderJob extends ServerJob {
 
     @Scheduled(cron = "${app.jobs.nbrb-downloader.cron:-}")
     public void run() {
-        run(() -> cd.download(false));
+        run(() -> {
+            if (cd.download(false)) {
+                if (!Func.isEmpty(cd.getRateString()) && mailService.getMailProperties().isSendCurrencyRates()) {
+                    //TGCore.INSTANCE.asyncSendMessage(new SendMessage("НБРБ демон", cd.getRateString()));
+                    mailService.sendHtmlMessage(null, "currency rates", cd.getRateStringHtml());
+                }
+            } else {
+                if (!Func.isEmpty(cd.getErrorMessage())) {
+                    String htmlMessage = "<html>" +
+                            "<body>" +
+                            "<p><b>Currency download error on " + host + "</b></p>" +
+                            "<span style=\"white-space: pre-line\">" + cd.getErrorMessage() + "</span>" +
+                            "</body>" +
+                            "</html>";
+                    mailService.sendHtmlMessage(null, "currency download error", htmlMessage);
+                }
+            }
+        });
     }
 
     @PostConstruct

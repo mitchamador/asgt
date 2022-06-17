@@ -23,17 +23,27 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Component
 public class SystemInfo {
 
-   private final static Logger logger = LoggerFactory.getLogger(SystemInfo.class);
+    private final static Logger logger = LoggerFactory.getLogger(SystemInfo.class);
 
     private final DbHelper dbHelper;
+    private final String host;
 
     public SystemInfo(DbHelper dbHelper) {
         this.dbHelper = dbHelper;
+
+        String host = "unknown host";
+        try {
+            host = NetworkUtil.getInetAddress();
+        } catch (IOException ignored) {
+        }
+        this.host = host;
+
     }
 
     @Bean
@@ -51,12 +61,7 @@ public class SystemInfo {
                         "VM: " + System.getProperty("java.vm.vendor") + " " + System.getProperty("java.vm.name") + " " + System.getProperty("java.vm.version"))
         );
 
-        String host = "";
-        try {
-            host = ", host: " + NetworkUtil.getInetAddress();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        String host = ", host: " + this.host;
 
         info.add(new KeyValue("Сервер приложений",
                 servletContext.getServerInfo() +
@@ -73,7 +78,7 @@ public class SystemInfo {
 
         String[] version = new Version().getVersion();
 
-        info.add(new KeyValue("Сборка", (buildProperties == null ? "local" : ("версия: " + buildProperties.getVersion() + "; время сборки: " + UtilDate8.getStringDateTime(new java.util.Date(buildProperties.getTime().toEpochMilli()))))
+        info.add(new KeyValue("Сборка", (buildProperties == null ? "local" : ("версия: " + buildProperties.getVersion() + "; время сборки: " + UtilDate8.getStringDateTime(new Date(buildProperties.getTime().toEpochMilli()))))
                 + "; core: " + version[0] + " от " + version[1]));
 
         return info;
@@ -144,4 +149,11 @@ public class SystemInfo {
         return info;
     }
 
+    /**
+     * get ip address of host
+     * @return
+     */
+    public String getHost() {
+        return host;
+    }
 }

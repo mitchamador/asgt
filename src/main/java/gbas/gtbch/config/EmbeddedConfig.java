@@ -7,6 +7,7 @@ import com.ibm.mq.jms.MQConnectionFactoryFactory;
 import com.ibm.mq.jms.MQQueue;
 import com.ibm.mq.jms.MQQueueFactory;
 import gbas.gtbch.config.settings.SettingsProperties;
+import gbas.gtbch.mailer.CustomMailProperties;
 import gbas.gtbch.mq.properties.JndiMQConfigurationProperties;
 import gbas.gtbch.mq.properties.QueueConfigurationProperties;
 import org.apache.catalina.Context;
@@ -23,6 +24,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 import javax.sql.DataSource;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -42,6 +44,7 @@ public class EmbeddedConfig {
             @Autowired(required = false) final JndiMQConfigurationProperties jndiMqConfigurationProperties,
             @Autowired(required = false) @Qualifier("inboundQueueProperties") final QueueConfigurationProperties inboundQueueConfigurationProperties,
             @Autowired(required = false) @Qualifier("outboundQueueProperties") final QueueConfigurationProperties outboundQueueConfigurationProperties,
+            @Autowired(required = false) final CustomMailProperties mailProperties,
             ObjectMapper objectMapper
             ) {
         return new TomcatServletWebServerFactory() {
@@ -75,6 +78,11 @@ public class EmbeddedConfig {
                 if (outboundQueueConfigurationProperties != null && outboundQueueConfigurationProperties.getJndiName() != null) {
                     context.getNamingResources().addResource(createJndiQueue(outboundQueueConfigurationProperties));
                 }
+                // jndi mail session
+                if (mailProperties != null && mailProperties.getJndiName() != null) {
+                    context.getNamingResources().addResource(createJndiMailSession(mailProperties));
+                }
+                // jndi settings
                 if (settingsProperties != null && settingsProperties.getJndiName() != null) {
                     context.getNamingResources().addEnvironment(createSettingsProperties(settingsProperties, objectMapper));
                 }
@@ -172,6 +180,44 @@ public class EmbeddedConfig {
         }
         contextEnvironment.setValue(jsonString);
         return contextEnvironment;
+    }
+
+    /*
+        <!-- JavaMail JNDI Mail Session -->
+
+    <Resource name="mail/Session" auth="Container"
+        type="javax.mail.Session"
+        username="my.smtp.user"
+        password="my-secret"
+        mail.debug="false"
+        mail.transport.protocol="smtp"
+        mail.smtp.host= "xxx.xxx.xxx.xxx"
+        mail.smtp.auth= "true"
+        mail.smtp.port= "25"
+        mail.smtp.starttls.enable="true"
+        description="Global E-Mail Resource"
+    />
+     */
+    private ContextResource createJndiMailSession(CustomMailProperties mailProperties) {
+        ContextResource resource = new ContextResource();
+
+        resource.setName(mailProperties.getJndiName());
+        resource.setDescription("Mail session");
+        resource.setAuth("Container");
+        resource.setType(javax.mail.Session.class.getName());
+
+        resource.setProperty("username", mailProperties.getUsername());
+        resource.setProperty("password", mailProperties.getPassword());
+        resource.setProperty("mail.smtp.host", mailProperties.getHost());
+        resource.setProperty("mail.smtp.port", String.valueOf(mailProperties.getPort()));
+
+        if (mailProperties.getProperties() != null) {
+            for (Map.Entry<String, String> entry : mailProperties.getProperties().entrySet()) {
+                resource.setProperty(entry.getKey(), entry.getValue());
+            }
+        }
+
+        return resource;
     }
 
 }
