@@ -1,29 +1,32 @@
 package gbas.gtbch.util.calc.handler;
 
-import gbas.gtbch.util.calc.handler.impl.*;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * List of {@link ObjectHandler} implementations
  */
-public enum Handler {
-    NAKL(new NaklHandler()),
-    VO(new VoHandler()),
-    FDU92(new Fdu92Handler()),
-    GU46(new Gu46Handler()),
-    GU23(new Gu23Handler()),
-    KEU16(new Keu16Handler()),
-    ;
+@Component
+public class Handler {
 
-    private ObjectHandler objectHandler;
+    private final List<ObjectHandler> handlerList;
 
-    Handler(ObjectHandler objectHandler) {
-        this.objectHandler = objectHandler;
+    public Handler(ObjectHandler naklHandler, ObjectHandler voHandler, ObjectHandler fdu92Handler, ObjectHandler gu46Handler, ObjectHandler gu23Handler, ObjectHandler keu16Handler) {
+        handlerList = new ArrayList<>();
+        handlerList.add(naklHandler);
+        handlerList.add(voHandler);
+        handlerList.add(fdu92Handler);
+        handlerList.add(gu46Handler);
+        handlerList.add(gu23Handler);
+        handlerList.add(keu16Handler);
     }
 
-    public static ObjectHandler getHandler(String xml) {
-        for (Handler handler : values()) {
-            if (handler.objectHandler.check(xml)) {
-                return handler.objectHandler;
+    public ObjectHandler getObjectHandler(String xml) {
+        for (ObjectHandler objectHandler : handlerList) {
+            if (objectHandler.check(xml)) {
+                return objectHandler;
             }
         }
         return null;

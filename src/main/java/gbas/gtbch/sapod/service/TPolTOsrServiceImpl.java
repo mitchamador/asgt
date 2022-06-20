@@ -2,6 +2,7 @@ package gbas.gtbch.sapod.service;
 
 import gbas.gtbch.sapod.model.tpol.TpTvkTOsr;
 import gbas.gtbch.sapod.repository.TPolTOsrRepository;
+import gbas.gtbch.util.cache.annotation.CacheClear;
 import gbas.gtbch.web.request.KeyValue;
 import org.springframework.stereotype.Service;
 
@@ -47,6 +48,7 @@ public class TPolTOsrServiceImpl implements TPolTOsrService {
      * @return
      */
     @Override
+    @CacheClear({"tp"})
     public int saveCont(TpTvkTOsr osr) {
         return tPolTOsrRepository.saveCont(osr);
     }
@@ -56,6 +58,7 @@ public class TPolTOsrServiceImpl implements TPolTOsrService {
      * @return
      */
     @Override
+    @CacheClear({"tp"})
     public boolean deleteCont(int id) {
         return tPolTOsrRepository.deleteCont(id);
     }

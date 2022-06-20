@@ -10,7 +10,6 @@ import gbas.tvk.nsi.cash.Func;
 import gbas.tvk.service.SQLUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -18,7 +17,6 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -33,6 +31,8 @@ public class CalcHandler {
      */
     private final DataSource dataSource;
 
+    private final Handler handler;
+
     /**
      *
      */
@@ -40,8 +40,9 @@ public class CalcHandler {
 
     private final Syncronizer syncronizer;
 
-    public CalcHandler(@Qualifier("sapodDataSource") DataSource dataSource, CalculationLogService calculationLogService, Syncronizer syncronizer) throws SQLException {
+    public CalcHandler(@Qualifier("sapodDataSource") DataSource dataSource, Handler handler, CalculationLogService calculationLogService, Syncronizer syncronizer) throws SQLException {
         this.dataSource = dataSource;
+        this.handler = handler;
         this.calculationLogService = calculationLogService;
         this.syncronizer = syncronizer;
     }
@@ -81,7 +82,7 @@ public class CalcHandler {
                 data.setTextResult("Пустой объект");
                 data.setErrorCode(CalcError.NULL.getCode());
             } else {
-                ObjectHandler objectHandler = Handler.getHandler(data.getInputXml());
+                ObjectHandler objectHandler = handler.getObjectHandler(data.getInputXml());
                 if (objectHandler != null) {
                     boolean syncronizerAcquired = false;
                     try {

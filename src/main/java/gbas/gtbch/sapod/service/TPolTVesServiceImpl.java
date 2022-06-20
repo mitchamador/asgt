@@ -2,6 +2,7 @@ package gbas.gtbch.sapod.service;
 
 import gbas.gtbch.sapod.model.tpol.TpTvkTVes;
 import gbas.gtbch.sapod.repository.TPolTVesRepository;
+import gbas.gtbch.util.cache.annotation.CacheClear;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -46,6 +47,7 @@ public class TPolTVesServiceImpl implements TPolTVesService {
      * @return
      */
     @Override
+    @CacheClear({"tp"})
     public int saveVO(TpTvkTVes tVes) {
         return tPolTVesRepository.saveVO(tVes);
     }
@@ -55,6 +57,7 @@ public class TPolTVesServiceImpl implements TPolTVesService {
      * @return
      */
     @Override
+    @CacheClear({"tp"})
     public boolean deleteVO(int id) {
         return tPolTVesRepository.deleteVO(id);
     }

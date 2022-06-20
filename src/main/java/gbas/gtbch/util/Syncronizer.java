@@ -2,6 +2,7 @@ package gbas.gtbch.util;
 
 import gbas.gtbch.sapod.model.TpImportDate;
 import gbas.gtbch.sapod.service.TpImportDateService;
+import gbas.gtbch.util.cache.AppCacheManager;
 import gbas.tvk.nsi.cash.Func;
 import gbas.tvk.util.synchronizator.Syncronizator;
 import gbas.tvk.util.synchronizator.entity.ExcludeTables;
@@ -10,10 +11,8 @@ import gbas.tvk.util.synchronizator.entity.SyncFileData;
 import gbas.tvk.util.synchronizator.entity.SyncGroupsSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
@@ -36,12 +35,21 @@ public class Syncronizer extends ServerJob {
 
     private String filename;
 
-    @Autowired
     private TpImportDateService tpImportDateService;
 
-    @Autowired
-    @Qualifier("sapodDataSource")
     private DataSource sapodDataSource;
+
+    private final Semaphore semaphore;
+
+    private final AppCacheManager cacheManager;
+
+    public Syncronizer(TpImportDateService tpImportDateService, @Qualifier("sapodDataSource") DataSource sapodDataSource, AppCacheManager cacheManager) {
+        this.tpImportDateService = tpImportDateService;
+        this.sapodDataSource = sapodDataSource;
+        this.cacheManager = cacheManager;
+        semaphore = new Semaphore(SEMAPHORE_MAX, true);
+    }
+
 
     @Value("${app.jobs.syncronizer.fullmerge:false}")
     private boolean fullInsertMerge;
@@ -60,10 +68,10 @@ public class Syncronizer extends ServerJob {
         return InsertMode.NORMAL;
     }
 
-    @Bean
-    public Syncronizer init() {
-        return new Syncronizer();
-    }
+//    @Bean
+//    public Syncronizer init() {
+//        return new Syncronizer(payTransportationQueryCache);
+//    }
 
     @Override
     public String getJobName() {
@@ -74,12 +82,6 @@ public class Syncronizer extends ServerJob {
     public void log(String s) {
         super.log(s);
         logger.info(s);
-    }
-
-    private final Semaphore semaphore;
-
-    public Syncronizer() {
-        semaphore = new Semaphore(SEMAPHORE_MAX, true);
     }
 
     @Async
@@ -135,6 +137,8 @@ public class Syncronizer extends ServerJob {
                 if (!Func.isEmpty(s.getErr())) {
                     System.err.println(errors);
                 }
+
+                cacheManager.clearTpCaches();
 
             } catch (InterruptedException e) {
                 logger.error("Syncronizer.acquire(MAX) interrupted exception");

@@ -3,12 +3,14 @@ package gbas.gtbch.util.calc.handler.impl;
 import gbas.eds.gtbch.invoice.ConvertXmlToVagonOtprTransit;
 import gbas.eds.soap.obj.nakl.constants.ConstantsParameters;
 import gbas.gtbch.sapod.model.CalculationLog;
+import gbas.gtbch.util.cache.AppCacheManager;
 import gbas.gtbch.util.calc.CalcData;
 import gbas.gtbch.util.calc.handler.ObjectHandler;
 import gbas.tvk.otpravka.object.VagonOtpr;
 import gbas.tvk.otpravka.object.VagonOtprTransit;
 import gbas.tvk.payment.CalcPlataData;
 import gbas.tvk.payment.PayTransportation;
+import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
 
@@ -17,7 +19,14 @@ import static gbas.gtbch.util.calc.handler.Handler.checkTags;
 /**
  * xml gt convertation and calculation
  */
+@Component
 public class NaklHandler implements ObjectHandler {
+
+    private final AppCacheManager cacheManager;
+
+    public NaklHandler(AppCacheManager cacheManager) {
+        this.cacheManager = cacheManager;
+    }
 
     @Override
     public boolean check(String xml) {
@@ -37,7 +46,7 @@ public class NaklHandler implements ObjectHandler {
         }
 
         if (data.getCalculationObject() instanceof VagonOtprTransit) {
-            fillResultData(data, new PayTransportation(connection).calcPlata((VagonOtprTransit) data.getCalculationObject()));
+            fillResultData(data, new PayTransportation(connection, cacheManager.getDbPaymentQueryCache()).calcPlata((VagonOtprTransit) data.getCalculationObject()));
         }
     }
 
@@ -60,6 +69,7 @@ public class NaklHandler implements ObjectHandler {
         } else {
             data.setTextResult("Ошибка расчета");
         }
-
     }
+
+
 }

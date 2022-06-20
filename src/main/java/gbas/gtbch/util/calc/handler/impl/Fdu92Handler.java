@@ -9,6 +9,7 @@ import gbas.gtbch.util.calc.CalcData;
 import gbas.gtbch.util.calc.handler.ObjectHandler;
 import gbas.tvk.card.service.ContractCardData;
 import gbas.tvk.payment.CalcPlataData;
+import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
 
@@ -17,6 +18,7 @@ import static gbas.gtbch.util.calc.handler.Handler.checkTags;
 /**
  * Fdu92 convertation and calculation
  */
+@Component
 public class Fdu92Handler implements ObjectHandler {
     @Override
     public boolean check(String xml) {

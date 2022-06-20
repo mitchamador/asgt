@@ -2,6 +2,7 @@ package gbas.gtbch.sapod.service;
 
 import gbas.gtbch.sapod.model.tpol.TpTvkKof;
 import gbas.gtbch.sapod.repository.TPolKofRepository;
+import gbas.gtbch.util.cache.annotation.CacheClear;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -57,6 +58,7 @@ public class TPolKofServiceImpl implements TPolKofService {
      * @return
      */
     @Override
+    @CacheClear({"tp"})
     public int saveKof(TpTvkKof kof) {
         return tPolKofRepository.saveKof(kof);
     }
@@ -66,6 +68,7 @@ public class TPolKofServiceImpl implements TPolKofService {
      * @return
      */
     @Override
+    @CacheClear({"tp"})
     public boolean deleteKof(int id) {
         return tPolKofRepository.deleteKof(id);
     }

@@ -7,6 +7,7 @@ import gbas.tvk.otpravka.object.VagonOtprTransit;
 import gbas.tvk.payment.CalcPlataData;
 import gbas.tvk.payment.PayTransportation;
 import gbas.tvk.util.GZipUtils;
+import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
 
@@ -16,7 +17,7 @@ import static gbas.gtbch.util.calc.handler.impl.NaklHandler.fillResultData;
 /**
  * Xstream serialized {@link VagonOtprTransit} and {@link CalcPlataData} convertation and calculation
  */
-
+@Component
 public class VoHandler implements ObjectHandler {
     @Override
     public boolean check(String xml) {

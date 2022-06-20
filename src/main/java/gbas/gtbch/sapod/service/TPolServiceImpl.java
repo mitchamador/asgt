@@ -3,6 +3,7 @@ package gbas.gtbch.sapod.service;
 import gbas.gtbch.sapod.model.CodeName;
 import gbas.gtbch.sapod.model.tpol.*;
 import gbas.gtbch.sapod.repository.TPolRepository;
+import gbas.gtbch.util.cache.annotation.CacheClear;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -106,6 +107,7 @@ public class TPolServiceImpl implements TPolService {
      * @param list    {@link TpSobst} list
      */
     @Override
+    @CacheClear({"tp"})
     public boolean saveSobstList(int idTarif, List<TpSobst> list) {
         return tPolRepository.saveSobstList(idTarif, list);
     }
@@ -127,6 +129,7 @@ public class TPolServiceImpl implements TPolService {
      * @return
      */
     @Override
+    @CacheClear({"tp"})
     public int saveDocument(TpDocument tpDocument) {
         return tPolRepository.saveDocument(tpDocument);
     }
@@ -142,11 +145,13 @@ public class TPolServiceImpl implements TPolService {
      * @return
      */
     @Override
+    @CacheClear({"tp"})
     public boolean deleteDocument(int id) {
         return tPolRepository.deleteDocument(id);
     }
 
     @Override
+    @CacheClear({"tp"})
     public Integer copyDocument(int sourceId, int destinationId) {
         return tPolRepository.copyDocument(sourceId, destinationId);
     }
@@ -162,11 +167,13 @@ public class TPolServiceImpl implements TPolService {
     }
 
     @Override
+    @CacheClear({"tp"})
     public boolean saveLinkedTpClients(int idTarif, List<TpLinkedClient> clientList) {
         return tPolRepository.saveLinkedTpClients(idTarif, clientList);
     }
 
     @Override
+    @CacheClear({"tp"})
     public boolean deleteTpLinkedClients(int idTarif) {
         return tPolRepository.deleteLinkedTpClients(idTarif);
     }

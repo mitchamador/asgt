@@ -1,5 +1,7 @@
 package gbas.gtbch.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 
 import javax.xml.stream.XMLInputFactory;
@@ -15,7 +17,12 @@ import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * xml formatter class
+ */
 public class XmlFormatter {
+
+    private static Logger logger = LoggerFactory.getLogger(XmlFormatter.class);
 
     private XmlFormatter() {
     }
@@ -49,7 +56,7 @@ public class XmlFormatter {
                 return new String(((ByteArrayOutputStream) res.getOutputStream()).toByteArray(), Charset.forName(encoding));
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.info("XML formatting error: {}", e.getMessage());
         }
 
         return xml;

@@ -2,6 +2,7 @@ package gbas.gtbch.sapod.service;
 
 import gbas.gtbch.sapod.model.tpol.TpRow;
 import gbas.gtbch.sapod.repository.TPolRowRepository;
+import gbas.gtbch.util.cache.annotation.CacheClear;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -44,6 +45,7 @@ public class TPolRowServiceImpl implements TPolRowService {
      * @return
      */
     @Override
+    @CacheClear({"tp"})
     public boolean deleteRow(int id) {
         return tPolRowRepository.deleteRow(id);
     }
@@ -55,6 +57,7 @@ public class TPolRowServiceImpl implements TPolRowService {
      * @return
      */
     @Override
+    @CacheClear({"tp"})
     public int saveRow(TpRow row) {
         return tPolRowRepository.saveRow(row);
     }
@@ -66,6 +69,7 @@ public class TPolRowServiceImpl implements TPolRowService {
      * @return
      */
     @Override
+    @CacheClear({"tp"})
     public TpRow copyRow(int sourceRowId, int destinationDocumentId) {
         return tPolRowRepository.copyRow(sourceRowId, destinationDocumentId);
     }

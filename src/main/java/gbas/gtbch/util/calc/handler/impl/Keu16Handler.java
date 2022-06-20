@@ -9,6 +9,7 @@ import gbas.gtbch.util.calc.CalcData;
 import gbas.gtbch.util.calc.handler.ObjectHandler;
 import gbas.tvk.payment.CalcPlataData;
 import gbas.tvk.report.keu16.service.Keu16Data;
+import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
 
@@ -17,6 +18,7 @@ import static gbas.gtbch.util.calc.handler.Handler.checkTags;
 /**
  * Keu16 convertation and calculation
  */
+@Component
 public class Keu16Handler implements ObjectHandler {
     @Override
     public boolean check(String xml) {

@@ -9,6 +9,7 @@ import gbas.tvk.report.gu46a.gtGu46.CountGu46;
 import gbas.tvk.report.gu46a.gtGu46.bean.VedGu46;
 import gbas.tvk.report.gu46a.gtGu46.convert.ConvertXmlGtToGu46;
 import gbas.tvk.report.gu46a.gtGu46.parser.GTGu46WriteXml;
+import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
 
@@ -17,6 +18,7 @@ import static gbas.gtbch.util.calc.handler.Handler.checkTags;
 /**
  * Gu46 convertation and calculation
  */
+@Component
 public class Gu46Handler implements ObjectHandler {
 
     @Override

@@ -8,6 +8,7 @@ import gbas.eds.soap.obj.nakl.constants.ConstantsParameters;
 import gbas.gtbch.sapod.model.CalculationLog;
 import gbas.gtbch.util.calc.CalcData;
 import gbas.gtbch.util.calc.handler.ObjectHandler;
+import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
 
@@ -16,6 +17,7 @@ import static gbas.gtbch.util.calc.handler.Handler.checkTags;
 /**
  * Gu23 convertation and calculation
  */
+@Component
 public class Gu23Handler implements ObjectHandler {
     @Override
     public boolean check(String xml) {

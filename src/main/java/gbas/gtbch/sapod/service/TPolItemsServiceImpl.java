@@ -3,6 +3,7 @@ package gbas.gtbch.sapod.service;
 import gbas.gtbch.sapod.model.tpol.TpItem;
 import gbas.gtbch.sapod.model.tpol.TpRow;
 import gbas.gtbch.sapod.repository.TPolItemsRepository;
+import gbas.gtbch.util.cache.annotation.CacheClear;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -48,6 +49,7 @@ public class TPolItemsServiceImpl implements TPolItemsService {
      * @return
      */
     @Override
+    @CacheClear({"tp"})
     public boolean addData(TpItem item, int id, String[] data) {
         return tPolItemsRepository.addData(item, id, data);
     }
@@ -61,6 +63,7 @@ public class TPolItemsServiceImpl implements TPolItemsService {
      * @return
      */
     @Override
+    @CacheClear({"tp"})
     public Boolean deleteData(TpItem item, int id, String data) {
         return tPolItemsRepository.deleteData(item, id, data);
     }
