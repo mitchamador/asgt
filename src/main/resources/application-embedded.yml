@@ -56,4 +56,4 @@ app:
       gt.mailer.from: "AS GT <gt@ktc.rw>"
       gt.mailer.to: "sapod@ktc.rw"
       gt.mailer.subject: "AS GT [${gt.server.ip}]"
-      gt.mailer.rates: false
+      gt.mailer.event.rates: false

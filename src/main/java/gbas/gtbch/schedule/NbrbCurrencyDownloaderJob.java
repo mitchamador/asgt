@@ -18,6 +18,9 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.util.Date;
 
+import static gbas.gtbch.mailer.MailerConstants.MAILER_CONFIG_EVENT_CURRENCY_RATES;
+import static gbas.gtbch.mailer.MailerConstants.MAILER_CONFIG_EVENT_ERROR;
+
 @Component
 public class NbrbCurrencyDownloaderJob extends ServerJob {
 
@@ -78,12 +81,12 @@ public class NbrbCurrencyDownloaderJob extends ServerJob {
     public void run() {
         run(() -> {
             if (cd.download(false)) {
-                if (!Func.isEmpty(cd.getRateString()) && mailService.getMailProperties().isSendCurrencyRates()) {
+                if (!Func.isEmpty(cd.getRateString()) && mailService.getMailProperties().isEventEnabled(MAILER_CONFIG_EVENT_CURRENCY_RATES)) {
                     //TGCore.INSTANCE.asyncSendMessage(new SendMessage("НБРБ демон", cd.getRateString()));
                     mailService.sendHtmlMessage(null, "currency rates", cd.getRateStringHtml());
                 }
             } else {
-                if (!Func.isEmpty(cd.getErrorMessage())) {
+                if (!Func.isEmpty(cd.getErrorMessage()) && mailService.getMailProperties().isEventEnabled(MAILER_CONFIG_EVENT_ERROR)) {
                     String htmlMessage = "<html>" +
                             "<body>" +
                             "<p><b>Currency download error on " + host + "</b></p>" +

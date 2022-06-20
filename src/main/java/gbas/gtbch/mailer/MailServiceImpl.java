@@ -40,7 +40,7 @@ public class MailServiceImpl implements MailService {
     }
 
     private String getFrom() {
-        return mailProperties.getProperties().getOrDefault(MailerConstants.CONFIG_MAILER_FROM, mailProperties.getUsername());
+        return mailProperties.getProperties().getOrDefault(MailerConstants.MAILER_CONFIG_FROM, mailProperties.getUsername());
     }
 
     @Override
@@ -73,7 +73,7 @@ public class MailServiceImpl implements MailService {
     }
 
     private void sendMessage(String from, String to, String subject, String text, boolean html) {
-        String defaultUsername = mailProperties.getProperties().getOrDefault(MailerConstants.CONFIG_MAILER_TO, mailProperties.getUsername());
+        String defaultUsername = mailProperties.getProperties().getOrDefault(MailerConstants.MAILER_CONFIG_TO, mailProperties.getUsername());
 
         if (to == null) {
             to = defaultUsername;
@@ -124,7 +124,7 @@ public class MailServiceImpl implements MailService {
     }
 
     private String getSubject(String subject) {
-        String defaultSubject = placeHolderProperties.replacePlaceHoldersDefault(mailProperties.getProperties().getOrDefault(MailerConstants.CONFIG_MAILER_SUBJECT, MAILER_DEFAULT_SUBJECT));
+        String defaultSubject = placeHolderProperties.replacePlaceHoldersDefault(mailProperties.getProperties().getOrDefault(MailerConstants.MAILER_CONFIG_SUBJECT, MAILER_DEFAULT_SUBJECT));
         if (subject != null && !subject.trim().isEmpty()) {
             defaultSubject = defaultSubject + ": " + subject;
         }
