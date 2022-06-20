@@ -18,33 +18,86 @@ import java.util.*;
 @Component
 public class AppCacheManager {
 
+    private static class CacheEntity<K, V> {
+        /**
+         * {@link Cache}
+         */
+        private final Cache<K, V> cache;
+
+        /**
+         * enable flag for cache
+         */
+        private boolean enabled = true;
+
+        private CacheEntity(Cache<K, V> cache) {
+            this.cache = cache;
+        }
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
+        public Cache<K, V> getCache() {
+            return cache;
+        }
+    }
+
     /**
      * {@link gbas.tvk.payment.db.DbPayment} query cache's name
      */
     public final static String CACHE_DBPAYMENT_QUERY = "tp";
 
-    private final Map<String, Cache> cacheMap;
+    /**
+     * caches' map
+     */
+    private final Map<String, CacheEntity> cacheMap;
+
+    /**
+     * global cache enable flag
+     */
+    private boolean enabled = true;
 
     /**
      * Get {@link gbas.tvk.payment.db.DbPayment} query cache
      * @return
      */
     public Cache<String, Vector> getDbPaymentQueryCache() {
-        return (Cache<String, Vector>) cacheMap.get(CACHE_DBPAYMENT_QUERY);
+        return getCache(CACHE_DBPAYMENT_QUERY);
+    }
+
+    private Cache getCache(String name) {
+        CacheEntity cacheEntity = cacheMap.get(name);
+        if (enabled && cacheEntity != null && cacheEntity.isEnabled()) {
+            return cacheEntity.getCache();
+        }
+        return null;
     }
 
     public AppCacheManager(@Autowired(required = false) Cache<String, Vector> dbPaymentQueryCache) {
         cacheMap = new HashMap<>();
-        cacheMap.put(CACHE_DBPAYMENT_QUERY, dbPaymentQueryCache);
+        cacheMap.put(CACHE_DBPAYMENT_QUERY, new CacheEntity(dbPaymentQueryCache));
+    }
+
+    /**
+     * clear cache
+     * @param name cache's name
+     */
+    private void clearCache(String name) {
+        CacheEntity cacheEntity = cacheMap.get(name);
+        if (cacheEntity != null && cacheEntity.getCache() != null) {
+            cacheEntity.getCache().clear();
+        }
     }
 
     /**
      * Clear TP caches
      */
     public void clearTpCaches() {
-        if (cacheMap.get(CACHE_DBPAYMENT_QUERY) != null) {
-            cacheMap.get(CACHE_DBPAYMENT_QUERY).clear();
-        }
+        clearCache(CACHE_DBPAYMENT_QUERY);
     }
 
     /**
@@ -62,7 +115,11 @@ public class AppCacheManager {
             }
         } else {
             // clear all caches
-            clearTpCaches();
+            for (CacheEntity cacheEntity : cacheMap.values()) {
+                if (cacheEntity != null && cacheEntity.getCache() != null) {
+                    cacheEntity.getCache().clear();
+                }
+            }
         }
 
     }
@@ -89,8 +146,10 @@ public class AppCacheManager {
      */
     public List<CacheStatistics> getCacheStatistics() {
         List<CacheStatistics> cacheStatisticsList = new ArrayList<>();
-        for (String name : cacheMap.keySet()) {
-            cacheStatisticsList.add(getCacheStatistics(name));
+        for (CacheEntity cacheEntity : cacheMap.values()) {
+            if (cacheEntity != null && cacheEntity.getCache() != null) {
+                cacheStatisticsList.add(cacheEntity.getCache().getStats());
+            }
         }
         return cacheStatisticsList;
     }
@@ -100,9 +159,54 @@ public class AppCacheManager {
      * @return
      */
     public CacheStatistics getCacheStatistics(String name) {
-        if (cacheMap.get(name) != null) {
-            return cacheMap.get(name).getStats();
+        CacheEntity cacheEntity = cacheMap.get(name);
+        if (cacheEntity != null && cacheEntity.getCache() != null) {
+            return cacheEntity.getCache().getStats();
         }
         return null;
+    }
+
+    /**
+     * get global state of cache enabled flag
+     * @return
+     */
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    /**
+     * set global state of cache enabled flag
+     * @param enabled enabled flag
+     */
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    /**
+     * get state of enabled flag for cache
+     * @param name cache's name
+     * @return
+     */
+    public boolean isEnabled(String name) {
+        CacheEntity cacheEntity = cacheMap.get(name);
+        if (cacheEntity != null) {
+            return cacheEntity.isEnabled();
+        }
+        return false;
+    }
+
+    /**
+     * set state of enabled flag for cache
+     * @param name cache's name
+     * @param enabled enabled flag
+     */
+    public void setEnabled(String name, boolean enabled) {
+        CacheEntity cacheEntity = cacheMap.get(name);
+        if (cacheEntity != null) {
+            cacheEntity.setEnabled(enabled);
+            if (!enabled) {
+                cacheEntity.getCache().clear();
+            }
+        }
     }
 }
