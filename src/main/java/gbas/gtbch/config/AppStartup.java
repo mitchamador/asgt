@@ -8,6 +8,8 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
+import static gbas.gtbch.mailer.MailerConstants.MAILER_CONFIG_EVENT_STARTUP;
+
 @Component
 public class AppStartup implements ApplicationListener<ApplicationReadyEvent> {
 
@@ -23,31 +25,33 @@ public class AppStartup implements ApplicationListener<ApplicationReadyEvent> {
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
-        StringBuilder htmlMessage = new StringBuilder();
+        if (mailService.getMailProperties().isEventEnabled(MAILER_CONFIG_EVENT_STARTUP)) {
+            StringBuilder htmlMessage = new StringBuilder();
 
-        htmlMessage.append("<html>");
-        htmlMessage.append("<body>");
-        htmlMessage.append("<p><b>AS GT is started on ").append(host).append("</b></p>");
-        htmlMessage.append("<table border=\"1\">");
-        htmlMessage.append("<caption>Информация о системе</caption>");
-        htmlMessage.append("<tr>");
-        htmlMessage.append("<th>Параметр</th>");
-        htmlMessage.append("<th>Значение</th>");
-        htmlMessage.append("</tr>");
+            htmlMessage.append("<html>");
+            htmlMessage.append("<body>");
+            htmlMessage.append("<p><b>AS GT is started on ").append(host).append("</b></p>");
+            htmlMessage.append("<table border=\"1\">");
+            htmlMessage.append("<caption>Информация о системе</caption>");
+            htmlMessage.append("<tr>");
+            htmlMessage.append("<th>Параметр</th>");
+            htmlMessage.append("<th>Значение</th>");
+            htmlMessage.append("</tr>");
 
-        for (KeyValue kv : systemInfoProperties.getSystemProperties()) {
-            htmlMessage
-                    .append("<tr>")
-                    .append("<td>").append(kv.getKey()).append("</td>")
-                    .append("<td>").append(kv.getValue()).append("</td>")
-                    .append("</tr>");
+            for (KeyValue kv : systemInfoProperties.getSystemProperties()) {
+                htmlMessage
+                        .append("<tr>")
+                        .append("<td>").append(kv.getKey()).append("</td>")
+                        .append("<td>").append(kv.getValue()).append("</td>")
+                        .append("</tr>");
+            }
+
+            htmlMessage.append("</table>");
+
+            htmlMessage.append("</body>");
+            htmlMessage.append("</html>");
+
+            mailService.sendHtmlMessage(null, "startup", htmlMessage.toString());
         }
-
-        htmlMessage.append("</table>");
-
-        htmlMessage.append("</body>");
-        htmlMessage.append("</html>");
-
-        mailService.sendHtmlMessage(null, "startup", htmlMessage.toString());
     }
 }

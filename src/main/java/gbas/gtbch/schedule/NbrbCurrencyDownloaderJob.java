@@ -19,7 +19,7 @@ import javax.annotation.PostConstruct;
 import java.util.Date;
 
 import static gbas.gtbch.mailer.MailerConstants.MAILER_CONFIG_EVENT_CURRENCY_RATES;
-import static gbas.gtbch.mailer.MailerConstants.MAILER_CONFIG_EVENT_ERROR;
+import static gbas.gtbch.mailer.MailerConstants.MAILER_CONFIG_EVENT_ERRORS;
 
 @Component
 public class NbrbCurrencyDownloaderJob extends ServerJob {
@@ -86,7 +86,7 @@ public class NbrbCurrencyDownloaderJob extends ServerJob {
                     mailService.sendHtmlMessage(null, "currency rates", cd.getRateStringHtml());
                 }
             } else {
-                if (!Func.isEmpty(cd.getErrorMessage()) && mailService.getMailProperties().isEventEnabled(MAILER_CONFIG_EVENT_ERROR)) {
+                if (!Func.isEmpty(cd.getErrorMessage()) && mailService.getMailProperties().isEventEnabled(MAILER_CONFIG_EVENT_ERRORS)) {
                     String htmlMessage = "<html>" +
                             "<body>" +
                             "<p><b>Currency download error on " + host + "</b></p>" +

@@ -24,9 +24,14 @@ public class MailerConstants {
     public static final String MAILER_CONFIG_EVENT_PREFIX = "gt.mailer.event";
 
     /**
-     * errors event
+     * errors event (enabled by default)
      */
-    public static final String MAILER_CONFIG_EVENT_ERROR = "error";
+    public static final String MAILER_CONFIG_EVENT_ERRORS = "errors";
+
+    /**
+     * startup event (enabled by default)
+     */
+    public static final String MAILER_CONFIG_EVENT_STARTUP = "startup";
 
     /**
      * currency's rates event

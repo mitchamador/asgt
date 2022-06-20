@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
-import static gbas.gtbch.mailer.MailerConstants.MAILER_CONFIG_EVENT_ERROR;
+import static gbas.gtbch.mailer.MailerConstants.MAILER_CONFIG_EVENT_ERRORS;
 
 @Component
 public class PensiServerJob extends ServerJob {
@@ -82,7 +82,7 @@ public class PensiServerJob extends ServerJob {
 
             @Override
             public void notifyError(String error) {
-                if (mailService.getMailProperties().isEventEnabled(MAILER_CONFIG_EVENT_ERROR)) {
+                if (mailService.getMailProperties().isEventEnabled(MAILER_CONFIG_EVENT_ERRORS)) {
                     String htmlMessage = "<html>" +
                             "<body>" +
                             "<p><b>PENSI download error on " + systemInfo.getHost() + "</b></p>" +
