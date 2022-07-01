@@ -28,6 +28,7 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import javax.annotation.PreDestroy;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -88,9 +89,10 @@ public class AppConfig {
     @Value("${app.jobs.pensimanager.fullmergesapod:true}")
     private boolean fullInsertMergeSapod;
 
+    private PensiManager pm;
+
     /**
-     * Инициализация {@link PensiManager}
-     * @return
+     * Create {@link PensiManager}
      */
     @Bean
 //    @Lazy
@@ -99,7 +101,7 @@ public class AppConfig {
     public PensiManager pensiManager(
             @Qualifier("sapodDataSource") DataSource sapodDataSource,
             @Qualifier("pensiDataSource") DataSource pensiDataSource) {
-        PensiManager pm = PensiManager.INSTANCE;
+        pm = PensiManager.INSTANCE;
 
         pm.init(new ConnectionManager() {
             @Override
@@ -119,6 +121,16 @@ public class AppConfig {
         pm.setFullMergeSapod(fullInsertMergeSapod);
 
         return pm;
+    }
+
+    /**
+     * Destroy {@link PensiManager}
+     */
+    @PreDestroy
+    public void destroyPensiManager() {
+        if (pm != null) {
+            pm.destroy();
+        }
     }
 
     private Instant startTime, endTime;
