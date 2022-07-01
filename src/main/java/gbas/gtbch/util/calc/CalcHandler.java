@@ -7,7 +7,6 @@ import gbas.gtbch.util.Syncronizer;
 import gbas.gtbch.util.calc.handler.Handler;
 import gbas.gtbch.util.calc.handler.ObjectHandler;
 import gbas.tvk.nsi.cash.Func;
-import gbas.tvk.service.SQLUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -58,13 +57,9 @@ public class CalcHandler {
 
         logger.debug("calchandler process started...");
 
-        Connection connection = null;
-
         CalculationLog calculationLog = data.getCalculationLog();
 
         try {
-
-            connection = dataSource.getConnection();
 
             if (calculationLog != null) {
                 calculationLog.setInboundTime(new Date());
@@ -88,7 +83,11 @@ public class CalcHandler {
                     try {
                         do {
                             if (syncronizerAcquired = syncronizer.acquire()) {
-                                objectHandler.calc(data, connection);
+                                try (Connection connection = dataSource.getConnection()) {
+                                    objectHandler.calc(data, connection);
+                                } catch (SQLException e) {
+                                    e.printStackTrace();
+                                }
                             } else {
                                 if (syncronizer.isRunning()) {
                                     data.setErrorCode(CalcError.SYNC_RUNNING.getCode());
@@ -113,7 +112,6 @@ public class CalcHandler {
             data.setTextResult(e.toString());
             data.setErrorCode(CalcError.EXCEPTION.getCode());
         } finally {
-            SQLUtils.close(connection);
 
             if (Func.isEmpty(data.getTextResult())) {
                 data.setErrorCode(CalcError.EMPTY_RESULT.getCode());
