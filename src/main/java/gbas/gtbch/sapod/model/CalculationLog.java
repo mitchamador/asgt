@@ -158,30 +158,20 @@ public class CalculationLog {
     @Transient
     private String fileName;
 
+    /**
+     * create calculation log
+     */
     public CalculationLog() {
-        this(null, null);
+        this(null);
     }
 
     /**
      * create calculation log
-     * @param source
+     * @param source {@link Source}
      */
     public CalculationLog(Source source) {
-        this(source, null);
-    }
-
-    /**
-     * create calculation log with {@link Source#MQ} as source type
-     * @param jmsCorrelationId
-     */
-    public CalculationLog(String jmsCorrelationId) {
-        this(Source.MQ, jmsCorrelationId);
-    }
-
-    public CalculationLog(Source source, String jmsCorrelationId) {
         this.errorCode = CalcError.NO_ERROR.getCode();
         this.source = source;
-        setJmsCorrelationId(jmsCorrelationId);
     }
 
     public int getId() {

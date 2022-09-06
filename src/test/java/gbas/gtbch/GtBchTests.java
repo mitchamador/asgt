@@ -179,7 +179,8 @@ public class GtBchTests {
 
 	@Test
 	public void calculationLogTest1() {
-		CalculationLog calculationLog = new CalculationLog(UUID.randomUUID().toString() + "1");
+		CalculationLog calculationLog = new CalculationLog(CalculationLog.Source.MQ);
+		calculationLog.setJmsCorrelationId(UUID.randomUUID().toString() + "1");
 		calculationLog.setNumber("1234");
 		calculationLog.setStation("150000");
 		calculationLog.setType(CalculationLog.Type.CARD);
