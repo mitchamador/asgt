@@ -186,7 +186,10 @@ public class ApiController {
             String inboundXml = log.getInboundXml();
 
             if (prettyPrint && inboundXml != null) {
-                log.setInboundXml(XmlFormatter.formatXml(inboundXml));
+                String formattedXml = XmlFormatter.formatXml(inboundXml);
+                if (formattedXml != null && !formattedXml.trim().isEmpty()) {
+                    log.setInboundXml(formattedXml);
+                }
             }
 
             log.setFileName(UtilDate8.getStringDate(log.getInboundTime(), "yyyyMMdd_HHmmss"));
