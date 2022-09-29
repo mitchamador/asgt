@@ -3,7 +3,7 @@ package gbas.gtbch.util.calc.handler.impl;
 import gbas.eds.rw.isc.typeexchange.Tm;
 import gbas.eds.soap.obj.nakl.constants.ConstantsParameters;
 import gbas.gtbch.sapod.model.CalculationLog;
-import gbas.gtbch.util.calc.CalcData;
+import gbas.gtbch.util.calc.GtCalcData;
 import gbas.gtbch.util.calc.handler.ObjectHandler;
 import gbas.tvk.report.gu46a.gtGu46.CountGu46;
 import gbas.tvk.report.gu46a.gtGu46.bean.VedGu46;
@@ -27,7 +27,7 @@ public class Gu46Handler implements ObjectHandler {
     }
 
     @Override
-    public void calc(CalcData data, Connection connection) throws Exception {
+    public void calc(GtCalcData data, Connection connection) throws Exception {
         if (data.getCalculationLog() != null) {
             data.getCalculationLog().setType(CalculationLog.Type.GU46);
         }

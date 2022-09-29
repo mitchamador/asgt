@@ -4,7 +4,7 @@ import gbas.eds.gtbch.invoice.ConvertXmlToVagonOtprTransit;
 import gbas.eds.soap.obj.nakl.constants.ConstantsParameters;
 import gbas.gtbch.sapod.model.CalculationLog;
 import gbas.gtbch.util.cache.AppCacheManager;
-import gbas.gtbch.util.calc.CalcData;
+import gbas.gtbch.util.calc.GtCalcData;
 import gbas.gtbch.util.calc.handler.ObjectHandler;
 import gbas.tvk.otpravka.object.VagonOtpr;
 import gbas.tvk.otpravka.object.VagonOtprTransit;
@@ -34,7 +34,7 @@ public class NaklHandler implements ObjectHandler {
     }
 
     @Override
-    public void calc(CalcData data, Connection connection) throws Exception {
+    public void calc(GtCalcData data, Connection connection) throws Exception {
         if (data.getCalculationLog() != null) {
             data.getCalculationLog().setType(CalculationLog.Type.NAKL);
         }
@@ -50,7 +50,7 @@ public class NaklHandler implements ObjectHandler {
         }
     }
 
-    static void fillResultData(CalcData data, CalcPlataData c) {
+    static void fillResultData(GtCalcData data, CalcPlataData c) {
         if (c != null) {
 
             if (c.vo != null) {

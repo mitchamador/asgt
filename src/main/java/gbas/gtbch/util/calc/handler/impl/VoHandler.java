@@ -1,7 +1,7 @@
 package gbas.gtbch.util.calc.handler.impl;
 
 import gbas.gtbch.sapod.model.CalculationLog;
-import gbas.gtbch.util.calc.CalcData;
+import gbas.gtbch.util.calc.GtCalcData;
 import gbas.gtbch.util.calc.handler.ObjectHandler;
 import gbas.tvk.otpravka.object.VagonOtprTransit;
 import gbas.tvk.payment.CalcPlataData;
@@ -26,7 +26,7 @@ public class VoHandler implements ObjectHandler {
     }
 
     @Override
-    public void calc(CalcData data, Connection connection) throws Exception {
+    public void calc(GtCalcData data, Connection connection) throws Exception {
         if (data.getCalculationLog() != null) {
             data.getCalculationLog().setType(CalculationLog.Type.VOT);
         }

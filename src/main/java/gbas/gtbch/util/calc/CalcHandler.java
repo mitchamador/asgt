@@ -7,6 +7,7 @@ import gbas.gtbch.util.Syncronizer;
 import gbas.gtbch.util.calc.handler.Handler;
 import gbas.gtbch.util.calc.handler.ObjectHandler;
 import gbas.tvk.nsi.cash.Func;
+import gbas.tvk.service.asgt.CalcError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -51,7 +52,7 @@ public class CalcHandler {
      * @param data
      * @return
      */
-    public CalcData calc(CalcData data) {
+    public GtCalcData calc(GtCalcData data) {
 
         assert data != null;
 

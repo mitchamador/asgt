@@ -13,8 +13,8 @@ import gbas.gtbch.util.Syncronizer;
 import gbas.gtbch.util.SystemInfoProperties;
 import gbas.gtbch.util.UtilDate8;
 import gbas.gtbch.util.XmlFormatter;
-import gbas.gtbch.util.calc.CalcData;
 import gbas.gtbch.util.calc.CalcHandler;
+import gbas.gtbch.util.calc.GtCalcData;
 import gbas.gtbch.web.request.KeyValue;
 import gbas.gtbch.web.response.Response;
 import gbas.tvk.nsi.cash.Func;
@@ -91,7 +91,7 @@ public class ApiController {
     @RequestMapping(value = "/calc", method = RequestMethod.POST)
     public ResponseEntity<String> calc(Principal principal, @RequestParam(required = false) Map<String,String> params, @RequestBody String data) {
 
-        String response = calcHandler.calc(new CalcData(data, createCalculationLog(addUserPrincipal(principal, params)))).getTextResult();
+        String response = calcHandler.calc(new GtCalcData(data, createCalculationLog(addUserPrincipal(principal, params)))).getTextResult();
 
         logger.info(String.format("/api/calc response: \"%s\"", getCroppedString(response)));
 
@@ -99,22 +99,22 @@ public class ApiController {
     }
 
     @RequestMapping(value = "/calcdata", method = RequestMethod.POST)
-    public ResponseEntity<CalcData> calcdata(Principal principal, @RequestParam(required = false) Map<String, String> params, @RequestBody String data) {
+    public ResponseEntity<GtCalcData> calcdata(Principal principal, @RequestParam(required = false) Map<String, String> params, @RequestBody String data) {
 
-        CalcData calcData = calcHandler.calc(new CalcData(data, createCalculationLog(addUserPrincipal(principal, params))));
-        if (calcData.getCalculationLog() != null) {
-            calcData.setFileName(UtilDate8.getStringDate(calcData.getCalculationLog().getInboundTime(), "yyyyMMdd_HHmmss"));
+        GtCalcData gtCalcData = calcHandler.calc(new GtCalcData(data, createCalculationLog(addUserPrincipal(principal, params))));
+        if (gtCalcData.getCalculationLog() != null) {
+            gtCalcData.setFileName(UtilDate8.getStringDate(gtCalcData.getCalculationLog().getInboundTime(), "yyyyMMdd_HHmmss"));
         }
 
-        logger.info(String.format("/api/calc response: \"%s\"", getCroppedString(calcData.getTextResult())));
+        logger.info(String.format("/api/calc response: \"%s\"", getCroppedString(gtCalcData.getTextResult())));
 
-        return ok(calcData);
+        return ok(gtCalcData);
     }
 
     @RequestMapping(value = "/calcxml", method = RequestMethod.POST)
     public ResponseEntity<String> calcxml(Principal principal, @RequestParam(required = false) Map<String,String> params, @RequestBody String data) {
 
-        String response = calcHandler.calc(new CalcData(data, createCalculationLog(addUserPrincipal(principal, params)))).getOutputXml();
+        String response = calcHandler.calc(new GtCalcData(data, createCalculationLog(addUserPrincipal(principal, params)))).getOutputXml();
 
         logger.info(String.format("/api/calcxml response: \"%s\"", getCroppedString(response)));
 

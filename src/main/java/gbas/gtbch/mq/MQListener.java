@@ -2,8 +2,8 @@ package gbas.gtbch.mq;
 
 import gbas.gtbch.sapod.model.CalculationLog;
 import gbas.gtbch.util.MQJob;
-import gbas.gtbch.util.calc.CalcData;
 import gbas.gtbch.util.calc.CalcHandler;
+import gbas.gtbch.util.calc.GtCalcData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -68,7 +68,7 @@ public class MQListener implements MessageListener {
         }
 
         String response = calcHandler.calc(
-                new CalcData(message.getText(), calculationLog)
+                new GtCalcData(message.getText(), calculationLog)
         ).getOutputXml();
 
         if (message.getJMSCorrelationID() != null && !message.getJMSCorrelationID().isEmpty()) {

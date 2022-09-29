@@ -5,7 +5,7 @@ import gbas.eds.gtbch.fdu92.calc.CardCalculator;
 import gbas.eds.soap.obj.DocEP;
 import gbas.eds.soap.obj.nakl.constants.ConstantsParameters;
 import gbas.gtbch.sapod.model.CalculationLog;
-import gbas.gtbch.util.calc.CalcData;
+import gbas.gtbch.util.calc.GtCalcData;
 import gbas.gtbch.util.calc.handler.ObjectHandler;
 import gbas.tvk.card.service.ContractCardData;
 import gbas.tvk.payment.CalcPlataData;
@@ -26,7 +26,7 @@ public class Fdu92Handler implements ObjectHandler {
     }
 
     @Override
-    public void calc(CalcData data, Connection connection) throws Exception {
+    public void calc(GtCalcData data, Connection connection) throws Exception {
         if (data.getCalculationLog() != null) {
             data.getCalculationLog().setType(CalculationLog.Type.CARD);
         }

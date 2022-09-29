@@ -6,7 +6,7 @@ import gbas.eds.gtbch.gu23.parser.GtGu23Xml;
 import gbas.eds.gtbch.gu23.server.PayGu23;
 import gbas.eds.soap.obj.nakl.constants.ConstantsParameters;
 import gbas.gtbch.sapod.model.CalculationLog;
-import gbas.gtbch.util.calc.CalcData;
+import gbas.gtbch.util.calc.GtCalcData;
 import gbas.gtbch.util.calc.handler.ObjectHandler;
 import org.springframework.stereotype.Component;
 
@@ -25,7 +25,7 @@ public class Gu23Handler implements ObjectHandler {
     }
 
     @Override
-    public void calc(CalcData data, Connection connection) throws Exception {
+    public void calc(GtCalcData data, Connection connection) throws Exception {
         if (data.getCalculationLog() != null) {
             data.getCalculationLog().setType(CalculationLog.Type.GU23);
         }

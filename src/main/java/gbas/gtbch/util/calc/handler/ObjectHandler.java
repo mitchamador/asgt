@@ -1,6 +1,6 @@
 package gbas.gtbch.util.calc.handler;
 
-import gbas.gtbch.util.calc.CalcData;
+import gbas.gtbch.util.calc.GtCalcData;
 
 import java.sql.Connection;
 
@@ -11,6 +11,6 @@ public interface ObjectHandler {
 
     boolean check(String xml);
 
-    void calc(CalcData data, Connection connection) throws Exception;
+    void calc(GtCalcData data, Connection connection) throws Exception;
 
 }

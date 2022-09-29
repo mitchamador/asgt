@@ -3,7 +3,7 @@ package gbas.gtbch.sapod.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import gbas.gtbch.util.JpaTruncator;
-import gbas.gtbch.util.calc.CalcError;
+import gbas.tvk.service.asgt.CalcError;
 
 import javax.persistence.*;
 import java.util.Date;

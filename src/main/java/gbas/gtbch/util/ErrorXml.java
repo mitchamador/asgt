@@ -1,6 +1,6 @@
 package gbas.gtbch.util;
 
-import gbas.gtbch.util.calc.CalcError;
+import gbas.tvk.service.asgt.CalcError;
 
 /**
  * create xml with error

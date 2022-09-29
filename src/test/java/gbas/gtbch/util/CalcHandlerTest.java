@@ -1,7 +1,7 @@
 package gbas.gtbch.util;
 
-import gbas.gtbch.util.calc.CalcData;
 import gbas.gtbch.util.calc.CalcHandler;
+import gbas.gtbch.util.calc.GtCalcData;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -24,14 +24,14 @@ public class CalcHandlerTest {
 
     @Test
     public void calc() {
-        CalcData calcData;
+        GtCalcData gtCalcData;
 
-        calcData = new CalcData(null, null);
-        calcData = calcHandler.calc(calcData);
-        logger.info("output xml: \"{}\", output text: \"{}\"", calcData.getOutputXml(), calcData.getTextResult());
+        gtCalcData = new GtCalcData(null, null);
+        gtCalcData = calcHandler.calc(gtCalcData);
+        logger.info("output xml: \"{}\", output text: \"{}\"", gtCalcData.getOutputXml(), gtCalcData.getTextResult());
 
-        calcData = new CalcData("test", null);
-        calcData = calcHandler.calc(calcData);
-        logger.info("output xml: \"{}\", output text: \"{}\"", calcData.getOutputXml(), calcData.getTextResult());
+        gtCalcData = new GtCalcData("test", null);
+        gtCalcData = calcHandler.calc(gtCalcData);
+        logger.info("output xml: \"{}\", output text: \"{}\"", gtCalcData.getOutputXml(), gtCalcData.getTextResult());
     }
 }
