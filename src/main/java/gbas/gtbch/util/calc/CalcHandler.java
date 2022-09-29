@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Date;
@@ -110,7 +112,13 @@ public class CalcHandler {
 
         } catch (Exception e) {
             e.printStackTrace();
-            data.setTextResult(e.toString());
+
+            StringWriter stringWriter = new StringWriter();
+            PrintWriter printWriter = new PrintWriter(stringWriter);
+            e.printStackTrace(printWriter);
+            printWriter.flush();
+
+            data.setTextResult(stringWriter.toString());
             data.setErrorCode(CalcError.EXCEPTION.getCode());
         } finally {
 
