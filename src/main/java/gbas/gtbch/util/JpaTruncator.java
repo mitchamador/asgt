@@ -1,5 +1,8 @@
 package gbas.gtbch.util;
 
+import org.aspectj.lang.annotation.Aspect;
+import org.springframework.stereotype.Component;
+
 import javax.persistence.Column;
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
@@ -9,13 +12,20 @@ import java.beans.PropertyDescriptor;
 /**
  * truncate string based on 'length' field of @Column annotation
  */
+@Aspect
+@Component
 public class JpaTruncator {
+
     public static String truncate(String string) {
 
         if (string == null) return null;
 
         try {
-            final StackTraceElement stackTraceElement = Thread.currentThread().getStackTrace()[2];
+            // However, we need to remember that this solution has one significant drawback. Some virtual machines may skip one or more stack frames. Although this is not common, we should be aware that this can happen.
+            // https://www.baeldung.com/java-name-of-executing-method
+            //final StackTraceElement stackTraceElement = Thread.currentThread().getStackTrace()[2];
+
+            final StackTraceElement stackTraceElement = new Throwable().getStackTrace()[1];
             final Class<?> clazz = Class.forName(stackTraceElement.getClassName());
             final BeanInfo beanInfo = Introspector.getBeanInfo(clazz);
             final String methodName = stackTraceElement.getMethodName();
@@ -27,7 +37,7 @@ public class JpaTruncator {
                         if (annotation != null) {
                             final int size = annotation.length();
                             if (string.length() > size) {
-                                string = string.substring(0, size);
+                                return string.substring(0, size);
                             }
                         }
                         break;
@@ -40,4 +50,5 @@ public class JpaTruncator {
 
         return string;
     }
+
 }
