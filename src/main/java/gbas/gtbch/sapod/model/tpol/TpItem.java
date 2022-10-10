@@ -22,42 +22,42 @@ public class TpItem {
     private int set;
 
     /**
-     * item name
+     * item's name
      */
     private String name;
 
     /**
-     * item UI name
+     * item's UI name
      */
     private String buttonName;
 
     /**
-     * item UI columns
+     * item's UI columns
      */
     private ColumnInfo[] columns;
 
     /**
-     * item data
+     * item's data
      */
     private List<String[]> itemData;
 
     /**
-     * item data size
+     * item's data size
      */
     private int itemDataSize;
 
     /**
-     * item NSI UI header
+     * item's NSI UI header
      */
     private String nsiHeader;
 
     /**
-     * item NSI UI columns
+     * item's NSI UI columns
      */
     private List<ColumnInfo[]> nsiColumns;
 
     /**
-     * item NSI itemData
+     * item's NSI itemData
      */
     private List<String[]> nsiData;
 
@@ -161,5 +161,6 @@ public class TpItem {
     public void setItemDataSize(int itemDataSize) {
         this.itemDataSize = itemDataSize;
     }
+
 }
 

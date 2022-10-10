@@ -1,7 +1,9 @@
 package gbas.gtbch.web;
 
 import gbas.gtbch.sapod.model.tpol.TpItem;
+import gbas.gtbch.sapod.model.tpol.TpItemFilter;
 import gbas.gtbch.sapod.service.TPolItemsService;
+import gbas.tvk.tpol3.service.CargoItem;
 import gbas.tvk.tpol3.service.TPItem;
 import gbas.tvk.tpol3.service.TPItems;
 import org.springframework.http.HttpStatus;
@@ -56,5 +58,36 @@ public class TPolItemsController {
         return new ResponseEntity<>(data, HttpStatus.OK);
     }
 
+    /**
+     * get {@link TpItemFilter} list
+     *
+     * @return
+     */
+    @RequestMapping(value = "/filter", method = RequestMethod.GET)
+    public ResponseEntity<List<TpItemFilter>> getItemsFilter() {
+        List<TpItemFilter> items = new ArrayList<>();
+        for (TPItems enumItems : TPItems.values()) {
+            TPItem item = enumItems.getItem();
+            if (item instanceof CargoItem) {
+                TpItemFilter filterGng = new TpItemFilter();
+                filterGng.setType(item.getName() + ":0");
+                filterGng.setName(item.getButtonName() + " ГНГ");
+
+                TpItemFilter filterEtsng = new TpItemFilter();
+                filterEtsng.setType(item.getName() + ":1");
+                filterEtsng.setName(item.getButtonName() + " ЕТСНГ");
+
+                items.add(filterGng);
+                items.add(filterEtsng);
+            } else {
+                TpItemFilter filter = new TpItemFilter();
+                filter.setType(item.getName());
+                filter.setName(item.getButtonName());
+
+                items.add(filter);
+            }
+        }
+        return new ResponseEntity<>(items, HttpStatus.OK);
+    }
 
 }

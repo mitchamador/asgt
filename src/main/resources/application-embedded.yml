@@ -12,6 +12,8 @@ server:
 app:
 #  settings:
 #    newServiceCodes: true
+#  api:
+#    security: "none"
   sapod:
     datasource:
       jndi-name: "jdbc/GTMAIN"

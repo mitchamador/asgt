@@ -24,7 +24,10 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+
+import static gbas.gtbch.util.JdbcTemplateUtils.getSqlString;
 
 @Component
 public class TPolRepository {
@@ -33,7 +36,6 @@ public class TPolRepository {
     private final JdbcTemplate jdbcTemplate;
     private final JdbcTemplate jdbcTemplatePensi;
     private final TPolRowRepository tPolRowRepository;
-
 
     @Autowired
     public TPolRepository(@Qualifier("sapodDataSource") DataSource dataSource, @Qualifier("pensiDataSource") DataSource dataSourcePensi, TPolRowRepository tPolRowRepository) {
@@ -49,7 +51,7 @@ public class TPolRepository {
      * @return
      */
     public TpDocument getDocument(int id, boolean editorMode) {
-        List<TpDocument> list = getDocuments(id, null, null, null);
+        List<TpDocument> list = getDocuments(id, null, null, null, null);
         if (list != null && !list.isEmpty()) {
             TpDocument document = list.get(0);
             document.sobstList = getSobstList(id, !editorMode);
@@ -59,27 +61,8 @@ public class TPolRepository {
         }
     }
 
-    /**
-     * get list of {@link TpDocument}
-     *
-     * @param dateBegin
-     * @param dateEnd
-     * @return
-     */
-    public List<TpDocument> getDocuments(Date dateBegin, Date dateEnd) {
-        return getDocuments(0, null, dateBegin, dateEnd);
-    }
-
-    /**
-     * get list of {@link TpDocument}
-     *
-     * @param typeCode
-     * @param dateBegin
-     * @param dateEnd
-     * @return
-     */
-    public List<TpDocument> getDocuments(String typeCode, Date dateBegin, Date dateEnd) {
-        return getDocuments(0, typeCode, dateBegin, dateEnd);
+    public List<TpDocument> getDocuments(String typeCode, Date dateBegin, Date dateEnd, Map<String, String> filterMap) {
+        return getDocuments(0, typeCode, dateBegin, dateEnd, filterMap);
     }
 
     /**
@@ -89,47 +72,55 @@ public class TPolRepository {
      * @param dateEnd
      * @return
      */
-    public List<TpDocument> getDocuments(int id, String typeCode, Date dateBegin, Date dateEnd) {
+    private List<TpDocument> getDocuments(int id, String typeCode, Date dateBegin, Date dateEnd, Map<String, String> filterMap) {
         List<Object> args = new ArrayList<Object>();
 
-        String sql = "select id,\n" +
-                "rtrim(type_code) as type_code,\n" +
-                "rtrim(n_contract) as n_contract,\n" +
-                "date_begin,\n" +
-                "date_end,\n" +
-                "rtrim(name) as name,\n" +
-                "n_pol,\n" +
-                "cod_tip_tarif,\n" +
-                "dobor,\n" +
-                "pr_calc\n" +
-                " from tvk_tarif\n" +
-                "WHERE\n";
+        String sql = "SELECT DISTINCT\n" +
+                " tvk_tarif.id,\n" +
+                " rtrim(type_code) as type_code,\n" +
+                " rtrim(n_contract) as n_contract,\n" +
+                " date_begin,\n" +
+                " date_end,\n" +
+                " rtrim(name) as name,\n" +
+                " n_pol,\n" +
+                " cod_tip_tarif,\n" +
+                " dobor,\n" +
+                " pr_calc\n" +
+                "FROM tvk_tarif\n";
 
         if (id == 0) {
+
+            String sqlFilterString = TpItemFilter.getFilterSqlString(args, filterMap);
+
+            if (!sqlFilterString.isEmpty()) {
+                sql += "LEFT OUTER JOIN tvk_t_pol ON tvk_t_pol.id_tarif = tvk_tarif.id\n" + sqlFilterString;
+            }
+
             if (dateBegin != null && dateEnd != null) {
-                sql += "(date_end >= ? AND date_begin <= ?) AND\n";
+                sql += getSqlString(args, "(date_end >= ? AND date_begin <= ?)");
                 args.add(dateBegin);
                 args.add(dateEnd);
             } else if (dateBegin != null) {
-                sql += "date_begin >= ? AND\n";
+                sql += getSqlString(args, "date_begin >= ?");
                 args.add(dateBegin);
             } else if (dateEnd != null) {
-                sql += "date_end <= ? AND\n";
+                sql += getSqlString(args, "date_end <= ?");
                 args.add(dateEnd);
             }
 
             if (typeCode != null) {
-                sql += "type_code = ?\n";
+                sql += getSqlString(args, "type_code = ?");
                 args.add(typeCode);
             } else {
-                sql += "type_code IN ('base_tarif', 'down_tarif', 'polnom', 'russia_tarif', 'iskl_tarif', 'tr1_bch')\n";
+                sql += getSqlString(args, "type_code IN ('base_tarif', 'down_tarif', 'polnom', 'russia_tarif', 'iskl_tarif', 'tr1_bch')");
             }
 
-            sql += "ORDER BY n_contract";
         } else {
-            sql += "id = ?";
+            sql += getSqlString(args, "id = ?");
             args.add(id);
         }
+
+        sql += "ORDER BY n_contract";
 
         return jdbcTemplate.query(sql, (rs, i) -> {
             final TpDocument doc = new TpDocument();
@@ -373,7 +364,7 @@ public class TPolRepository {
      */
     public Integer copyDocument(int sourceId, int destinationId) {
 
-        List<TpRow> sourceRows = tPolRowRepository.getRows(sourceId);
+        List<TpRow> sourceRows = tPolRowRepository.getRows(sourceId, null);
 
         if (sourceRows == null) return null;
 

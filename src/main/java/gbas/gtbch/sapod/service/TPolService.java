@@ -5,14 +5,9 @@ import gbas.gtbch.sapod.model.tpol.*;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public interface TPolService {
-    /**
-     *
-     * @param id
-     * @return
-     */
-    TpDocument getDocument(int id);
 
     /**
      *
@@ -24,20 +19,12 @@ public interface TPolService {
 
     /**
      *
-     * @param dateBegin
-     * @param dateEnd
-     * @return
-     */
-    List<TpDocument> getDocuments(Date dateBegin, Date dateEnd);
-
-    /**
-     *
      * @param typeCode
      * @param dateBegin
      * @param dateEnd
      * @return
      */
-    List<TpDocument> getDocuments(String typeCode, Date dateBegin, Date dateEnd);
+    List<TpDocument> getDocuments(String typeCode, Date dateBegin, Date dateEnd, Map<String, String> filterMap);
 
     /**
      *

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class TPolServiceImpl implements TPolService {
@@ -16,17 +17,6 @@ public class TPolServiceImpl implements TPolService {
 
     public TPolServiceImpl(TPolRepository tPolRepository) {
         this.tPolRepository = tPolRepository;
-    }
-
-    /**
-     * get {@link TpDocument}
-     *
-     * @param id
-     * @return
-     */
-    @Override
-    public TpDocument getDocument(int id) {
-        return getDocument(id, false);
     }
 
     /**
@@ -43,37 +33,15 @@ public class TPolServiceImpl implements TPolService {
     /**
      * get list of {@link TpDocument}
      *
-     * @param dateBegin
-     * @param dateEnd
-     * @return
-     */
-    @Override
-    public List<TpDocument> getDocuments(Date dateBegin, Date dateEnd) {
-        return tPolRepository.getDocuments(dateBegin, dateEnd);
-    }
-
-    /**
-     * get list of {@link TpDocument}
-     *
      * @param typeCode
      * @param dateBegin
      * @param dateEnd
+     * @param filterMap
      * @return
      */
     @Override
-    public List<TpDocument> getDocuments(String typeCode, Date dateBegin, Date dateEnd) {
-        return tPolRepository.getDocuments(typeCode, dateBegin, dateEnd);
-    }
-
-    /**
-     * @param id
-     * @param typeCode
-     * @param dateBegin
-     * @param dateEnd
-     * @return
-     */
-    private List<TpDocument> getDocuments(int id, String typeCode, Date dateBegin, Date dateEnd) {
-        return tPolRepository.getDocuments(id, typeCode, dateBegin, dateEnd);
+    public List<TpDocument> getDocuments(String typeCode, Date dateBegin, Date dateEnd, Map<String, String> filterMap) {
+        return tPolRepository.getDocuments(typeCode, dateBegin, dateEnd, filterMap);
     }
 
     /**

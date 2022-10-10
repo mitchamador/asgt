@@ -150,13 +150,13 @@ public class GtBchTests {
 */
 
 
-		list = tpolService.getDocuments(null, null);
+		list = tpolService.getDocuments(null, null, null, null);
 		logger.info("getDocuments(null, null): " + (list == null ? "null" : ("list size = " + list.size())));
-		list = tpolService.getDocuments(getDate("01.01.2020"), null);
+		list = tpolService.getDocuments(null, getDate("01.01.2020"), null, null);
 		logger.info("getDocuments(date, null): " + (list == null ? "null" : ("list size = " + list.size())));
-		list = tpolService.getDocuments(null, getDate("01.01.2018"));
+		list = tpolService.getDocuments(null, null, getDate("01.01.2018"), null);
 		logger.info("getDocuments(null, date): " + (list == null ? "null" : ("list size = " + list.size())));
-		list = tpolService.getDocuments(getDate("01.01.2018"), getDate("01.01.2020"));
+		list = tpolService.getDocuments(null, getDate("01.01.2018"), getDate("01.01.2020"), null);
 		logger.info("getDocuments(date, date): " + (list == null ? "null" : ("list size = " + list.size())));
 	}
 

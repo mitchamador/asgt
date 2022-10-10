@@ -1,5 +1,6 @@
 package gbas.gtbch.sapod.repository;
 
+import gbas.gtbch.sapod.model.tpol.TpItemFilter;
 import gbas.gtbch.sapod.model.tpol.TpRow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,8 +19,11 @@ import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import static gbas.gtbch.util.JdbcTemplateUtils.getSqlString;
 
 @Component
 public class TPolRowRepository {
@@ -32,37 +36,39 @@ public class TPolRowRepository {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public List<TpRow> getRows(int id_tarif) {
-        return getRows(id_tarif, 0);
+    public List<TpRow> getRows(int id_tarif, Map<String, String> filterMap) {
+        return getRows(id_tarif, 0, filterMap);
     }
 
-    private List<TpRow> getRows(int id_tarif, int id_row) {
+    private List<TpRow> getRows(int id_tarif, int id_row, Map<String, String> filterMap) {
 
-        List<Object> params = new ArrayList<>();
+        List<Object> args = new ArrayList<>();
+        
+        String sql = "select tvk_t_pol.id, tvk_t_pol.t_pol, tvk_t_pol.n_str, tvk_t_pol.prim, tvk_t_pol.tip_t_tar, tvk_t_pol.klas, b.n_tab as ves_n_tab, c.n_tab as kont_n_tab,\n" +
+                "d.n_tab as kof_n_tab, tvk_t_pol.kof, tvk_t_pol.id_tab_ves, tvk_t_pol.id_ves_norm, tvk_t_pol.id_tab_kof, tvk_t_pol.kof_sob, tvk_t_pol.skid,\n" +
+                "tvk_t_pol.id_tab_kofbs, e.n_tab as kofbs_n_tab, tvk_t_pol.koleya, tvk_t_pol.id_tarif\n" +
+                "from tvk_t_pol\n" +
+                "left outer join tvk_group_t_ves b on tvk_t_pol.id_tab_ves = b.id\n" +
+                "left outer join tvk_group_t_kont c on tvk_t_pol.id_ves_norm = c.id\n" +
+                "left outer join tvk_group_t_kof d on tvk_t_pol.id_tab_kof = d.id\n" +
+                "left outer join tvk_group_t_kof e on tvk_t_pol.id_tab_kofbs = e.id\n";
 
-        String whereClause = "";
-
+        sql += TpItemFilter.getFilterSqlString(args, filterMap);
+        
         if (id_tarif != 0) {
-            whereClause += (whereClause.isEmpty() ? "where " : " and ") + "a.id_tarif=?";
-            params.add(id_tarif);
+            sql += getSqlString(args, "tvk_t_pol.id_tarif = ?");
+            args.add(id_tarif);
         }
 
         if (id_row != 0) {
-            whereClause += (whereClause.isEmpty() ? "where " : " and ") + "a.id=?";
-            params.add(id_row);
+            sql += getSqlString(args, "tvk_t_pol.id = ?");
+            args.add(id_row);
         }
+        
+        sql += "order by 2";
 
-        return jdbcTemplate.query("select a.id, a.t_pol, a.n_str, a.prim, a.tip_t_tar, a.klas, b.n_tab as ves_n_tab, c.n_tab as kont_n_tab,\n" +
-                        "d.n_tab as kof_n_tab, a.kof, a.id_tab_ves, a.id_ves_norm, a.id_tab_kof, a.kof_sob, a.skid,\n" +
-                        "a.id_tab_kofbs, e.n_tab as kofbs_n_tab, a.koleya, a.id_tarif\n" +
-                        "from tvk_t_pol a\n" +
-                        "left outer join tvk_group_t_ves b on a.id_tab_ves = b.id\n" +
-                        "left outer join tvk_group_t_kont c on a.id_ves_norm = c.id\n" +
-                        "left outer join tvk_group_t_kof d on a.id_tab_kof = d.id\n" +
-                        "left outer join tvk_group_t_kof e on a.id_tab_kofbs = e.id\n" +
-                        whereClause + "\n" +
-                        "order by 2",
-                params.toArray(),
+        return jdbcTemplate.query(sql,
+                args.toArray(),
                 (rs, i) -> {
                     TpRow row = new TpRow();
                     row.id = rs.getInt("id");
@@ -93,7 +99,16 @@ public class TPolRowRepository {
      * @return
      */
     public TpRow getRow(int idRow) {
-        List<TpRow> rows = getRows(0, idRow);
+        List<TpRow> rows = getRows(0, idRow, null);
+        return rows != null && !rows.isEmpty() ? rows.get(0) : null;
+    }
+
+    /**
+     * @param idRow
+     * @return
+     */
+    public TpRow getRow(int idRow, Map<String, String> filterMap) {
+        List<TpRow> rows = getRows(0, idRow, filterMap);
         return rows != null && !rows.isEmpty() ? rows.get(0) : null;
     }
 

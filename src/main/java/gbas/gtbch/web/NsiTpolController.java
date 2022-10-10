@@ -16,6 +16,7 @@ import org.springframework.web.servlet.ModelAndView;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/user/nsi/tpol")
@@ -56,10 +57,10 @@ public class NsiTpolController {
      * @return
      */
     @GetMapping(value = "document/{id:[\\d]+}/rows")
-    public ModelAndView getRows(@PathVariable int id) {
+    public ModelAndView getRows(@PathVariable int id, @RequestBody(required = false) Map<String, String> filterMap) {
         ModelAndView model = new ModelAndView("fragments/tpol :: rows");
 
-        model.addObject("tpolRows", tPolRowService.getRows(id));
+        model.addObject("tpolRows", tPolRowService.getRows(id, filterMap));
 
         return model;
     }
@@ -127,7 +128,7 @@ public class NsiTpolController {
             items.add(item);
         }
         model.addObject("items", items);
-        model.addObject("row", tPolRowService.getRow(id));
+        model.addObject("row", tPolRowService.getRow(id, null));
 
         return model;
     }
@@ -155,7 +156,7 @@ public class NsiTpolController {
             //item.setNsiData(tPolItemsRepository.getNsi(item));
         }
         model.addObject("item", item);
-        model.addObject("row", tPolRowService.getRow(id));
+        model.addObject("row", tPolRowService.getRow(id, null));
 
         return model;
     }

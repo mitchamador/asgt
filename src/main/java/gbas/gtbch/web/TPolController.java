@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/tpol")
@@ -38,8 +39,9 @@ public class TPolController {
     @RequestMapping(value = "/documents", method = RequestMethod.GET)
     public ResponseEntity<List<TpDocument>> getDocuments(
             @RequestParam(value = "date_begin", required = false) @DateTimeFormat(pattern = "dd.MM.yyyy") Date dateBegin,
-            @RequestParam(value = "date_end", required = false) @DateTimeFormat(pattern = "dd.MM.yyyy") Date dateEnd) {
-        return new ResponseEntity<>(tpolService.getDocuments(dateBegin, dateEnd), HttpStatus.OK);
+            @RequestParam(value = "date_end", required = false) @DateTimeFormat(pattern = "dd.MM.yyyy") Date dateEnd,
+            @RequestBody(required = false) Map<String, String> filterMap) {
+        return new ResponseEntity<>(tpolService.getDocuments(null, dateBegin, dateEnd, filterMap), HttpStatus.OK);
     }
 
     /**
@@ -52,8 +54,9 @@ public class TPolController {
     public ResponseEntity<List<TpDocument>> getDocumentsType(
             @PathVariable String typeCode,
             @RequestParam(value = "date_begin", required = false) @DateTimeFormat(pattern = "dd.MM.yyyy") Date dateBegin,
-            @RequestParam(value = "date_end", required = false) @DateTimeFormat(pattern = "dd.MM.yyyy") Date dateEnd) {
-        return new ResponseEntity<>(tpolService.getDocuments(typeCode, dateBegin, dateEnd), HttpStatus.OK);
+            @RequestParam(value = "date_end", required = false) @DateTimeFormat(pattern = "dd.MM.yyyy") Date dateEnd,
+            @RequestBody(required = false) Map<String, String> filterMap) {
+        return new ResponseEntity<>(tpolService.getDocuments(typeCode, dateBegin, dateEnd, filterMap), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/groups", method = RequestMethod.GET)
@@ -115,8 +118,8 @@ public class TPolController {
      * @param id - tvk_tarif.idTarif
      */
     @RequestMapping(value = "/document/{id:[\\d]+}/rows", method = RequestMethod.GET)
-    public ResponseEntity<List<TpRow>> getRows(@PathVariable int id) {
-        return new ResponseEntity<>(tpolRowService.getRows(id), HttpStatus.OK);
+    public ResponseEntity<List<TpRow>> getRows(@PathVariable int id, @RequestBody(required = false) Map<String, String> filterMap) {
+        return new ResponseEntity<>(tpolRowService.getRows(id, filterMap), HttpStatus.OK);
     }
 
     /**
