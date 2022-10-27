@@ -929,7 +929,7 @@
             });
 
             function _getNsi(set) {
-                if (item.name === 'ClassItem' || item.name === 'Distance') {
+                if (item.name === 'ClassItem' || item.name === 'Distance' || item.name === 'CargoDiap') {
                     $("#nsiModal").modal('show');
                 } else {
                     var reinit = item.set !== set;
@@ -1102,9 +1102,12 @@
                     var params = {};
 
                     if (item.name === 'ClassItem') {
-                        params.data = [$("#inputData").val()];
+                        params.data = ['0', $("#inputData").val()];
                     } else if (item.name === 'Distance') {
-                        params.data = [$("#distanceFrom").val(), $("#distanceTo").val()];
+                        params.data = ['0', $("#distanceFrom").val(), $("#distanceTo").val()];
+                    } else if (item.name === 'CargoDiap') {
+                        params.set = item.set;
+                        params.data = ['0', $("#cargoRangeFrom").val(), $("#cargoRangeTo").val(), params.set];
                     } else {
                         var selected = nsiTable.rows({selected: true}).data();
 
@@ -1175,11 +1178,29 @@
                 _getNsi($(this).attr("value"));
             });
 
+            $("#nsiCargoDiapDropdown ul a").click(function() {
+                item.set = $(this).attr("value");
+                var maxlength = item.set === '0' ? 8 : 6;
+
+                $("#cargoRangeFrom").val("");
+                $("#cargoRangeTo").val("");
+                $("#cargoRangeFrom").get(0).setAttribute("maxlength", maxlength);
+                $("#cargoRangeTo").get(0).setAttribute("maxlength", maxlength);
+
+                if (item.set === '0') {
+                    $("#cargoDiapLabel").text("Диапазон грузов ГНГ с");
+                } else {
+                    $("#cargoDiapLabel").text("Диапазон грузов ЕТСНГ с")
+                }
+
+                _getNsi(item.set);
+            });
+
         }));
     </script>
 
     <div id="nsiModal" class="modal" data-keyboard="true" data-backdrop="static" tabindex="-1">
-        <div th:class="'modal-dialog' + ${item.getName().equals('Distance') || item.getName().equals('ClassItem') ? '' : ' modal-lg'}">
+        <div th:class="'modal-dialog' + ${item.getName().equals('Distance') || item.getName().equals('ClassItem') || item.getName().equals('CargoDiap') ? '' : ' modal-lg'}">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" th:text="${item.getNsiHeader()}">Modal Title</h5>
@@ -1195,6 +1216,12 @@
                             <input type="text" oninput="this.value=this.value.replace(/[^0-9]/g,'');" maxlength="4" id="distanceFrom" class="form-control" style="flex-grow: 1"/>
                             <h5><span style="margin-right: 5px; margin-left: 5px">по</span></h5>
                             <input type="text" oninput="this.value=this.value.replace(/[^0-9]/g,'');" maxlength="4" id="distanceTo" class="form-control" style="flex-grow: 1"/>
+                        </div>
+                        <div th:case="CargoDiap" th:style="'display: inline-flex; width: 100%'">
+                            <h5><span id="cargoDiapLabel" class="text-nowrap" style="margin-right: 5px;"></span></h5>
+                            <input type="text" oninput="this.value=this.value.replace(/[^0-9]/g,'');" maxlength="4" id="cargoRangeFrom" class="form-control" style="flex-grow: 1"/>
+                            <h5><span style="margin-right: 5px; margin-left: 5px">по</span></h5>
+                            <input type="text" oninput="this.value=this.value.replace(/[^0-9]/g,'');" maxlength="4" id="cargoRangeTo" class="form-control" style="flex-grow: 1"/>
                         </div>
                         <div th:case="*">
                             <table id="nsiDataTable" class="table-condensed table-bordered" style="font-size: 0.9em">
@@ -1216,6 +1243,16 @@
             <th:block th:switch="${item.getName()}">
                 <th th:case="Cargo" class="text-nowrap" style="width: 5%">
                     <div id="nsiCargoDropdown" class="dropdown" style="display: flex; width: 100%; height: 100%">
+                        <a class="btn-success btn-sm" data-toggle="dropdown" style="align-self: center; margin-right: 3px; padding: 1px 5px; cursor: pointer"><i class="fa fa-plus"></i></a>
+                        <span class="text-nowrap" style="flex-grow: 1; align-self: center;">№ п/п</span>
+                        <ul class="dropdown-menu" aria-labelledby="nsiAdd">
+                            <li><a th:value="0">Справочник ГНГ</a></li>
+                            <li><a th:value="1">Справочник ЕТСНГ</a></li>
+                        </ul>
+                    </div>
+                </th>
+                <th th:case="CargoDiap" class="text-nowrap" style="width: 5%">
+                    <div id="nsiCargoDiapDropdown" class="dropdown" style="display: flex; width: 100%; height: 100%">
                         <a class="btn-success btn-sm" data-toggle="dropdown" style="align-self: center; margin-right: 3px; padding: 1px 5px; cursor: pointer"><i class="fa fa-plus"></i></a>
                         <span class="text-nowrap" style="flex-grow: 1; align-self: center;">№ п/п</span>
                         <ul class="dropdown-menu" aria-labelledby="nsiAdd">
