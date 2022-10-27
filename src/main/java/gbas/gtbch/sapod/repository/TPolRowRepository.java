@@ -2,6 +2,7 @@ package gbas.gtbch.sapod.repository;
 
 import gbas.gtbch.sapod.model.tpol.TpItemFilter;
 import gbas.gtbch.sapod.model.tpol.TpRow;
+import gbas.tvk.tpol3.service.TPItems;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -119,9 +120,9 @@ public class TPolRowRepository {
      */
     @Transactional(transactionManager = "sapodTransactionManager")
     public boolean deleteRow(int id) {
-        for (ItemTable itemTable : ItemTable.values()) {
+        for (TPItems item : TPItems.values()) {
             jdbcTemplate.update(
-                    "delete from " + itemTable.name() + "  where id_t_pol = ?",
+                    "delete from " + item.getItem().getTableName() + "  where id_t_pol = ?",
                     ps -> ps.setInt(1, id)
             );
         }
@@ -303,10 +304,10 @@ public class TPolRowRepository {
         if (row.id == 0) return null;
 
         // copy items
-        for (ItemTable itemTable : ItemTable.values()) {
-            String table = itemTable.name();
+        for (TPItems item : TPItems.values()) {
+            String table = item.getItem().getTableName();
 
-            String sqlSelectCommand = "select " + String.join(", ", itemTable.getFields()) + " " +
+            String sqlSelectCommand = "select " + String.join(", ", item.getItem().getTableFields()) + " " +
                     "from " + table + " " +
                     "where id_t_pol = ?";
 
@@ -319,8 +320,8 @@ public class TPolRowRepository {
             if (sourceList == null || sourceList.isEmpty()) continue;
 
             String sqlInsertCommand = "insert into " + table + " " +
-                    "(id_t_pol, " + String.join(", ", itemTable.getFields()) + ") " +
-                    "values (?," + String.join(",", Collections.nCopies(itemTable.getFields().length, "?")) + ")";
+                    "(id_t_pol, " + String.join(", ", item.getItem().getTableFields()) + ") " +
+                    "values (?," + String.join(",", Collections.nCopies(item.getItem().getTableFields().length, "?")) + ")";
 
             List<Object[]> destinationList = sourceList.stream().peek(list -> list.add(0, row.id)).map(list -> list.toArray(new Object[0])).collect(Collectors.toList());
 
@@ -334,40 +335,4 @@ public class TPolRowRepository {
         return row;
     }
 
-    private enum ItemTable {
-        tvk_t_gr("t_tar", "id_algng", "id_etsng", "code_algng", "code_etsng"),
-        tvk_t_k("id_prv_k", "code_prv_k"),
-        tvk_t_kl("klass"),
-        tvk_t_kon("id_tip_kon", "code_tip_kon"),
-        tvk_t_oso("id_os_ot", "code_os_ot"),
-        tvk_t_oso_add("id_os_ot", "code_os_ot"),
-        tvk_t_rps("id_rod_ps", "code_rod_ps"),
-        tvk_t_sn("id_str_n", "code_str_n"),
-        tvk_t_so("id_str_o", "code_str_o"),
-        tvk_t_sr("id_str_r", "code_str_r"),
-        tvk_t_v("id_prv_k", "code_prv_k"),
-        tvk_t_vh("id_stan", "code_stan"),
-        tvk_t_vot("id_svo", "code_svo"),
-        tvk_t_vs("id_vid_s", "code_vid_s"),
-        tvk_t_vyh("id_stan", "code_stan"),
-        tvk_t_grpk("id_s_grpk_kon", "grpk"),
-        tvk_t_adm("id_adm", "code_adm"),
-        tvk_stan_n("id_stan", "code_stan"),
-        tvk_stan_o("id_stan", "code_stan"),
-        tvk_rail_o("id_pr", "code_pr"),
-        tvk_rail_n("id_pr", "code_pr"),
-        tvk_t_km("km", "km2"),
-        tvk_t_conttrain("kod"),
-        tvk_t_upak("id_rod_u", "code_rod_u");
-
-        private final String[] fields;
-
-        ItemTable(String... fields) {
-            this.fields = fields;
-        }
-
-        public String[] getFields() {
-            return fields;
-        }
-    }
 }
