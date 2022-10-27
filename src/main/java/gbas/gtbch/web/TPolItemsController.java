@@ -3,6 +3,7 @@ package gbas.gtbch.web;
 import gbas.gtbch.sapod.model.tpol.TpItem;
 import gbas.gtbch.sapod.model.tpol.TpItemFilter;
 import gbas.gtbch.sapod.service.TPolItemsService;
+import gbas.tvk.tpol3.service.CargoDiapItem;
 import gbas.tvk.tpol3.service.CargoItem;
 import gbas.tvk.tpol3.service.TPItem;
 import gbas.tvk.tpol3.service.TPItems;
@@ -68,7 +69,7 @@ public class TPolItemsController {
         List<TpItemFilter> items = new ArrayList<>();
         for (TPItems enumItems : TPItems.values()) {
             TPItem item = enumItems.getItem();
-            if (item instanceof CargoItem) {
+            if (item instanceof CargoItem || item instanceof CargoDiapItem) {
                 TpItemFilter filterGng = new TpItemFilter();
                 filterGng.setType(item.getName() + ":0");
                 filterGng.setName(item.getButtonName() + " ГНГ");

@@ -1,14 +1,13 @@
 package gbas.gtbch.sapod.model.tpol;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import gbas.tvk.tpol3.service.CargoItem;
 import gbas.tvk.tpol3.service.ColumnInfo;
 import gbas.tvk.tpol3.service.TPItem;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import static gbas.tvk.tpol3.service.TPItems.CargoItem;
 
 public class TpItem {
 
@@ -78,7 +77,7 @@ public class TpItem {
             this.nsiHeader = item.getNSIDialogTitle();
 
             this.nsiColumns = new ArrayList<>(Collections.singletonList(item.getNSIColumnInfo(0)));
-            if (item.getName().equals(CargoItem.getItem().getName())) {
+            if (item instanceof CargoItem) {
                 this.nsiColumns.add(item.getNSIColumnInfo(1));
             }
         }
