@@ -15,7 +15,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @DuplicateKeyExceptionHandler
@@ -188,10 +191,7 @@ public class TPolRowController {
         if (dataArray != null && tpItem != null) {
             TpItem tpolItem = new TpItem(tpItem, tpItemData.getSet());
             for (String[] d : dataArray) {
-                if (Arrays.asList("ClassItem", "Distance", "StationTargetItem", "StationSourceItem").contains(name)) {
-                    d[0] = d[1];
-                }
-                result |= tPolItemsService.deleteData(tpolItem, id, d[0]);
+                result |= tPolItemsService.deleteData(tpolItem, id, d);
                 logger.info("delete item data: rowId = {}, item = {}, set = {}, data = {}", id, tpItem.getName(), tpItemData.getSet(), d);
             }
         }

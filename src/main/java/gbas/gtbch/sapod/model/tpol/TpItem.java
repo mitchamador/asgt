@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static gbas.tvk.tpol3.service.TPItems.CargoItem;
+
 public class TpItem {
 
     /**
@@ -76,7 +78,7 @@ public class TpItem {
             this.nsiHeader = item.getNSIDialogTitle();
 
             this.nsiColumns = new ArrayList<>(Collections.singletonList(item.getNSIColumnInfo(0)));
-            if (item.getTag() == 8) {
+            if (item.getName().equals(CargoItem.getItem().getName())) {
                 this.nsiColumns.add(item.getNSIColumnInfo(1));
             }
         }

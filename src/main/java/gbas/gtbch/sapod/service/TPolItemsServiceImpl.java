@@ -64,7 +64,7 @@ public class TPolItemsServiceImpl implements TPolItemsService {
      */
     @Override
     @CacheClear({"tp"})
-    public Boolean deleteData(TpItem item, int id, String data) {
+    public Boolean deleteData(TpItem item, int id, String[] data) {
         return tPolItemsRepository.deleteData(item, id, data);
     }
 

@@ -45,5 +45,5 @@ public interface TPolItemsService {
      * @param data
      * @return
      */
-    Boolean deleteData(TpItem item, int id, String data);
+    Boolean deleteData(TpItem item, int id, String[] data);
 }

@@ -98,7 +98,7 @@ public class TPolItemsRepository {
      * @return
      */
     @Transactional(transactionManager = "sapodTransactionManager")
-    public Boolean deleteData(TpItem item, int id, String data) {
+    public Boolean deleteData(TpItem item, int id, String[] data) {
         return jdbcTemplate.update(item.getItem().getSqlDelSelected(id, data, item.getSet())) != 0;
     }
 }
