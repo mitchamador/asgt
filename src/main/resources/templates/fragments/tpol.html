@@ -1209,19 +1209,19 @@
                     <th:block th:switch="${item.getName()}">
                         <div th:case="ClassItem">
                             <label th:text="${item.getNsiHeader() + ':'}"></label>
-                            <input type="text" oninput="this.value=this.value.replace(/[^0-9]/g,'');" maxlength="1" id="inputData" class="form-control" style="width: 100%"/>
+                            <input autocomplete="off" type="text" oninput="this.value=this.value.replace(/[^0-9]/g,'');" maxlength="1" id="inputData" class="form-control" style="width: 100%"/>
                         </div>
                         <div th:case="Distance" th:style="'display: inline-flex; width: 100%'">
                             <h5><span class="text-nowrap" style="margin-right: 5px;">Расстояние с</span></h5>
-                            <input type="text" oninput="this.value=this.value.replace(/[^0-9]/g,'');" maxlength="4" id="distanceFrom" class="form-control" style="flex-grow: 1"/>
+                            <input autocomplete="off" type="text" oninput="this.value=this.value.replace(/[^0-9]/g,'');" maxlength="4" id="distanceFrom" class="form-control" style="flex-grow: 1"/>
                             <h5><span style="margin-right: 5px; margin-left: 5px">по</span></h5>
-                            <input type="text" oninput="this.value=this.value.replace(/[^0-9]/g,'');" maxlength="4" id="distanceTo" class="form-control" style="flex-grow: 1"/>
+                            <input autocomplete="off" type="text" oninput="this.value=this.value.replace(/[^0-9]/g,'');" maxlength="4" id="distanceTo" class="form-control" style="flex-grow: 1"/>
                         </div>
                         <div th:case="CargoDiap" th:style="'display: inline-flex; width: 100%'">
                             <h5><span id="cargoDiapLabel" class="text-nowrap" style="margin-right: 5px;"></span></h5>
-                            <input type="text" oninput="this.value=this.value.replace(/[^0-9]/g,'');" maxlength="4" id="cargoRangeFrom" class="form-control" style="flex-grow: 1"/>
+                            <input autocomplete="off" type="text" oninput="this.value=this.value.replace(/[^0-9]/g,'');" maxlength="4" id="cargoRangeFrom" class="form-control" style="flex-grow: 1"/>
                             <h5><span style="margin-right: 5px; margin-left: 5px">по</span></h5>
-                            <input type="text" oninput="this.value=this.value.replace(/[^0-9]/g,'');" maxlength="4" id="cargoRangeTo" class="form-control" style="flex-grow: 1"/>
+                            <input autocomplete="off" type="text" oninput="this.value=this.value.replace(/[^0-9]/g,'');" maxlength="4" id="cargoRangeTo" class="form-control" style="flex-grow: 1"/>
                         </div>
                         <div th:case="*">
                             <table id="nsiDataTable" class="table-condensed table-bordered" style="font-size: 0.9em">
