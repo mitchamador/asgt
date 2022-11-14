@@ -146,7 +146,8 @@ public class MainController {
         model.addObject("sources", sources);
 
         List<KeyValue> types = new ArrayList<>();
-        types.add(new KeyValue(null, "Все"));
+        // todo temporary remove until working indexes for GTMAIN.calculation_log
+        //types.add(new KeyValue(null, "Все"));
         for (CalculationLog.Type type : CalculationLog.Type.values()) {
             types.add(new KeyValue(type.name(), type.getName()));
         }
