@@ -51,21 +51,21 @@
                     "orderable": false,
                     "targets": 0
                 }],
-                language : {
+                language: {
                     "zeroRecords": " ",
                     "searchPlaceholder": "Поиск",
                     "search": "Поиск:",
                     paginate: {
-                        first:    '«',
+                        first: '«',
                         previous: '‹',
-                        next:     '›',
-                        last:     '»'
+                        next: '›',
+                        last: '»'
                     }
                 },
                 dom: 't<"row col-sm-1 margin-top-sm"f><p>',
                 style: 'single',
                 select: true,
-                createdRow: function(row, data, dataIndex){
+                createdRow: function (row, data, dataIndex) {
                     if (data.errorCode !== 0) {
                         $(row).css("color", "red");
                     }
@@ -74,15 +74,15 @@
 
             //addCounterToDataTable(table);
 
-            table.on( 'order.dt search.dt', function () {
-                table.rows({search:'applied', order:'applied'}).every( function ( rowIdx, tableLoop, rowLoop ) {
+            table.on('order.dt search.dt', function () {
+                table.rows({search: 'applied', order: 'applied'}).every(function (rowIdx, tableLoop, rowLoop) {
                     var data = this.data();
                     data.columnIndex = rowLoop + 1;
-                    this.data( data );
-                } );
-            } ).draw();
+                    this.data(data);
+                });
+            }).draw();
 
-            var loadCalculationLog = function(d) {
+            var loadCalculationLog = function (d) {
                 $.ajax({
                     url: contextRoot + "api/calclog/" + d.id,
                     method: 'get',
@@ -90,7 +90,7 @@
                         format: $("#formatXml").is(":checked")
                     },
                     headers: {
-                        "Accept" : "application/json"
+                        "Accept": "application/json"
                     },
                     success: function (result) {
 
@@ -109,12 +109,12 @@
 
             addDataTableRowListener(table,
                 {
-                    "select" : function (tr, t) {
+                    "select": function (tr, t) {
                         var d = t.row(tr).data();
                         console.log("Загрузка лога расчета id=" + d.id);
                         loadCalculationLog(d);
                     },
-                    "deselect" : function(tr, t) {
+                    "deselect": function (tr, t) {
                         if (t.rows({selected: true}).count() === 0) {
                             $("#logTabFolder").addClass("invisible");
                         }
@@ -173,13 +173,13 @@
                         table.clear();
                         table.rows.add(result).draw();
                     },
-                    complete: function() {
+                    complete: function () {
                         $(e.target).prop("disabled", false);
                     }
                 });
             });
 
-            var saveXml = function(e) {
+            var saveXml = function (e) {
                 var id = $(e.target).attr("id");
                 var data;
                 var sFileName;
@@ -195,7 +195,7 @@
                 }
 
                 // Convert the text to BLOB.
-                var textToBLOB = new Blob([data], { type: 'text/plain' });
+                var textToBLOB = new Blob([data], {type: 'text/plain'});
 
                 saveAs(textToBLOB, sFileName);
 
@@ -210,18 +210,37 @@
                 saveXml(e);
             });
 
+            // load xml format button state
             var formatXmlCheckState = localStorage.getItem('formatXmlCheck');
             if (formatXmlCheckState !== null && formatXmlCheckState === 'true') {
                 $("#formatXml").prop("checked", true);
             }
 
-            $("#formatXml").change(function() {
-                var d = table.row( { selected: true } ).data();
+            // save format button check
+            $("#formatXml").change(function () {
+                var d = table.row({selected: true}).data();
                 if (d !== undefined) {
                     loadCalculationLog(d);
                 }
                 localStorage.setItem('formatXmlCheck', $("#formatXml").is(":checked"))
             });
+
+
+            // load selected document type
+            var calcLogSelectedDocumentType = localStorage.getItem('calcLogDocumentType');
+            if (calcLogSelectedDocumentType !== null && calcLogSelectedDocumentType !== "") {
+                $("#typeDocument").val(calcLogSelectedDocumentType);
+            }
+
+            // save selected document type
+            $("#typeDocument").change(function() {
+                var calcLogSelectedDocumentType;
+                if ($("#typeDocument option:selected").val() !== "") {
+                    calcLogSelectedDocumentType = $("#typeDocument option:selected").val();
+                }
+                localStorage.setItem('calcLogDocumentType', calcLogSelectedDocumentType)
+            });
+
 
         }));
     </script>
