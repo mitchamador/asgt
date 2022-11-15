@@ -60,7 +60,10 @@ public class MQListener implements MessageListener {
     private final CalcHandler calcHandler;
 
     private void processMessage(final TextMessage message) throws Exception {
+
         log(String.format("message received: \"%s\", messageId: %s, correlationId: %s", getCroppedString(message.getText()), message.getJMSMessageID(), message.getJMSCorrelationID()));
+
+        long startTime = System.currentTimeMillis();
 
         CalculationLog calculationLog = new CalculationLog(CalculationLog.Source.MQ);
         if (message.getJMSCorrelationID() != null) {
@@ -75,19 +78,27 @@ public class MQListener implements MessageListener {
 
             String outboundQueueName = message.getJMSReplyTo() instanceof Queue ? ((Queue) message.getJMSReplyTo()).getQueueName() : jmsTemplate.getDefaultDestinationName();
 
-            jmsTemplate.send(outboundQueueName, session -> {
+            if (outboundQueueName != null) {
+                jmsTemplate.send(outboundQueueName, session -> {
 
-                TextMessage answer = session.createTextMessage();
-                answer.setJMSCorrelationID(message.getJMSCorrelationID());
-                answer.setText(response);
+                    TextMessage answer = session.createTextMessage();
+                    answer.setJMSCorrelationID(message.getJMSCorrelationID());
+                    answer.setText(response);
 
-                return answer;
-            });
+                    return answer;
+                });
 
-            if (message.getJMSReplyTo() instanceof Queue && outboundQueueName != null) {
-                log(String.format("send reply to %s: \"%s\" for correlationId: %s", outboundQueueName.lastIndexOf('/') != -1 ? outboundQueueName.substring(outboundQueueName.lastIndexOf('/') + 1) : outboundQueueName, getCroppedString(response), message.getJMSCorrelationID()));
-            } else {
-                log(String.format("send reply: \"%s\" for correlationId: %s", getCroppedString(response), message.getJMSCorrelationID()));
+                startTime = System.currentTimeMillis() - startTime;
+
+                String replyTo = "";
+
+                if (message.getJMSReplyTo() instanceof Queue) {
+                    replyTo = "to " + (outboundQueueName.lastIndexOf('/') != -1 ? outboundQueueName.substring(outboundQueueName.lastIndexOf('/') + 1) : outboundQueueName) + " ";
+                }
+
+                String elapsedString = ("in " + (startTime / 1000) + "." + ((startTime % 1000) / 10) + " s");
+
+                log(String.format("send reply %s%s: \"%s\" for correlationId: %s", replyTo, elapsedString, getCroppedString(response), message.getJMSCorrelationID()));
             }
         }
     }
