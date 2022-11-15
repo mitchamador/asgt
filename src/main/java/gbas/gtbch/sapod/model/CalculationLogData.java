@@ -27,24 +27,21 @@ public class CalculationLogData {
      * gzipped inbound xml object
      */
     @Column(name = "inbound_xml_gz")
-    @Lob
     private byte[] inboundXml;
 
     /**
      * gzipped outbound xml object
      */
     @Column(name = "outbound_xml_gz")
-    @Lob
     private byte[] outboundXml;
 
     /**
      * gzipped outbound text object
      */
     @Column(name = "outbound_text_gz")
-    @Lob
     private byte[] outboundText;
 
-    private CalculationLogData() {
+    public CalculationLogData() {
     }
 
     public CalculationLogData(CalculationLog calculationLog) {
