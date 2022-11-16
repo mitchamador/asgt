@@ -1,16 +1,16 @@
 package gbas.gtbch.web;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import gbas.gtbch.sapod.model.tpol.TpItem;
 import gbas.gtbch.sapod.model.tpol.TpItemFilter;
 import gbas.gtbch.sapod.service.TPolItemsService;
-import gbas.tvk.tpol3.service.CargoDiapItem;
-import gbas.tvk.tpol3.service.CargoItem;
-import gbas.tvk.tpol3.service.TPItem;
-import gbas.tvk.tpol3.service.TPItems;
+import gbas.tvk.tpol3.service.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,8 +20,11 @@ public class TPolItemsController {
 
     private final TPolItemsService tPolItemsService;
 
-    public TPolItemsController(TPolItemsService tPolItemsService) {
+    private final ObjectMapper mapper;
+
+    public TPolItemsController(TPolItemsService tPolItemsService, ObjectMapper mapper) {
         this.tPolItemsService = tPolItemsService;
+        this.mapper = mapper;
     }
 
     /**
@@ -65,7 +68,7 @@ public class TPolItemsController {
      * @return
      */
     @RequestMapping(value = "/filter", method = RequestMethod.GET)
-    public ResponseEntity<List<TpItemFilter>> getItemsFilter() {
+    public ResponseEntity<List<TpItemFilter>> getItemsFilter(@RequestParam(required = false) boolean nsi) {
         List<TpItemFilter> items = new ArrayList<>();
         for (TPItems enumItems : TPItems.values()) {
             TPItem item = enumItems.getItem();
@@ -73,10 +76,22 @@ public class TPolItemsController {
                 TpItemFilter filterGng = new TpItemFilter();
                 filterGng.setType(item.getName() + ":0");
                 filterGng.setName(item.getButtonName() + " ГНГ");
+                if (item instanceof CargoItem) {
+                    filterGng.setNsiColumns(getFilterColumns(item, 0, 4));
+                    if (nsi) {
+                        filterGng.setNsiData(_getFilterNsi(filterGng.getType()));
+                    }
+                }
 
                 TpItemFilter filterEtsng = new TpItemFilter();
                 filterEtsng.setType(item.getName() + ":1");
                 filterEtsng.setName(item.getButtonName() + " ЕТСНГ");
+                if (item instanceof CargoItem) {
+                    filterEtsng.setNsiColumns(getFilterColumns(item, 1, 1));
+                    if (nsi) {
+                        filterEtsng.setNsiData(_getFilterNsi(filterGng.getType()));
+                    }
+                }
 
                 items.add(filterGng);
                 items.add(filterEtsng);
@@ -84,11 +99,63 @@ public class TPolItemsController {
                 TpItemFilter filter = new TpItemFilter();
                 filter.setType(item.getName());
                 filter.setName(item.getButtonName());
+                filter.setNsiColumns(getFilterColumns(item, 0, 1));
+                if (nsi) {
+                    filter.setNsiData(_getFilterNsi(filter.getType()));
+                }
 
                 items.add(filter);
             }
         }
         return new ResponseEntity<>(items, HttpStatus.OK);
+    }
+
+    /**
+     * get NSI for {@link TpItemFilter}
+     *
+     * @param name - {@link TpItemFilter} name
+     * @return
+     */
+    @RequestMapping(value = "/filter/{name}/nsi", method = RequestMethod.GET)
+    public ResponseEntity getFilterNsi(HttpServletRequest request, @PathVariable String name) throws JsonProcessingException {
+        return GzippedResponseEntity.getGzippedResponseEntity(request, mapper.writeValueAsString(_getFilterNsi(name)));
+    }
+
+    private String[] getFilterColumns(TPItem item, int set, int secondColumnIndex) {
+        ColumnInfo[] columnInfos = item.getNSIColumnInfo(set);
+        List<String> nsiColumns = new ArrayList<>();
+        if (columnInfos != null) {
+            if (columnInfos.length > 0) {
+                nsiColumns.add(columnInfos[0].text);
+            }
+            if (columnInfos.length > secondColumnIndex) {
+                nsiColumns.add(columnInfos[secondColumnIndex].text);
+            }
+        }
+        return nsiColumns.isEmpty() ? null : nsiColumns.toArray(new String[0]);
+    }
+
+    private List<String[]> _getFilterNsi(String name) {
+        List<String[]> data = null;
+
+        String[] filterName = name.split(":");
+        int set = filterName.length > 1 ? Integer.parseInt(filterName[1]) : 0;
+
+        TPItem tpItem = TPItems.getTpItem(filterName[0]);
+        if (tpItem != null) {
+            List<String[]> tData = tPolItemsService.getNsi(new TpItem(tpItem, set));
+            int secondColumnIndex;
+            if (tpItem instanceof CargoItem && set == 0) {
+                secondColumnIndex = 5;
+            } else {
+                secondColumnIndex = 2;
+            }
+            data = new ArrayList<>();
+            for (String[] tStrings : tData) {
+                data.add(new String[] {tStrings[1], tStrings[secondColumnIndex]});
+            }
+        }
+        return data;
     }
 
 }

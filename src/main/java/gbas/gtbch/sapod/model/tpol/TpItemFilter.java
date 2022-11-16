@@ -28,7 +28,7 @@ public class TpItemFilter {
     /**
      * filter's ui dropdown NSI
      */
-    private String[] nsiData;
+    private List<String[]> nsiData;
 
     public String getType() {
         return type;
@@ -54,11 +54,11 @@ public class TpItemFilter {
         this.nsiColumns = nsiColumns;
     }
 
-    public String[] getNsiData() {
+    public List<String[]> getNsiData() {
         return nsiData;
     }
 
-    public void setNsiData(String[] nsiData) {
+    public void setNsiData(List<String[]> nsiData) {
         this.nsiData = nsiData;
     }
 
