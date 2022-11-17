@@ -1,9 +1,9 @@
 package gbas.gtbch.web;
 
+import gbas.gtbch.jobs.ServerJob;
+import gbas.gtbch.jobs.schedule.PensiDownloaderJob;
+import gbas.gtbch.jobs.schedule.PensiSyncronizerJob;
 import gbas.gtbch.model.ServerResponse;
-import gbas.gtbch.schedule.PensiDownloaderJob;
-import gbas.gtbch.schedule.PensiSyncronizerJob;
-import gbas.gtbch.util.ServerJob;
 import gbas.gtbch.web.request.KeyValue;
 import gbas.gtbch.web.request.PensiUpdate;
 import gbas.tvk.interaction.pensi.PensiManager;

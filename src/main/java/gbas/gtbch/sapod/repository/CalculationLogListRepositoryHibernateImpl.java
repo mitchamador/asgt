@@ -9,6 +9,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.time.LocalDate;
 import java.util.*;
 
 @Repository
@@ -16,8 +17,11 @@ public class CalculationLogListRepositoryHibernateImpl implements CalculationLog
 
     private final EntityManager em;
 
-    public CalculationLogListRepositoryHibernateImpl(@Qualifier("sapodEntityManager") EntityManager em) {
+    private final CalculationLogListRepositoryDelete calculationLogListRepositoryDelete;
+
+    public CalculationLogListRepositoryHibernateImpl(@Qualifier("sapodEntityManager") EntityManager em, CalculationLogListRepositoryDelete calculationLogListRepositoryDelete) {
         this.em = em;
+        this.calculationLogListRepositoryDelete = calculationLogListRepositoryDelete;
     }
 
     @Override
@@ -68,4 +72,10 @@ public class CalculationLogListRepositoryHibernateImpl implements CalculationLog
 
         return em.createQuery(cq).getResultList();
     }
+
+    @Override
+    public int deleteRows(LocalDate keepDateNakl, LocalDate keepDateOther, int maxRows) {
+        return calculationLogListRepositoryDelete.deleteRows(keepDateNakl, keepDateOther, maxRows);
+    }
+
 }

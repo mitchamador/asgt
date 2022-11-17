@@ -1,5 +1,6 @@
-package gbas.gtbch.util;
+package gbas.gtbch.jobs.impl;
 
+import gbas.gtbch.jobs.ServerJob;
 import org.springframework.stereotype.Component;
 
 @Component

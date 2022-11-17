@@ -1,7 +1,7 @@
 package gbas.gtbch.web;
 
+import gbas.gtbch.jobs.impl.Syncronizer;
 import gbas.gtbch.model.FileUploadResponse;
-import gbas.gtbch.util.Syncronizer;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,7 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
-import static gbas.gtbch.util.Syncronizer.SYNCRONIZER_UPLOAD_PARAM;
+import static gbas.gtbch.jobs.impl.Syncronizer.SYNCRONIZER_UPLOAD_PARAM;
 
 @Controller
 public class FileUploadController {

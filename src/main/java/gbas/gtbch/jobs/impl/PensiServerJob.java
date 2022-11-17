@@ -1,10 +1,11 @@
-package gbas.gtbch.util;
+package gbas.gtbch.jobs.impl;
 
+import gbas.gtbch.jobs.ServerJob;
 import gbas.gtbch.mailer.MailService;
+import gbas.gtbch.util.SystemInfo;
+import gbas.gtbch.util.UtilDate8;
 import gbas.tvk.interaction.pensi.PensiManager;
 import gbas.tvk.interaction.pensi.jobs.PensiJobStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -14,8 +15,6 @@ import static gbas.gtbch.mailer.MailerConstants.MAILER_CONFIG_EVENT_ERRORS;
 
 @Component
 public class PensiServerJob extends ServerJob {
-
-    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     protected PensiManager pensiManager;
 

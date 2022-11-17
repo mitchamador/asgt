@@ -1,7 +1,9 @@
-package gbas.gtbch.util;
+package gbas.gtbch.jobs.impl;
 
+import gbas.gtbch.jobs.ServerJob;
 import gbas.gtbch.sapod.model.TpImportDate;
 import gbas.gtbch.sapod.service.TpImportDateService;
+import gbas.gtbch.util.UtilDate8;
 import gbas.gtbch.util.cache.AppCacheManager;
 import gbas.tvk.nsi.cash.Func;
 import gbas.tvk.util.synchronizator.Syncronizator;
@@ -9,8 +11,6 @@ import gbas.tvk.util.synchronizator.entity.ExcludeTables;
 import gbas.tvk.util.synchronizator.entity.InsertMode;
 import gbas.tvk.util.synchronizator.entity.SyncFileData;
 import gbas.tvk.util.synchronizator.entity.SyncGroupsSet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
@@ -28,8 +28,6 @@ public class Syncronizer extends ServerJob {
 
     public static final String SYNCRONIZER_UPLOAD_PARAM = "syncronizer_data";
     private static final int SEMAPHORE_MAX = 64;
-
-    private Logger logger = LoggerFactory.getLogger(Syncronizer.class);
 
     private byte[] bytes;
 

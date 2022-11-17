@@ -1,14 +1,14 @@
 package gbas.gtbch.web;
 
+import gbas.gtbch.jobs.ServerJob;
+import gbas.gtbch.jobs.impl.MQJob;
+import gbas.gtbch.jobs.impl.PensiMainJob;
+import gbas.gtbch.jobs.impl.Syncronizer;
+import gbas.gtbch.jobs.schedule.NbrbCurrencyDownloaderJob;
+import gbas.gtbch.jobs.schedule.PensiDownloaderJob;
+import gbas.gtbch.jobs.schedule.PensiMailerJob;
+import gbas.gtbch.jobs.schedule.PensiSyncronizerJob;
 import gbas.gtbch.model.ServerJobResponse;
-import gbas.gtbch.schedule.NbrbCurrencyDownloaderJob;
-import gbas.gtbch.schedule.PensiDownloaderJob;
-import gbas.gtbch.schedule.PensiMailerJob;
-import gbas.gtbch.schedule.PensiSyncronizerJob;
-import gbas.gtbch.util.MQJob;
-import gbas.gtbch.util.PensiMainJob;
-import gbas.gtbch.util.ServerJob;
-import gbas.gtbch.util.Syncronizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

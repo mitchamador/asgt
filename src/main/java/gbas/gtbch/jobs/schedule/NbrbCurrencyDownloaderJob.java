@@ -1,21 +1,19 @@
-package gbas.gtbch.schedule;
+package gbas.gtbch.jobs.schedule;
 
+import gbas.gtbch.jobs.ServerJob;
 import gbas.gtbch.mailer.MailService;
 import gbas.gtbch.sapod.model.Currency;
 import gbas.gtbch.sapod.model.ExchangeRate;
 import gbas.gtbch.sapod.service.CurrencyService;
 import gbas.gtbch.sapod.service.ExchangeRateService;
-import gbas.gtbch.util.ServerJob;
 import gbas.gtbch.util.SystemInfo;
 import gbas.gtbch.util.UtilDate8;
 import gbas.tvk.interaction.nbrb.CurrencyDownloader;
 import gbas.tvk.nsi.cash.Func;
 import gbas.tvk.nsi.currency.service.CurrencyRate;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.util.Date;
 
 import static gbas.gtbch.mailer.MailerConstants.MAILER_CONFIG_EVENT_CURRENCY_RATES;
@@ -69,9 +67,6 @@ public class NbrbCurrencyDownloaderJob extends ServerJob {
         };
     }
 
-    @Value("${app.jobs.nbrb-downloader.cron:-}")
-    protected String cronString;
-
     @Override
     public String getJobName() {
         return "NBRB currency rate downloader";
@@ -79,7 +74,7 @@ public class NbrbCurrencyDownloaderJob extends ServerJob {
 
     @Scheduled(cron = "${app.jobs.nbrb-downloader.cron:-}")
     public void run() {
-        run(() -> {
+        runTask(() -> {
             if (cd.download(false)) {
                 if (!Func.isEmpty(cd.getRateString()) && mailService.getMailProperties().isEventEnabled(MAILER_CONFIG_EVENT_CURRENCY_RATES)) {
                     //TGCore.INSTANCE.asyncSendMessage(new SendMessage("НБРБ демон", cd.getRateString()));
@@ -97,13 +92,6 @@ public class NbrbCurrencyDownloaderJob extends ServerJob {
                 }
             }
         });
-    }
-
-    @PostConstruct
-    public void runPostConstruct() {
-        if (getJobEnabled(cronString)) {
-            //run();
-        }
     }
 
 }

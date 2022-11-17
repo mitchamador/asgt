@@ -1,9 +1,9 @@
 package gbas.gtbch.util.calc;
 
+import gbas.gtbch.jobs.impl.Syncronizer;
 import gbas.gtbch.sapod.model.CalculationLog;
 import gbas.gtbch.sapod.service.CalculationLogService;
 import gbas.gtbch.util.ErrorXml;
-import gbas.gtbch.util.Syncronizer;
 import gbas.gtbch.util.calc.handler.Handler;
 import gbas.gtbch.util.calc.handler.ObjectHandler;
 import gbas.tvk.nsi.cash.Func;

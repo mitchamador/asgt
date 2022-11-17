@@ -1,15 +1,13 @@
-package gbas.gtbch.util;
+package gbas.gtbch.jobs.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import gbas.gtbch.jobs.ServerJob;
+import gbas.gtbch.util.UtilDate8;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
 @Component
 public class MQJob extends ServerJob {
-
-    private final static Logger logger = LoggerFactory.getLogger(MQJob.class.getName());
 
     @Override
     public String getJobName() {
@@ -23,6 +21,5 @@ public class MQJob extends ServerJob {
 
     @Override
     public void run() {
-
     }
 }

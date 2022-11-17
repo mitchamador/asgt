@@ -30,7 +30,7 @@ spring:
 logging:
   level:
     root: INFO
-    by.mitchamador: INFO
+    gbas.gtbch: INFO
     org.springframework.web: INFO
     org.springframework.security: INFO
     org.hibernate.engine.jdbc.spi.SqlExceptionHelper: ERROR
@@ -54,6 +54,13 @@ app:
       cron: "0 15 2 * * *"
     pensi-updater:
       cron: "0 55 0 * * *"
+    calclog-remover:
+      cron: "0 0 3 * * *"
+      batch-size: "2500"
+      duration: "15"
+      keep-days:
+        nakl: "14"
+        other: "60"
     syncronizer:
       #use full insert merge
       fullmerge: false

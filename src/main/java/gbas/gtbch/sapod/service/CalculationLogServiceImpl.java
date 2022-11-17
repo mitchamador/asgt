@@ -7,6 +7,7 @@ import gbas.gtbch.sapod.repository.CalculationLogRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -55,5 +56,10 @@ public class CalculationLogServiceImpl implements CalculationLogService {
     @Override
     public List<CalculationLog> getList(Map<String, String> params, Date dateBegin, Date dateEnd) {
         return calculationLogListRepository.getList(params, dateBegin, dateEnd);
+    }
+
+    @Override
+    public int deleteRows(LocalDate keepDateNakl, LocalDate keepDateOther, int batchSize) {
+        return calculationLogListRepository.deleteRows(keepDateNakl, keepDateOther, batchSize);
     }
 }

@@ -1,9 +1,16 @@
-package gbas.gtbch.util;
+package gbas.gtbch.jobs;
 
 import gbas.gtbch.model.ServerJobResponse;
+import gbas.gtbch.util.ServerLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.context.event.ApplicationStartedEvent;
+import org.springframework.context.EmbeddedValueResolverAware;
+import org.springframework.context.event.EventListener;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.util.StringValueResolver;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import java.util.concurrent.CompletableFuture;
@@ -15,10 +22,46 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * Класс, описывающий асинхронную задачу на стороне сервера
  */
-public abstract class ServerJob {
+public abstract class ServerJob implements EmbeddedValueResolverAware {
 
-    public interface Runnable {
-        void run() throws Exception;
+    private StringValueResolver embeddedValueResolver;
+
+    @Override
+    public void setEmbeddedValueResolver(StringValueResolver resolver) {
+        this.embeddedValueResolver = resolver;
+    }
+
+    @Async
+    @EventListener(ApplicationStartedEvent.class)
+    public void runAtStartup() {
+        RunAtStartup runAtStartupAnnotation = AnnotationUtils.findAnnotation(this.getClass(), RunAtStartup.class);
+        if (runAtStartupAnnotation != null && (runAtStartupAnnotation.force() || getJobEnabled())) {
+            run();
+        }
+    }
+
+    /**
+     * check, if job is scheduled
+     * @return
+     */
+    protected boolean getJobEnabled() {
+        return !"-".equals(getCronString());
+    }
+
+    /**
+     * get cron screen for {@link Scheduled} annotation
+     * @return
+     */
+    protected String getCronString() {
+        try {
+            Scheduled annotation = AnnotationUtils.findAnnotation(this.getClass().getMethod("run"), Scheduled.class);
+            if (annotation != null) {
+                return embeddedValueResolver.resolveStringValue(annotation.cron());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "-";
     }
 
     protected Logger logger = LoggerFactory.getLogger(getClass());
@@ -141,11 +184,18 @@ public abstract class ServerJob {
     @Async
     public abstract void run();
 
-    protected void run(Runnable task) {
+    /**
+     * run {@link SimpleTask}
+     * @param simpleTask
+     */
+    protected void runTask(final SimpleTask simpleTask) {
         if (setRunning(true)) {
             try {
                 logger.info(getJobName() + " task started", false);
-                task.run();
+
+                // run task
+                simpleTask.run();
+
             } catch (Error | Exception e) {
                 log(e.getMessage());
                 //e.printStackTrace();
@@ -157,11 +207,44 @@ public abstract class ServerJob {
     }
 
     /**
-     * @param cronString
-     * @return
+     * run {@link TimeLimitedTask}
+     * @param timeLimitedTask
+     * @param duration
      */
-    protected boolean getJobEnabled(String cronString) {
-        return !"-".equals(cronString);
+    protected void runTask(TimeLimitedTask timeLimitedTask, long duration) {
+        if (setRunning(true)) {
+            try {
+                logger.info(getJobName() + " task started", false);
+
+                // prepare task
+                timeLimitedTask.prepare();
+
+                long startTime = System.currentTimeMillis();
+
+                // run task's step
+                int rows = 0;
+                int stepResult = -1;
+                while (stepResult != 0 && (System.currentTimeMillis() - startTime) < duration) {
+                    try {
+                        stepResult = timeLimitedTask.step();
+                    } catch (Exception e) {
+                        logger.error(getJobName() + " task step error", e);
+                        stepResult = 0;
+                    }
+                    rows += stepResult;
+                }
+
+                // finish task
+                timeLimitedTask.finish(rows);
+
+            } catch (Error | Exception e) {
+                log(e.getMessage());
+                //e.printStackTrace();
+            } finally {
+                logger.info(getJobName() + " task finished", false);
+                setRunning(false);
+            }
+        }
     }
 
     /**
@@ -178,25 +261,6 @@ public abstract class ServerJob {
         response.setJobStep(getJobStep());
         response.setTimeout(timeout);
         return response;
-    }
-
-    class TimedDeferredResult<T> {
-        long time;
-
-        long getTime() {
-            return time;
-        }
-
-        DeferredResult<T> getDeferredResult() {
-            return deferredResult;
-        }
-
-        DeferredResult<T> deferredResult;
-
-        TimedDeferredResult(long time, DeferredResult<T> deferredResult) {
-            this.time = time;
-            this.deferredResult = deferredResult;
-        }
     }
 
     private ConcurrentLinkedQueue<TimedDeferredResult<ServerJobResponse>> deferredResultQueue = new ConcurrentLinkedQueue<>();

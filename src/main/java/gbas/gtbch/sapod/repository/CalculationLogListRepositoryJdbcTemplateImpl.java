@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
+import java.time.LocalDate;
 import java.util.*;
 
 /**
@@ -21,9 +22,12 @@ public class CalculationLogListRepositoryJdbcTemplateImpl implements Calculation
 
     private final JdbcTemplate jdbcTemplate;
 
+    private final CalculationLogListRepositoryDelete calculationLogListRepositoryDelete;
+
     @Autowired
-    public CalculationLogListRepositoryJdbcTemplateImpl(@Qualifier("sapodDataSource") DataSource dataSource) {
+    public CalculationLogListRepositoryJdbcTemplateImpl(@Qualifier("sapodDataSource") DataSource dataSource, CalculationLogListRepositoryDelete calculationLogListRepositoryDelete) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
+        this.calculationLogListRepositoryDelete = calculationLogListRepositoryDelete;
     }
 
     private String addToSql(String sql, String command) {
@@ -96,6 +100,11 @@ public class CalculationLogListRepositoryJdbcTemplateImpl implements Calculation
 
             return calculationLog;
         });
+    }
+
+    @Override
+    public int deleteRows(LocalDate keepDateNakl, LocalDate keepDateOther, int batchSize) {
+        return calculationLogListRepositoryDelete.deleteRows(keepDateNakl, keepDateOther, batchSize);
     }
 
 }
