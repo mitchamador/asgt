@@ -1,0 +1,6 @@
+# no security profile configuration
+
+app:
+  api:
+    security: "none"
+

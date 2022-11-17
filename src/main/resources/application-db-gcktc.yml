@@ -1,0 +1,15 @@
+# embedded configuration for database connection to gc ktc production database
+
+app:
+  sapod:
+    datasource:
+      url: jdbc:db2://10.4.253.161:50000/GTDB:currentSchema=GTMAIN;
+      username: u352gtdb
+      password: 165#z15fa3&
+      driverClassName: com.ibm.db2.jcc.DB2Driver
+  pensi:
+    datasource:
+      url: jdbc:db2://10.4.253.161:50000/GTDB:currentSchema=GTPENSI;
+      username: u352gtdb
+      password: 165#z15fa3&
+      driverClassName: com.ibm.db2.jcc.DB2Driver

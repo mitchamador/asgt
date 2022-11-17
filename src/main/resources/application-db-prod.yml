@@ -1,0 +1,15 @@
+# embedded configuration for database connection to production database (use VERY carefully)
+
+app:
+  sapod:
+    datasource:
+      url: jdbc:db2://10.200.2.143:50000/GTDB:currentSchema=GTMAIN;
+      username: gtdbmain
+      password: Aa123465
+      driverClassName: com.ibm.db2.jcc.DB2Driver
+  pensi:
+    datasource:
+      url: jdbc:db2://10.200.2.143:50000/GTDB:currentSchema=GTPENSI;
+      username: gtdbmain
+      password: Aa123465
+      driverClassName: com.ibm.db2.jcc.DB2Driver
