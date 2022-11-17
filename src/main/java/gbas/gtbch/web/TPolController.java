@@ -4,9 +4,9 @@ import gbas.gtbch.sapod.model.CodeName;
 import gbas.gtbch.sapod.model.tpol.*;
 import gbas.gtbch.sapod.service.TPolRowService;
 import gbas.gtbch.sapod.service.TPolService;
+import gbas.gtbch.util.UtilDate8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,30 +32,49 @@ public class TPolController {
 
 
     /**
-     * get {@link TpDocument} list
-     * @param dateBegin start period date (dd.MM.yyyy)
-     * @param dateEnd end period date (dd.MM.yyyy)
+     * get {@link TpDocument} list.
+     * <pre>
+     * Used params:
+     *   date_begin - start period date (dd.MM.yyyy)
+     *   date_end - end period date (dd.MM.yyyy)
+     * </pre>
+     * Other params used as filter map
+     * @param filterMap parameters map
      */
     @RequestMapping(value = "/documents", method = RequestMethod.GET)
-    public ResponseEntity<List<TpDocument>> getDocuments(
-            @RequestParam(value = "date_begin", required = false) @DateTimeFormat(pattern = "dd.MM.yyyy") Date dateBegin,
-            @RequestParam(value = "date_end", required = false) @DateTimeFormat(pattern = "dd.MM.yyyy") Date dateEnd,
-            @RequestBody(required = false) Map<String, String> filterMap) {
+    public ResponseEntity<List<TpDocument>> getDocuments(@RequestParam(required = false) Map<String, String> filterMap) {
+
+        Date dateBegin = null;
+        Date dateEnd = null;
+        if (filterMap != null) {
+            dateBegin = UtilDate8.getDate(filterMap.remove("date_begin"));
+            dateEnd = UtilDate8.getDate(filterMap.remove("date_end"));
+        }
+
         return new ResponseEntity<>(tpolService.getDocuments(null, dateBegin, dateEnd, filterMap), HttpStatus.OK);
     }
 
     /**
-     * get {@link TpDocument} list
+     * get {@link TpDocument} list.
+     * <pre>
+     * Used params:
+     *   date_begin - start period date (dd.MM.yyyy)
+     *   date_end - end period date (dd.MM.yyyy)
+     * </pre>
+     * Other params used as filter map
      * @param typeCode tvk_tarif.type_code ('base_tarif', 'down_tarif', 'polnom', 'russia_tarif', 'iskl_tarif', 'tr1_bch')
-     * @param dateBegin start period date (dd.MM.yyyy)
-     * @param dateEnd end period date (dd.MM.yyyy)
+     * @param filterMap parameters map
      */
     @RequestMapping(value = "/documents/{typeCode}", method = RequestMethod.GET)
-    public ResponseEntity<List<TpDocument>> getDocumentsType(
-            @PathVariable String typeCode,
-            @RequestParam(value = "date_begin", required = false) @DateTimeFormat(pattern = "dd.MM.yyyy") Date dateBegin,
-            @RequestParam(value = "date_end", required = false) @DateTimeFormat(pattern = "dd.MM.yyyy") Date dateEnd,
-            @RequestBody(required = false) Map<String, String> filterMap) {
+    public ResponseEntity<List<TpDocument>> getDocumentsType(@PathVariable String typeCode, @RequestParam(required = false) Map<String, String> filterMap) {
+
+        Date dateBegin = null;
+        Date dateEnd = null;
+        if (filterMap != null) {
+            dateBegin = UtilDate8.getDate(filterMap.remove("date_begin"));
+            dateEnd = UtilDate8.getDate(filterMap.remove("date_end"));
+        }
+
         return new ResponseEntity<>(tpolService.getDocuments(typeCode, dateBegin, dateEnd, filterMap), HttpStatus.OK);
     }
 

@@ -41,7 +41,7 @@ public class TPolRowController {
      * @param id tvk_t_pol.id
      */
     @RequestMapping(value = "/{id:[\\d]+}", method = RequestMethod.GET)
-    public ResponseEntity<TpRow> getRow(@PathVariable int id, @RequestBody(required = false) Map<String, String> filterMap) {
+    public ResponseEntity<TpRow> getRow(@PathVariable int id, @RequestParam(required = false) Map<String, String> filterMap) {
         return new ResponseEntity<>(tpolRowService.getRow(id, filterMap), HttpStatus.OK);
     }
 

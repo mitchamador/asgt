@@ -57,7 +57,7 @@ public class NsiTpolController {
      * @return
      */
     @GetMapping(value = "document/{id:[\\d]+}/rows")
-    public ModelAndView getRows(@PathVariable int id, @RequestBody(required = false) Map<String, String> filterMap) {
+    public ModelAndView getRows(@PathVariable int id, @RequestParam(required = false) Map<String, String> filterMap) {
         ModelAndView model = new ModelAndView("fragments/tpol :: rows");
 
         model.addObject("tpolRows", tPolRowService.getRows(id, filterMap));
