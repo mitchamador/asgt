@@ -81,7 +81,7 @@ public class SystemInfo {
             buildInfo += "local build";
         } else {
             buildInfo += "git commit: " + (gitCommitProperties.getAbbrev() + " от " + gitCommitProperties.getTime()) + "; ";
-            buildInfo += "версия: " + gitCommitProperties.getBuildVersion() + " от " + gitCommitProperties.getBuildTime();
+            buildInfo += "время сборки: " + gitCommitProperties.getBuildTime();
         }
         info.add(new KeyValue("Сборка", buildInfo));
 
