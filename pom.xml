@@ -433,11 +433,10 @@
                     </execution>
                 </executions>
             </plugin>
-<!--
             <plugin>
                 <groupId>pl.project13.maven</groupId>
                 <artifactId>git-commit-id-plugin</artifactId>
-                <version>4.0.2</version>
+                <version>4.0.5</version>
                 <executions>
                     <execution>
                         <id>get-the-git-infos</id>
@@ -447,14 +446,17 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <dateFormat>dd.MM.yyyy HH:mm</dateFormat>
                     <failOnNoGitDirectory>false</failOnNoGitDirectory>
                     <includeOnlyProperties>
                         <includeOnlyProperty>git.commit.id.abbrev</includeOnlyProperty>
                         <includeOnlyProperty>git.commit.time</includeOnlyProperty>
+                        <includeOnlyProperty>git.build.time</includeOnlyProperty>
+                        <includeOnlyProperty>git.build.version</includeOnlyProperty>
                     </includeOnlyProperties>
+                    <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
                 </configuration>
             </plugin>
--->
         </plugins>
         <finalName>${final.name}</finalName>
     </build>

@@ -2,15 +2,14 @@ package gbas.gtbch.util;
 
 import com.ibm.mq.jms.MQConnectionFactory;
 import com.ibm.msg.client.wmq.WMQConstants;
+import gbas.gtbch.config.GitCommitProperties;
 import gbas.gtbch.mq.MQProperties;
 import gbas.gtbch.web.request.KeyValue;
 import gbas.tvk.desktop.Version;
 import gbas.tvk.service.db.DbHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.info.BuildProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.jms.connection.CachingConnectionFactory;
 import org.springframework.stereotype.Component;
@@ -23,7 +22,6 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Component
@@ -52,7 +50,7 @@ public class SystemInfo {
             @Qualifier("sapodDataSource") DataSource sapodDataSource,
             @Qualifier("pensiDataSource") DataSource pensiDataSource,
             MQProperties mqProperties,
-            @Autowired(required = false) BuildProperties buildProperties) {
+            GitCommitProperties gitCommitProperties) {
         List<KeyValue> info = new ArrayList<>();
 
         info.add(
@@ -78,8 +76,14 @@ public class SystemInfo {
 
         String[] version = new Version().getVersion();
 
-        info.add(new KeyValue("Сборка", (buildProperties == null ? "local" : ("версия: " + buildProperties.getVersion() + "; время сборки: " + UtilDate8.getStringDateTime(new Date(buildProperties.getTime().toEpochMilli()))))
-                + "; core: " + version[0] + " от " + version[1]));
+        String buildInfo = "core: " + version[0] + " от " + version[1] + "; ";
+        if ("-".equals(gitCommitProperties.getAbbrev())) {
+            buildInfo += "local build";
+        } else {
+            buildInfo += "git commit: " + (gitCommitProperties.getAbbrev() + " от " + gitCommitProperties.getTime()) + "; ";
+            buildInfo += "версия: " + gitCommitProperties.getBuildVersion() + " от " + gitCommitProperties.getBuildTime();
+        }
+        info.add(new KeyValue("Сборка", buildInfo));
 
         return info;
     }
