@@ -10,10 +10,9 @@ public interface TPolRowService {
     /**
      *
      * @param idRow
-     * @param filterMap
      * @return
      */
-    TpRow getRow(int idRow, Map<String, String> filterMap);
+    TpRow getRow(int idRow);
 
     /**
      *

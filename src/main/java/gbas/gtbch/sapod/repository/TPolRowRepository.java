@@ -105,15 +105,6 @@ public class TPolRowRepository {
     }
 
     /**
-     * @param idRow
-     * @return
-     */
-    public TpRow getRow(int idRow, Map<String, String> filterMap) {
-        List<TpRow> rows = getRows(0, idRow, filterMap);
-        return rows != null && !rows.isEmpty() ? rows.get(0) : null;
-    }
-
-    /**
      * delete {@link TpRow}
      *
      * @param id

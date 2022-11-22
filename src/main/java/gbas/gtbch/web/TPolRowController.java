@@ -18,7 +18,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @DuplicateKeyExceptionHandler
@@ -41,8 +40,8 @@ public class TPolRowController {
      * @param id tvk_t_pol.id
      */
     @RequestMapping(value = "/{id:[\\d]+}", method = RequestMethod.GET)
-    public ResponseEntity<TpRow> getRow(@PathVariable int id, @RequestParam(required = false) Map<String, String> filterMap) {
-        return new ResponseEntity<>(tpolRowService.getRow(id, filterMap), HttpStatus.OK);
+    public ResponseEntity<TpRow> getRow(@PathVariable int id) {
+        return new ResponseEntity<>(tpolRowService.getRow(id), HttpStatus.OK);
     }
 
     /**

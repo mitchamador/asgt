@@ -25,8 +25,8 @@ public class TPolRowServiceImpl implements TPolRowService {
      * @return
      */
     @Override
-    public TpRow getRow(int idRow, Map<String, String> filterMap) {
-        return tPolRowRepository.getRow(idRow, filterMap);
+    public TpRow getRow(int idRow) {
+        return tPolRowRepository.getRow(idRow);
     }
 
     /**
