@@ -137,7 +137,7 @@ public class TPolController {
      * @param id - tvk_tarif.idTarif
      */
     @RequestMapping(value = "/document/{id:[\\d]+}/rows", method = RequestMethod.GET)
-    public ResponseEntity<List<TpRow>> getRows(@PathVariable int id, @RequestBody(required = false) Map<String, String> filterMap) {
+    public ResponseEntity<List<TpRow>> getRows(@PathVariable int id, @RequestParam(required = false) Map<String, String> filterMap) {
         return new ResponseEntity<>(tpolRowService.getRows(id, filterMap), HttpStatus.OK);
     }
 
