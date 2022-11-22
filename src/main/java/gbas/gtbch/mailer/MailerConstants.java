@@ -43,5 +43,5 @@ public class MailerConstants {
     /**
      * default subject
      */
-    public final static String MAILER_DEFAULT_SUBJECT = "AS GT";
+    public final static String MAILER_DEFAULT_SUBJECT = "AS GT [${gt.server.ip}]";
 }
