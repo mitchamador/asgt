@@ -10,6 +10,7 @@ import gbas.tvk.interaction.pensi.PensiManager;
 import gbas.tvk.interaction.pensi.PensiQueue;
 import gbas.tvk.interaction.pensi.description.PensiSpr;
 import gbas.tvk.interaction.pensi.description.PensiSprDescription;
+import gbas.tvk.interaction.pensi.description.PensiTable;
 import gbas.tvk.interaction.pensi.description.PensiTableDescription;
 import gbas.tvk.interaction.pensi.jobs.PensiMailer;
 import org.slf4j.Logger;
@@ -21,9 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 @RestController
 public class PensiController {
@@ -169,5 +168,70 @@ public class PensiController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
+    static class TableStat {
+        private String name;
+        private String updateDateString;
+        private int rows;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getUpdateDateString() {
+            return updateDateString;
+        }
+
+        public void setUpdateDateString(String updateDateString) {
+            this.updateDateString = updateDateString;
+        }
+
+        public int getRows() {
+            return rows;
+        }
+
+        public void setRows(int rows) {
+            this.rows = rows;
+        }
+
+        public TableStat(String name) {
+            this.name = name;
+        }
+    }
+    /**
+     * чтение конфигурации справочников и таблиц
+     * @return
+     */
+    @RequestMapping(value = "/api/pensi/tablesstat", method = RequestMethod.GET)
+    public ResponseEntity<List<TableStat>> pensiTablesStat() {
+
+        Map<String, TableStat> tableStatMap = new HashMap<>();
+
+        try {
+            List<PensiSpr> pensiSprList = pensiManager.getPensiSprList();
+            if (pensiSprList != null) {
+                for (PensiSpr pensiSpr : pensiSprList) {
+                    for (PensiTable pensiTable : pensiSpr.getTables()) {
+                        TableStat t = new TableStat(pensiTable.getName());
+                        t.setUpdateDateString(pensiTable.getUpdateString());
+                        t.setRows(pensiTable.getTableRowCount());
+                        if (t.getRows() != -1) {
+                            tableStatMap.put(t.getName(), t);
+                        }
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        List<TableStat> tableStatList = new ArrayList<>(tableStatMap.values());
+        tableStatList.sort(Comparator.comparing(TableStat::getName));
+
+        return new ResponseEntity<>(tableStatList, HttpStatus.OK);
+    }
 
 }

@@ -62,7 +62,7 @@
                         contentType: 'application/json'
                     });
 
-                    $('.nav-tabs a[href="#log"]').tab('show')
+                    $('.nav-tabs a[href="#logpane"]').tab('show')
                 }
                 $(button).prop("disabled", false);
             }
@@ -141,7 +141,6 @@
                 disabled: true,
             });
 
-            // запрет конте
             // запрет контекстного меню для строк таблицы, далее для отдельных столбцов контекстное меню переопределяется
             $("#sprTable tbody tr").contextMenu({
                 disabled: true,
@@ -189,9 +188,18 @@
 
             });
 
+            // константы (gbas.tvk.interaction.pensi.PensiCommon)
+
+            // маска недели
+            var PENSI_WEEK_MASK = 0x80000000;
+            // обновление по e-mail / синхронизация после загрузки
+            var PENSI_UPDATE_TABLES_EMAIL_SYNC_TABLES_AFTERDOWNLOAD = 1 << 0;
+            // обновление ежедневное / синхронизация ежедневная
+            var PENSI_UPDATE_TABLES_DAEMON_FULL_STRING_SYNC_TABLES_DAEMON = 1 << 1;
+
             // установка checked item перед открытием контекстного меню
             function prepareParam(param, menu) {
-                $(menu.$menu.children()).each(function( index ) {
+                $(menu.$menu.children()).each(function( _index ) {
                     var menuItem = $(this).find("a");
                     menuItem.removeClass("dropdown-item-checked");
 
@@ -199,16 +207,16 @@
                     if (index == 0) {
                         if (param == 0) menuItem.addClass("dropdown-item-checked");
                     } else if (index == 1) {
-                        if ((param & 1) != 0) menuItem.addClass("dropdown-item-checked");
+                        if ((param & PENSI_UPDATE_TABLES_EMAIL_SYNC_TABLES_AFTERDOWNLOAD) != 0) menuItem.addClass("dropdown-item-checked");
                     } else if (index == 2) {
-                        if ((param & 2) != 0 && (param & 0x80000000) == 0) menuItem.addClass("dropdown-item-checked");
+                        if ((param & PENSI_UPDATE_TABLES_DAEMON_FULL_STRING_SYNC_TABLES_DAEMON) != 0 && (param & PENSI_WEEK_MASK) == 0) menuItem.addClass("dropdown-item-checked");
                     } else if (index == 3) {
-                        if ((param & 2) != 0 && (param & 0x80000000) != 0) menuItem.addClass("dropdown-item-checked");
+                        if ((param & PENSI_UPDATE_TABLES_DAEMON_FULL_STRING_SYNC_TABLES_DAEMON) != 0 && (param & PENSI_WEEK_MASK) != 0) menuItem.addClass("dropdown-item-checked");
                     }
                 });
             }
 
-            // получение значение параметра обновления по выбранному контекстному меню (PensiCommon.*)
+            // получение значение параметра обновления по выбранному контекстному меню
             function getResultedParam(param, $selectedMenu) {
                 var index = $selectedMenu.attr("data-index");
 
@@ -216,19 +224,19 @@
                     param = 0;
                 } else if (index == 1) {
                     // через e-mail / после загрузки (бит 1)
-                    param ^= 0x01;
+                    param ^= PENSI_UPDATE_TABLES_EMAIL_SYNC_TABLES_AFTERDOWNLOAD;
                 } else if (index == 2) {
                     // ежедневное (бит 2)
-                    if ((param & 0x80000000) != 0) {
-                        param &= ~0x80000002;
+                    if ((param & PENSI_WEEK_MASK) != 0) {
+                        param &= ~(PENSI_WEEK_MASK | PENSI_UPDATE_TABLES_DAEMON_FULL_STRING_SYNC_TABLES_DAEMON);
                     }
-                    param ^= 0x00000002;
+                    param ^= PENSI_UPDATE_TABLES_DAEMON_FULL_STRING_SYNC_TABLES_DAEMON;
                 } else if (index == 3) {
                     // еженедельное (бит 2 + старший бит int)
-                    if ((param & 0x80000000) == 0) {
-                        param |= 0x80000002;
+                    if ((param & PENSI_WEEK_MASK) == 0) {
+                        param |= (PENSI_WEEK_MASK | PENSI_UPDATE_TABLES_DAEMON_FULL_STRING_SYNC_TABLES_DAEMON);
                     } else {
-                        param ^= 0x80000002;
+                        param ^= (PENSI_WEEK_MASK | PENSI_UPDATE_TABLES_DAEMON_FULL_STRING_SYNC_TABLES_DAEMON);
                     }
                 }
                 return param;
@@ -240,7 +248,7 @@
             });
 
             // вкладка "Лог работы" (show.bs.tab - до показа содержимого вкладки, shown.bs.tab - после показа)
-            $("a[href='#log']").on('shown.bs.tab', function(e) {
+            $("a[href='#logpane']").on('shown.bs.tab', function(e) {
                 $('#logPensi').scrollTop($('#logPensi')[0].scrollHeight)
             });
 
@@ -263,6 +271,49 @@
                 });
                 e.preventDefault();
             });
+
+            // перезагрузка информации о таблицах
+            $('#reloadTableStat').click(function () {
+                loadStatTable();
+            });
+
+            function loadStatTable() {
+                $.ajax({url: contextRoot + "api/pensi/tablesstat", method: 'get', success: function(result){
+                        // удаление всех строк
+                        $("#tablestat_data tr").remove()
+
+                        /* заполнение таблицы из List<TableStat> */
+                        for (var i = 0; i < result.length; i++) {
+                            var tableBody = document.getElementById("tablestat_data");
+
+                            var tableRow = document.createElement('tr');
+
+                            tableRow.appendChild(document.createElement("td"));
+
+                            var tableStatData = result[i];
+
+                            var tdName = document.createElement('td');
+                            tdName.setAttribute("class", "text-center");
+                            tdName.appendChild(document.createTextNode(tableStatData.name));
+                            tableRow.appendChild(tdName);
+
+                            var tdUpdateDateString = document.createElement('td');
+                            tdUpdateDateString.setAttribute("class", "text-center");
+                            tdUpdateDateString.appendChild(document.createTextNode(tableStatData.updateDateString));
+                            tableRow.appendChild(tdUpdateDateString);
+
+                            var tdRows = document.createElement('td');
+                            tdRows.setAttribute("class", "text-center");
+                            tdRows.appendChild(document.createTextNode(tableStatData.rows));
+                            tableRow.appendChild(tdRows);
+
+                            tableBody.appendChild(tableRow);
+                        }
+                    }});
+            }
+
+            loadStatTable();
+
         }));
     </script>
 
@@ -270,18 +321,21 @@
 
     <ul id="pensiTab" class="row nav nav-tabs">
         <li class="active">
-            <a id="sprTab" data-toggle="tab" href="#spr">Справочники</a>
+            <a id="sprTab" data-toggle="tab" href="#sprpane">Справочники</a>
         </li>
         <li>
-            <a id="logTab" data-toggle="tab" href="#log">Лог работы</a>
+            <a id="logTab" data-toggle="tab" href="#logpane">Лог работы</a>
         </li>
         <li>
-            <a id="settingsTab" data-toggle="tab" href="#settings">Настройки</a>
+            <a id="settingsTab" data-toggle="tab" href="#settingspane">Настройки</a>
+        </li>
+        <li>
+            <a id="tableStatTab" data-toggle="tab" href="#tablestatpane">Информация</a>
         </li>
     </ul>
 
     <div class="tab-content">
-        <div id="spr" class="tab-pane active">
+        <div id="sprpane" class="tab-pane active">
 
             <table id="sprTable" class="tree table table-hover">
                 <thead>
@@ -342,7 +396,7 @@
 
         </div>
 
-        <div id="log" class="tab-pane">
+        <div id="logpane" class="tab-pane">
             <div class="row form-group row-margins">
 <!--                <label for="logMailer">downloader log</label>-->
                 <textarea id="logPensi" class="form-control" style="height: 50vh; font-size: 0.9em; font-family: monospace" readonly></textarea>
@@ -353,7 +407,7 @@
             </div>
         </div>
 
-        <div id="settings" class="tab-pane">
+        <div id="settingspane" class="tab-pane">
             <form id="mailerSettings" class="form-horizontal row" style="margin-top: 20px">
                 <div class="form-group row">
                     <label class="col-sm-2 control-label">Адрес POP3 сервера:</label>
@@ -385,7 +439,29 @@
             </div>
 -->
 
+
         </div>
+
+        <div id="tablestatpane" class="tab-pane">
+
+            <table id="tablestat" class="tree table table-hover">
+                <thead>
+                <tr>
+                    <th scope="col">
+                        <span id="reloadTableStat" class="glyphicon glyphicon-refresh"></span>
+                    </th>
+                    <th class="text-center" scope="col">Наименование таблицы</th>
+                    <th class="text-center" scope="col">Дата обновления</th>
+                    <th class="text-center" scope="col">Количество строк</th>
+                </tr>
+                </thead>
+
+                <tbody id="tablestat_data">
+                </tbody>
+            </table>
+
+        </div>
+
     </div>
 </div>
 

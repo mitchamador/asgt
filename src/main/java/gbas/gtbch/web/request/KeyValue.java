@@ -33,6 +33,9 @@ public class KeyValue implements Serializable {
         this.value = value;
     }
 
+    public KeyValue() {
+    }
+
     public KeyValue(String key, String value) {
         this.key = key;
         this.value = value;
