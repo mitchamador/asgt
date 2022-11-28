@@ -5,7 +5,6 @@
                              http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>gbas</groupId>
     <artifactId>gtbch</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <url>http://ktc.by</url>
@@ -15,14 +14,16 @@
     <packaging>${packaging.type}</packaging>
 
     <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.2.4.RELEASE</version>
+        <groupId>gbas</groupId>
+        <artifactId>sapod-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
         <maven.test.skip>true</maven.test.skip>
     </properties>
 
@@ -89,7 +90,7 @@
                                     <groupId>${project.groupId}</groupId>
                                     <artifactId>${project.artifactId}-war</artifactId>
                                     <version>${project.version}</version>
-                                    <url>http://10.4.253.15/nexus/repository/maven-snapshots/</url>
+                                    <url>${nexus.url}/repository/maven-snapshots/</url>
                                     <repositoryId>nexus-snapshots</repositoryId>
                                 </configuration>
                             </execution>
@@ -115,9 +116,10 @@
         <dependencies>
             <!-- sapod-parent pom -->
             <dependency>
-                <groupId>gbas</groupId>
-                <artifactId>sapod-parent</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <!-- Import dependency management from Spring Boot -->
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>2.2.4.RELEASE</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -329,6 +331,12 @@
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
 
         <!-- sapod core -->
         <dependency>
@@ -402,8 +410,16 @@
                 </configuration>
             </plugin>
             <plugin>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.2.3</version>
+                <configuration>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>2.2.4.RELEASE</version>
                 <configuration>
                     <profiles>
                         <profile>${spring-boot.profile}</profile>
@@ -416,13 +432,19 @@
                             <goal>build-info</goal>
                         </goals>
                     </execution>
+                    <execution>
+                        <id>repackage</id>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
                 </executions>
             </plugin>
             <!-- display active profile in compile phase -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-help-plugin</artifactId>
-                <version>2.2</version>
+                <version>3.2.0</version>
                 <executions>
                     <execution>
                         <id>show-profiles</id>
@@ -433,6 +455,7 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- set git properties -->
             <plugin>
                 <groupId>pl.project13.maven</groupId>
                 <artifactId>git-commit-id-plugin</artifactId>
@@ -446,6 +469,7 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <verbose>true</verbose>
                     <dateFormat>dd.MM.yyyy HH:mm</dateFormat>
                     <abbrevLength>8</abbrevLength>
                     <failOnNoGitDirectory>false</failOnNoGitDirectory>
@@ -455,6 +479,7 @@
                         <includeOnlyProperty>git.build.time</includeOnlyProperty>
                         <includeOnlyProperty>git.build.version</includeOnlyProperty>
                     </includeOnlyProperties>
+                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
                     <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
                 </configuration>
             </plugin>
