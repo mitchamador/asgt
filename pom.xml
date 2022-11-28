@@ -471,7 +471,6 @@
                 <configuration>
                     <verbose>true</verbose>
                     <dateFormat>dd.MM.yyyy HH:mm</dateFormat>
-                    <abbrevLength>8</abbrevLength>
                     <failOnNoGitDirectory>false</failOnNoGitDirectory>
                     <includeOnlyProperties>
                         <includeOnlyProperty>git.commit.id.abbrev</includeOnlyProperty>
