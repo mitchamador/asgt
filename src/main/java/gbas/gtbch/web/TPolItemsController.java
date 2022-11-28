@@ -73,28 +73,20 @@ public class TPolItemsController {
         for (TPItems enumItems : TPItems.values()) {
             TPItem item = enumItems.getItem();
             if (item instanceof CargoItem || item instanceof CargoDiapItem) {
-                TpItemFilter filterGng = new TpItemFilter();
-                filterGng.setType(item.getName() + ":0");
-                filterGng.setName(item.getButtonName() + " ГНГ");
-                if (item instanceof CargoItem) {
-                    filterGng.setNsiColumns(getFilterColumns(item, 0, 4));
-                    if (nsi) {
-                        filterGng.setNsiData(_getFilterNsi(filterGng.getType()));
+                for (int set = 0; set < 2; set++) {
+                    TpItemFilter filter = new TpItemFilter();
+                    filter.setType(item.getName() + ":" + set);
+                    filter.setName(item.getButtonName() + (set == 0 ? " ГНГ" : " ЕТСНГ"));
+                    if (item instanceof CargoItem) {
+                        filter.setNsiColumns(getFilterColumns(item, set, set == 0 ? 4 : 1));
+                    } else if (item instanceof CargoDiapItem) {
+                        filter.setNsiColumns(getFilterColumns(item, set, 1));
                     }
-                }
-
-                TpItemFilter filterEtsng = new TpItemFilter();
-                filterEtsng.setType(item.getName() + ":1");
-                filterEtsng.setName(item.getButtonName() + " ЕТСНГ");
-                if (item instanceof CargoItem) {
-                    filterEtsng.setNsiColumns(getFilterColumns(item, 1, 1));
                     if (nsi) {
-                        filterEtsng.setNsiData(_getFilterNsi(filterGng.getType()));
+                        filter.setNsiData(_getFilterNsi(filter.getType()));
                     }
+                    items.add(filter);
                 }
-
-                items.add(filterGng);
-                items.add(filterEtsng);
             } else {
                 TpItemFilter filter = new TpItemFilter();
                 filter.setType(item.getName());
