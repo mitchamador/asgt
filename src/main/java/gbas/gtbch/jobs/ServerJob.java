@@ -1,9 +1,12 @@
 package gbas.gtbch.jobs;
 
+import gbas.gtbch.jobs.annotations.JobAlias;
+import gbas.gtbch.jobs.annotations.RunAtStartup;
 import gbas.gtbch.model.ServerJobResponse;
 import gbas.gtbch.util.ServerLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.EmbeddedValueResolverAware;
 import org.springframework.context.event.EventListener;
@@ -13,6 +16,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.util.StringValueResolver;
 import org.springframework.web.context.request.async.DeferredResult;
 
+import javax.annotation.PostConstruct;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -21,6 +25,11 @@ import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Класс, описывающий асинхронную задачу на стороне сервера
+ *
+ * @see RunAtStartup
+ * @see JobAlias
+ * @see SimpleTask
+ * @see TimeLimitedTask
  */
 public abstract class ServerJob implements EmbeddedValueResolverAware {
 
@@ -37,6 +46,21 @@ public abstract class ServerJob implements EmbeddedValueResolverAware {
         RunAtStartup runAtStartupAnnotation = AnnotationUtils.findAnnotation(this.getClass(), RunAtStartup.class);
         if (runAtStartupAnnotation != null && (runAtStartupAnnotation.force() || getJobEnabled())) {
             run();
+        }
+    }
+
+    private JobAliasMatcher jobAliasMatcher;
+
+    @Autowired
+    private void setJobAliasMatcher(JobAliasMatcher jobAliasMatcher) {
+        this.jobAliasMatcher = jobAliasMatcher;
+    }
+
+    @PostConstruct
+    public void addJobAlias() {
+        JobAlias alias = AnnotationUtils.findAnnotation(this.getClass(), JobAlias.class);
+        if (alias != null && !alias.value().isEmpty()) {
+            jobAliasMatcher.addServerJob(alias.value(), this);
         }
     }
 

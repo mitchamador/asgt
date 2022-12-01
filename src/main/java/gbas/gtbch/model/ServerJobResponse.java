@@ -97,7 +97,7 @@ public class ServerJobResponse extends ServerResponse {
         job.setMessage(UNDEFINED_JOB);
         job.setRunning(false);
         job.setProgress(0);
-        return null;
+        return job;
     }
 
 

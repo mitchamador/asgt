@@ -2,6 +2,7 @@ package gbas.gtbch.jobs.schedule;
 
 import gbas.gtbch.jobs.ServerJob;
 import gbas.gtbch.jobs.TimeLimitedTask;
+import gbas.gtbch.jobs.annotations.JobAlias;
 import gbas.gtbch.sapod.model.CalculationLogConfig;
 import gbas.gtbch.sapod.service.CalculationLogService;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -11,6 +12,7 @@ import java.time.LocalDate;
 import java.util.concurrent.TimeUnit;
 
 @Component
+@JobAlias("calclogremover")
 public class CalculationLogDeleteJob extends ServerJob {
 
     private final CalculationLogService calculationLogService;

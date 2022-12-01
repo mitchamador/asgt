@@ -1,6 +1,7 @@
 package gbas.gtbch.jobs.schedule;
 
 import gbas.gtbch.jobs.ServerJob;
+import gbas.gtbch.jobs.annotations.JobAlias;
 import gbas.gtbch.mailer.MailService;
 import gbas.gtbch.sapod.model.Currency;
 import gbas.gtbch.sapod.model.ExchangeRate;
@@ -20,6 +21,7 @@ import static gbas.gtbch.mailer.MailerConstants.MAILER_CONFIG_EVENT_CURRENCY_RAT
 import static gbas.gtbch.mailer.MailerConstants.MAILER_CONFIG_EVENT_ERRORS;
 
 @Component
+@JobAlias("nbrbdownloader")
 public class NbrbCurrencyDownloaderJob extends ServerJob {
 
     private final CurrencyDownloader cd;

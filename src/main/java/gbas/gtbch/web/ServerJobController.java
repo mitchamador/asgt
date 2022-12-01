@@ -1,17 +1,10 @@
 package gbas.gtbch.web;
 
+import gbas.gtbch.jobs.JobAliasMatcher;
 import gbas.gtbch.jobs.ServerJob;
-import gbas.gtbch.jobs.impl.MQJob;
-import gbas.gtbch.jobs.impl.PensiMainJob;
-import gbas.gtbch.jobs.impl.Syncronizer;
-import gbas.gtbch.jobs.schedule.NbrbCurrencyDownloaderJob;
-import gbas.gtbch.jobs.schedule.PensiDownloaderJob;
-import gbas.gtbch.jobs.schedule.PensiMailerJob;
-import gbas.gtbch.jobs.schedule.PensiSyncronizerJob;
 import gbas.gtbch.model.ServerJobResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.DeferredResult;
@@ -22,88 +15,16 @@ public class ServerJobController {
 
     private final static Logger logger = LoggerFactory.getLogger(ServerJobController.class.getName());
 
-    private Syncronizer syncronizer;
+    private final JobAliasMatcher jobAliasMatcher;
 
-    @Autowired
-    public void setSyncronizer(Syncronizer syncronizer) {
-        this.syncronizer = syncronizer;
-    }
-
-    private NbrbCurrencyDownloaderJob nbrbCurrencyDownloaderJob;
-
-    @Autowired
-    public void setNbrbCurrencyDownloaderJob(NbrbCurrencyDownloaderJob nbrbCurrencyDownloaderJob) {
-        this.nbrbCurrencyDownloaderJob = nbrbCurrencyDownloaderJob;
-    }
-
-    private PensiDownloaderJob pensiDownloaderJob;
-
-    @Autowired
-    private void setPensiDownloaderJob(PensiDownloaderJob pensiDownloaderJob) {
-        this.pensiDownloaderJob = pensiDownloaderJob;
-    }
-
-    private PensiMailerJob pensiMailerJob;
-
-    @Autowired
-    private void setPensiMailerJob(PensiMailerJob pensiMailerJob) {
-        this.pensiMailerJob = pensiMailerJob;
-    }
-
-    private PensiMainJob pensiMainJob;
-
-    @Autowired
-    public void setPensiMainJob(PensiMainJob pensiMainJob) {
-        this.pensiMainJob = pensiMainJob;
-    }
-
-    private PensiSyncronizerJob pensiSyncronizerJob;
-
-    @Autowired
-    public void setPensiSyncronizerJob(PensiSyncronizerJob pensiSyncronizerJob) {
-        this.pensiSyncronizerJob = pensiSyncronizerJob;
-    }
-
-    private MQJob mqJob;
-
-    @Autowired
-    public void setMQJob(MQJob mqJob) {
-        this.mqJob = mqJob;
-    }
-
-    private ServerJob getServerJob(String job) {
-        ServerJob serverJob = null;
-
-        switch (job) {
-            case "syncronizer":
-                serverJob = syncronizer;
-                break;
-            case "nbrbdownloader":
-                serverJob = nbrbCurrencyDownloaderJob;
-                break;
-            case "pensidownloader":
-                serverJob = pensiDownloaderJob;
-                break;
-            case "pensimailer":
-                serverJob = pensiMailerJob;
-                break;
-            case "pensisyncronizer":
-                serverJob = pensiSyncronizerJob;
-                break;
-            case "pensimain":
-                serverJob = pensiMainJob;
-                break;
-            case "mqlogger":
-                serverJob = mqJob;
-                break;
-        }
-        return serverJob;
+    public ServerJobController(JobAliasMatcher jobAliasMatcher) {
+        this.jobAliasMatcher = jobAliasMatcher;
     }
 
     @RequestMapping(value = "/start/{job}", method = RequestMethod.GET)
     public ServerJobResponse syncStart(@PathVariable("job") String job) {
 
-        ServerJob serverJob = getServerJob(job);
+        ServerJob serverJob = jobAliasMatcher.getServerJob(job);
 
         if (serverJob != null) {
             ServerJobResponse response = new ServerJobResponse();
@@ -128,12 +49,12 @@ public class ServerJobController {
     @Value("${app.defferedtimeout:60}")
     int defferedTimeout;
 
-    @RequestMapping(value = "status/{job}", method = RequestMethod.GET)
-    public DeferredResult<ServerJobResponse> syncStatus(@PathVariable("job") String job, @RequestParam("jobStep") Long timeUpdate) {
+    @RequestMapping(value = "/status/{job}", method = RequestMethod.GET)
+    public DeferredResult<ServerJobResponse> syncStatus(@PathVariable("job") String job, @RequestParam(value = "jobStep", required = false) Long timeUpdate) {
 
         DeferredResult<ServerJobResponse> deferredResult = new DeferredResult<>(defferedTimeout * 1000L);
 
-        ServerJob serverJob = getServerJob(job);
+        ServerJob serverJob = jobAliasMatcher.getServerJob(job);
         if (serverJob == null) {
             deferredResult.setResult(ServerJobResponse.undefinedJob());
         } else {

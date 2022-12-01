@@ -1,6 +1,7 @@
 package gbas.gtbch.jobs.impl;
 
 import gbas.gtbch.jobs.ServerJob;
+import gbas.gtbch.jobs.annotations.JobAlias;
 import gbas.gtbch.sapod.model.TpImportDate;
 import gbas.gtbch.sapod.service.TpImportDateService;
 import gbas.gtbch.util.UtilDate8;
@@ -24,6 +25,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 @Component
+@JobAlias("syncronizer")
 public class Syncronizer extends ServerJob {
 
     public static final String SYNCRONIZER_UPLOAD_PARAM = "syncronizer_data";

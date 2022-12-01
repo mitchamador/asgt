@@ -1,10 +1,12 @@
 package gbas.gtbch.jobs.schedule;
 
+import gbas.gtbch.jobs.annotations.JobAlias;
 import gbas.gtbch.jobs.impl.PensiServerJob;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
+@JobAlias("pensisyncronizer")
 public class PensiSyncronizerJob extends PensiServerJob {
 
     @Override
