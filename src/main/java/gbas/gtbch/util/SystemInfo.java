@@ -91,16 +91,11 @@ public class SystemInfo {
     private List<KeyValue> getMqInfo(MQProperties mqProperties) {
         List<KeyValue> info = new ArrayList<>();
 
-        MQConnectionFactory mqConnectionFactory = null;
+        ConnectionFactory connectionFactory = mqProperties.getConnectionFactory() instanceof CachingConnectionFactory
+                ? ((CachingConnectionFactory) mqProperties.getConnectionFactory()).getTargetConnectionFactory()
+                : mqProperties.getConnectionFactory();
 
-        if (mqProperties.getConnectionFactory() instanceof MQConnectionFactory) {
-            mqConnectionFactory = (MQConnectionFactory) mqProperties.getConnectionFactory();
-        } else if (mqProperties.getConnectionFactory() instanceof CachingConnectionFactory) {
-            ConnectionFactory targetConnectionFactory = ((CachingConnectionFactory) mqProperties.getConnectionFactory()).getTargetConnectionFactory();
-            if (targetConnectionFactory instanceof MQConnectionFactory) {
-                mqConnectionFactory = (MQConnectionFactory) targetConnectionFactory;
-            }
-        }
+        MQConnectionFactory mqConnectionFactory = connectionFactory instanceof MQConnectionFactory ? (MQConnectionFactory) connectionFactory : null;
 
         if (mqConnectionFactory != null) {
             // MQConnectionFactory (for embedded tomcat)
@@ -111,7 +106,7 @@ public class SystemInfo {
         } else {
             // websphere Connectionfactory - com.ibm.ejs.jms.JMSQueueConnectionFactoryHandle
             info.add(new KeyValue("Соединение MQ", "connection factory jndi name: " + mqProperties.getJndiMQConfigurationProperties().getJndiName() +
-                    ", class: " + mqProperties.getConnectionFactory().getClass().getName()));
+                    (connectionFactory != null ? (", class: " + connectionFactory.getClass().getName()) : "")));
         }
 
         info.add(new KeyValue("Очереди MQ",

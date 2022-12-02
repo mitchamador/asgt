@@ -10,6 +10,7 @@ import gbas.gtbch.util.jndi.JndiLookup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -42,18 +43,34 @@ public class MQConfig {
     }
 
     /**
+     * enable usage of {@link CachingConnectionFactory}
+     */
+    @Value("${app.mq.caching:false}")
+    private boolean useCachingConnectionFactory;
+
+    public boolean isUseCachingConnectionFactory() {
+        return useCachingConnectionFactory;
+    }
+
+    public void setUseCachingConnectionFactory(boolean useCachingConnectionFactory) {
+        this.useCachingConnectionFactory = useCachingConnectionFactory;
+    }
+
+    /**
      * create {@link CachingConnectionFactory} from {@link ConnectionFactory}
      * @param connectionFactory
      * @return
      */
-    private CachingConnectionFactory createCachingConnectionFactory(ConnectionFactory connectionFactory) {
-        CachingConnectionFactory cachingConnectionFactory = new CachingConnectionFactory();
-        cachingConnectionFactory.setTargetConnectionFactory(connectionFactory);
-        cachingConnectionFactory.setSessionCacheSize(10);
-        cachingConnectionFactory.setReconnectOnException(true);
-        //cachingConnectionFactory.setCacheConsumers(false);
-
-        return cachingConnectionFactory;
+    private ConnectionFactory createCachingConnectionFactory(ConnectionFactory connectionFactory) {
+        if (useCachingConnectionFactory) {
+            CachingConnectionFactory cachingConnectionFactory = new CachingConnectionFactory();
+            cachingConnectionFactory.setTargetConnectionFactory(connectionFactory);
+            cachingConnectionFactory.setSessionCacheSize(10);
+            cachingConnectionFactory.setReconnectOnException(true);
+            //cachingConnectionFactory.setCacheConsumers(false);
+            return cachingConnectionFactory;
+        }
+        return connectionFactory;
     }
 
     /**
