@@ -43,6 +43,7 @@ public class MatherialPriceRepository {
         matherialPrice.setDate(rs.getDate("dat_home"));
         matherialPrice.setRate(rs.getDouble("cena_1"));
         matherialPrice.setCurrency(getCurrency(currencyMap, rs.getInt("id_currency")));
+        matherialPrice.setNumNod(rs.getInt("num_nod"));
         return matherialPrice;
     }
 
@@ -55,7 +56,7 @@ public class MatherialPriceRepository {
         Map<Integer, Currency> currencyMap = new HashMap<>();
 
         return jdbcTemplate.query(
-                "select codp as id, matherial as id_matherial, code_object, dat_home, cena_1, code as id_currency from price2 where matherial = ? order by dat_home desc",
+                "select codp as id, matherial as id_matherial, code_object, dat_home, cena_1, code as id_currency, num_nod from price2 where matherial = ? order by dat_home desc",
                 (rs, i) -> getMatherialPrice(currencyMap, rs),
                 idMatherial);
     }
@@ -70,7 +71,7 @@ public class MatherialPriceRepository {
 
         try {
             return jdbcTemplate.queryForObject(
-                    "select codp as id, matherial as id_matherial, code_object, dat_home, cena_1, code as id_currency from price2 where codp = ? order by dat_home desc",
+                    "select codp as id, matherial as id_matherial, code_object, dat_home, cena_1, code as id_currency, num_nod from price2 where codp = ? order by dat_home desc",
                     (rs, i) -> getMatherialPrice(currencyMap, rs),
                     idItem);
         } catch (EmptyResultDataAccessException e) {
@@ -131,15 +132,20 @@ public class MatherialPriceRepository {
             PreparedStatement preparedStatement;
 
             if (matherialPrice.getId() == 0) {
-                preparedStatement = connection.prepareStatement("insert into price2 (matherial, dat_home, cena_1, code, code_object, tarif) " +
-                                " values (?, ?, ?, ?, ?, 0)",
+                preparedStatement = connection.prepareStatement("insert into price2 (matherial, dat_home, cena_1, code, code_object, num_nod, tarif) " +
+                                " values (?, ?, ?, ?, ?, ?, 0)",
                         Statement.RETURN_GENERATED_KEYS);
             } else {
-                preparedStatement = connection.prepareStatement("update price2 set matherial=?, dat_home=?, cena_1=?, code=?, code_object=?, tarif=0 " +
+                preparedStatement = connection.prepareStatement("update price2 set matherial=?, dat_home=?, cena_1=?, code=?, code_object=?, num_nod=?, tarif=0 " +
                         " where codp = ?");
             }
 
-            preparedStatement.setInt(1, matherial == null ? matherialPrice.getIdMatherial() : matherial.getId());
+            int idMatherial = matherial == null ? matherialPrice.getIdMatherial() : matherial.getId();
+            if (idMatherial != 0) {
+                preparedStatement.setInt(1, idMatherial);
+            } else {
+                preparedStatement.setNull(1, Types.INTEGER);
+            }
             preparedStatement.setTimestamp(2, new Timestamp(UtilDate.clearHHmmssSSS(matherialPrice.getDate()).getTime()));
             preparedStatement.setDouble(3, matherialPrice.getRate());
             if (matherialPrice.getCurrency() != null) {
@@ -149,8 +155,10 @@ public class MatherialPriceRepository {
             }
             preparedStatement.setString(5, matherial == null ? matherialPrice.getCodeMatherial() : matherial.getCode());
 
+            preparedStatement.setInt(6, matherialPrice.getNumNod());
+
             if (matherialPrice.getId() != 0) {
-                preparedStatement.setInt(6, matherialPrice.getId());
+                preparedStatement.setInt(7, matherialPrice.getId());
             }
 
             return preparedStatement;

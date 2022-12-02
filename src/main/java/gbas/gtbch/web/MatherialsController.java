@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -398,5 +399,20 @@ public class MatherialsController {
     @RequestMapping(value = "/descriptors", method = RequestMethod.GET)
     public ResponseEntity<List<SborDescriptorItem>> getDescriptors() {
         return new ResponseEntity<>(SborDescriptorItem.getList(), HttpStatus.OK);
+    }
+
+    /**
+     * get list of nods
+     * @return
+     */
+    @RequestMapping(value = "/nods", method = RequestMethod.GET)
+    public ResponseEntity<List<String[]>> getNods() {
+        List<String[]> nodList = new ArrayList<>();
+        nodList.add(new String[] {"0", ""});
+        for (int nod = 1; nod <= 6; nod++) {
+            nodList.add(new String[]{String.valueOf(nod), "НОД-" + nod});
+        }
+
+        return new ResponseEntity<>(nodList, HttpStatus.OK);
     }
 }

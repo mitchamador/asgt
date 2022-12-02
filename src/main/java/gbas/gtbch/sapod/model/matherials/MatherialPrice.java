@@ -10,7 +10,7 @@ import java.util.Date;
  * GTMAIN.price2
  */
 
-@JsonIgnoreProperties(value = {"idMatherial", "codeMatherial", "numNod"})
+@JsonIgnoreProperties(value = {"idMatherial", "codeMatherial"})
 public class MatherialPrice {
 
     /**
