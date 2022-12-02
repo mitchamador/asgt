@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
-import org.springframework.jms.connection.CachingConnectionFactory;
 import org.springframework.stereotype.Component;
 
 import javax.jms.ConnectionFactory;
@@ -91,22 +90,21 @@ public class SystemInfo {
     private List<KeyValue> getMqInfo(MQProperties mqProperties) {
         List<KeyValue> info = new ArrayList<>();
 
-        ConnectionFactory connectionFactory = mqProperties.getConnectionFactory() instanceof CachingConnectionFactory
-                ? ((CachingConnectionFactory) mqProperties.getConnectionFactory()).getTargetConnectionFactory()
-                : mqProperties.getConnectionFactory();
+        ConnectionFactory connectionFactory = mqProperties.getConnectionFactory();
 
-        MQConnectionFactory mqConnectionFactory = connectionFactory instanceof MQConnectionFactory ? (MQConnectionFactory) connectionFactory : null;
-
-        if (mqConnectionFactory != null) {
+        if (connectionFactory instanceof MQConnectionFactory) {
+            MQConnectionFactory mqConnectionFactory = (MQConnectionFactory) connectionFactory;
             // MQConnectionFactory (for embedded tomcat)
             info.add(new KeyValue("Соединение MQ", "host: " + getInfoString(mqConnectionFactory.getHostName()) + "(" + getInfoString(String.valueOf(mqConnectionFactory.getPort())) + ")" +
                     ", queue manager: " + getInfoString(mqConnectionFactory.getQueueManager()) +
                     ", channel: " + getInfoString(mqConnectionFactory.getChannel()) +
-                    ", user: " + getInfoString(mqConnectionFactory.get(WMQConstants.USERID).toString())));
+                    ", user: " + getInfoString(mqConnectionFactory.get(WMQConstants.USERID).toString()) +
+                    (mqProperties.isUseCaching() ? ", use caching" : ""))
+            );
         } else {
             // websphere Connectionfactory - com.ibm.ejs.jms.JMSQueueConnectionFactoryHandle
             info.add(new KeyValue("Соединение MQ", "connection factory jndi name: " + mqProperties.getJndiMQConfigurationProperties().getJndiName() +
-                    (connectionFactory != null ? (", class: " + connectionFactory.getClass().getName()) : "")));
+                    (connectionFactory != null ? (", class: " + connectionFactory.getClass().getName()) : "") + (mqProperties.isUseCaching() ? ", use caching" : "")));
         }
 
         info.add(new KeyValue("Очереди MQ",

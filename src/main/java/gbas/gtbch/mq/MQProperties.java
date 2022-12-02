@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.jms.connection.CachingConnectionFactory;
 import org.springframework.stereotype.Component;
 
 import javax.jms.ConnectionFactory;
@@ -14,6 +15,7 @@ import javax.jms.ConnectionFactory;
 public class MQProperties {
 
     private ConnectionFactory connectionFactory;
+    private boolean useCaching;
     private JndiMQConfigurationProperties jndiMQConfigurationProperties;
     private QueueConfigurationProperties inboundConfigurationProperties;
     private QueueConfigurationProperties outboundConfigurationProperties;
@@ -41,7 +43,12 @@ public class MQProperties {
 
         MQProperties mqProperties = new MQProperties();
         if (isEnabled) {
-            mqProperties.connectionFactory = connectionFactory;
+            if (connectionFactory instanceof CachingConnectionFactory) {
+                mqProperties.useCaching = true;
+                mqProperties.connectionFactory = ((CachingConnectionFactory) connectionFactory).getTargetConnectionFactory();
+            } else {
+                mqProperties.connectionFactory = connectionFactory;
+            }
             mqProperties.jndiMQConfigurationProperties = jndiMQConfigurationProperties;
             mqProperties.inboundConfigurationProperties = inboundConfigurationProperties;
             mqProperties.outboundConfigurationProperties = outboundConfigurationProperties;
@@ -54,6 +61,10 @@ public class MQProperties {
 
     public ConnectionFactory getConnectionFactory() {
         return connectionFactory;
+    }
+
+    public boolean isUseCaching() {
+        return useCaching;
     }
 
     public JndiMQConfigurationProperties getJndiMQConfigurationProperties() {
