@@ -42,35 +42,53 @@ public class MQConfig {
     }
 
     /**
-     * set user credentials on {@link MQConnectionFactory} and use {@link CachingConnectionFactory} for embedded tomcat
+     * create {@link CachingConnectionFactory} from {@link ConnectionFactory}
+     * @param connectionFactory
+     * @return
+     */
+    private CachingConnectionFactory createCachingConnectionFactory(ConnectionFactory connectionFactory) {
+        CachingConnectionFactory cachingConnectionFactory = new CachingConnectionFactory();
+        cachingConnectionFactory.setTargetConnectionFactory(connectionFactory);
+        cachingConnectionFactory.setSessionCacheSize(10);
+        cachingConnectionFactory.setReconnectOnException(true);
+        //cachingConnectionFactory.setCacheConsumers(false);
+
+        return cachingConnectionFactory;
+    }
+
+    /**
+     * set user credentials for {@link MQConnectionFactory}
      * @param connectionFactory
      * @param jndiMqConfigurationProperties
      * @return
      * @throws JMSException
      */
-
     @Bean
     @Profile("embedded")
     @Primary
-    public ConnectionFactory embeddedConnectionFactory(ConnectionFactory connectionFactory,
+    public ConnectionFactory fillCredentialsForEmbeddedConnectionFactory(ConnectionFactory connectionFactory,
                                                               JndiMQConfigurationProperties jndiMqConfigurationProperties) throws JMSException {
-        ((MQConnectionFactory) connectionFactory).setStringProperty(WMQConstants.USERID, jndiMqConfigurationProperties.getUser());
-        ((MQConnectionFactory) connectionFactory).setStringProperty(WMQConstants.PASSWORD, jndiMqConfigurationProperties.getPassword());
-        ((MQConnectionFactory) connectionFactory).setStringProperty(WMQConstants.USER_AUTHENTICATION_MQCSP, String.valueOf(jndiMqConfigurationProperties.isUserAuthenticationMQCSP()));
+        MQConnectionFactory mqConnectionFactory = null;
+        if (connectionFactory instanceof CachingConnectionFactory && ((CachingConnectionFactory) connectionFactory).getTargetConnectionFactory() instanceof MQConnectionFactory) {
+            mqConnectionFactory = (MQConnectionFactory) ((CachingConnectionFactory) connectionFactory).getTargetConnectionFactory();
+        } else if (connectionFactory instanceof MQConnectionFactory) {
+            mqConnectionFactory = (MQConnectionFactory) connectionFactory;
+        }
 
-        CachingConnectionFactory cachingConnectionFactory = new CachingConnectionFactory();
-        cachingConnectionFactory.setTargetConnectionFactory(connectionFactory);
-        cachingConnectionFactory.setSessionCacheSize(500);
-        cachingConnectionFactory.setReconnectOnException(true);
+        if (mqConnectionFactory != null) {
+            mqConnectionFactory.setStringProperty(WMQConstants.USERID, jndiMqConfigurationProperties.getUser());
+            mqConnectionFactory.setStringProperty(WMQConstants.PASSWORD, jndiMqConfigurationProperties.getPassword());
+            mqConnectionFactory.setStringProperty(WMQConstants.USER_AUTHENTICATION_MQCSP, String.valueOf(jndiMqConfigurationProperties.isUserAuthenticationMQCSP()));
+        }
 
-        return cachingConnectionFactory;
+        return connectionFactory;
     }
 
     @Bean(destroyMethod = "")
     @ConditionalOnExpression("!'${app.mq.queue-manager.jndi-name:}'.isEmpty()")
     public ConnectionFactory jndiConnectionFactory(JndiMQConfigurationProperties jndiMQConfigurationProperties) {
         try {
-            return new JndiLookup<>(ConnectionFactory.class).getResource(jndiMQConfigurationProperties.getJndiName());
+            return createCachingConnectionFactory(new JndiLookup<>(ConnectionFactory.class).getResource(jndiMQConfigurationProperties.getJndiName()));
         } catch (NamingException e) {
             e.printStackTrace();
         }
@@ -80,7 +98,7 @@ public class MQConfig {
     @Bean
     @ConditionalOnExpression("'${app.mq.queue-manager.jndi-name:}'.isEmpty()")
     public ConnectionFactory connectionFactory(JndiMQConfigurationProperties jndiMQConfigurationProperties) {
-        return new MQConnectionFactoryFactory(jndiMQConfigurationProperties, null).createConnectionFactory(MQConnectionFactory.class);
+        return createCachingConnectionFactory(new MQConnectionFactoryFactory(jndiMQConfigurationProperties, null).createConnectionFactory(MQConnectionFactory.class));
     }
 
     @Bean
@@ -139,7 +157,6 @@ public class MQConfig {
     private String getQueueName(QueueConfigurationProperties queueConfigurationProperties) {
         if (queueConfigurationProperties.getJndiName() != null) {
             try {
-                //return ((MQQueue) new JndiQueueLookup().getQueue(queueConfigurationProperties.getJndiName())).getBaseQueueName();
                 return ((MQQueue) new JndiLookup<>(javax.jms.Queue.class).getResource(queueConfigurationProperties.getJndiName())).getBaseQueueName();
             } catch (NamingException e) {
                 e.printStackTrace();
@@ -156,7 +173,6 @@ public class MQConfig {
      * @return
      */
     @Bean
-    //@Profile("production")
     public DefaultMessageListenerContainer inboundQueueListenerContainer(MQListener mqListener, DefaultJmsListenerContainerFactory jmsListenerContainerFactory) {
         SimpleJmsListenerEndpoint endpoint = new SimpleJmsListenerEndpoint();
         endpoint.setMessageListener(mqListener);
