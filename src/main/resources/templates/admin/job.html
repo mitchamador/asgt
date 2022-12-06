@@ -10,27 +10,31 @@
 
 <div layout:fragment="content" th:remove="tag">
 
-    <script type="application/javascript">
+    <script type="application/javascript" th:if="${jobName} != null" th:inline="javascript">
         $(document).ready($(function () {
+
+            /*<![CDATA[*/
+            var jobAlias = [[${jobAlias}]];
+            /*]]>*/
 
             var pollParams = {
                 // alias для серверной задачи
-                job: "mqlogger",
+                job: jobAlias,
                 // текстовый компонент для обновления лога
-                text: "#logMq"
+                text: "#textLog"
             };
             poll(pollParams);
 
         }));
     </script>
 
-    <div class="display" style="height: calc(100vh - 165px)">
+    <div th:if="${jobName} != null" class="display" style="height: calc(100vh - 165px)">
 
-        <div class="page-header-name">MQ</div>
+        <div class="page-header-name" th:text="${jobName}"></div>
 
         <div class="row form-group" style="height: 100%; margin-top: -10px">
-            <label for="logMq">Лог MQ</label>
-            <textarea id="logMq" wrap="off" class="form-control"
+            <label for="textLog" th:text="'Лог ' + ${jobName}"></label>
+            <textarea id="textLog" wrap="off" class="form-control"
                       style="height: 100%; font-size: 0.9em; font-family: monospace" readonly></textarea>
         </div>
 

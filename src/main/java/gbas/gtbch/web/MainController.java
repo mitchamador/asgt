@@ -1,5 +1,7 @@
 package gbas.gtbch.web;
 
+import gbas.gtbch.jobs.AbstractServerJob;
+import gbas.gtbch.jobs.ServerJobAliasHandler;
 import gbas.gtbch.sapod.model.CalculationLog;
 import gbas.gtbch.sapod.model.TpImportDate;
 import gbas.gtbch.sapod.service.TpImportDateService;
@@ -13,6 +15,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
@@ -121,13 +124,25 @@ public class MainController {
         return new ModelAndView("admin/nbrb");
     }
 
+    private ServerJobAliasHandler serverJobAliasHandler;
+
+    @Autowired
+    public void setServerJobController(ServerJobAliasHandler serverJobAliasHandler) {
+        this.serverJobAliasHandler = serverJobAliasHandler;
+    }
     /**
-     * mq log page
+     * server job log page
      * @return
      */
-    @GetMapping("/admin/mq")
-    public ModelAndView adminMq() {
-        return new ModelAndView("admin/mq");
+    @GetMapping("/admin/joblogger/{job}")
+    public ModelAndView adminMq(@PathVariable(value = "job") String jobName) {
+        ModelAndView model = new ModelAndView("admin/job");
+        AbstractServerJob serverJob = serverJobAliasHandler.getServerJob(jobName);
+        if (serverJob != null) {
+            model.addObject("jobAlias", jobName);
+            model.addObject("jobName", serverJob.getJobName());
+        }
+        return model;
     }
 
     /**
