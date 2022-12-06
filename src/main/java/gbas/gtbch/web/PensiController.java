@@ -1,6 +1,6 @@
 package gbas.gtbch.web;
 
-import gbas.gtbch.jobs.ServerJob;
+import gbas.gtbch.jobs.AbstractServerJob;
 import gbas.gtbch.jobs.schedule.PensiDownloaderJob;
 import gbas.gtbch.jobs.schedule.PensiSyncronizerJob;
 import gbas.gtbch.model.ServerResponse;
@@ -69,7 +69,7 @@ public class PensiController {
         ServerResponse response = new ServerResponse();
 
         if (body != null && body.getList() != null && !body.getList().isEmpty()) {
-            ServerJob serverJob = null;
+            AbstractServerJob serverJob = null;
             List<PensiQueue> queueList = new ArrayList<>();
 
             switch (body.getType()) {

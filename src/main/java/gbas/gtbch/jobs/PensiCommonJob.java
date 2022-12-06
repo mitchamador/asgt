@@ -1,82 +1,46 @@
-package gbas.gtbch.jobs.impl;
+package gbas.gtbch.jobs;
 
-import gbas.gtbch.jobs.ServerJob;
+import gbas.gtbch.jobs.impl.PensiMainJob;
 import gbas.gtbch.mailer.MailService;
 import gbas.gtbch.util.SystemInfo;
-import gbas.gtbch.util.UtilDate8;
 import gbas.tvk.interaction.pensi.PensiManager;
 import gbas.tvk.interaction.pensi.jobs.PensiJobStatus;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.Date;
 
 import static gbas.gtbch.mailer.MailerConstants.MAILER_CONFIG_EVENT_ERRORS;
 
 @Component
-public class PensiServerJob extends ServerJob {
+public class PensiCommonJob {
 
-    protected PensiManager pensiManager;
+    protected final PensiManager pensiManager;
+    private final PensiMainJob pensiMainJob;
+    private final MailService mailService;
+    private final SystemInfo systemInfo;
 
-    @Autowired
-    public void setPensiManager(PensiManager pensiManager) {
+    public PensiCommonJob(PensiManager pensiManager, PensiMainJob pensiMainJob, MailService mailService, SystemInfo systemInfo) {
         this.pensiManager = pensiManager;
-    }
-
-    private PensiMainJob pensiMainJob;
-
-    @Autowired
-    public void setPensiMainJob(PensiMainJob pensiMainJob) {
         this.pensiMainJob = pensiMainJob;
-    }
-
-    private MailService mailService;
-
-    @Autowired
-    public void setMailService(MailService mailService) {
         this.mailService = mailService;
-    }
-
-    private SystemInfo systemInfo;
-
-    @Autowired
-    public void setSystemInfo(SystemInfo systemInfo) {
         this.systemInfo = systemInfo;
     }
 
-    @Override
-    public void run() {
+    public PensiManager getPensiManager() {
+        return pensiManager;
     }
 
-    @Override
-    public String getJobName() {
-        return "PENSI " + getPensiTaskName();
-    }
-
-    @Override
-    public void log(String s) {
-        String dateString = UtilDate8.getStringFullDate(new Date());
-        //super.log(dateString + " " + s);
-
-        pensiMainJob.log(dateString + " [" + getPensiTaskName() + "] " + s);
-
-        logger.info(s);
-    }
-
-    protected String getPensiTaskName() {
-        return "main";
-    }
-
-    protected PensiJobStatus getPensiJobStatus() {
+    public PensiJobStatus createPensiJobStatus(final AbstractServerJob abstractServerJob) {
         return new PensiJobStatus() {
             @Override
             public void updateProgress(int i) {
-                setProgress(i);
+                abstractServerJob.setProgress(i);
             }
 
             @Override
             public void updateLog(String s) {
-                log(s);
+                // logs for PensiMainJob
+                pensiMainJob.log("[" + abstractServerJob.getJobName().replace("PENSI ", "") + "] " + s, AbstractServerJob.LOG_EVENT_DATE);
+                // logs for current job
+                abstractServerJob.log(s);
             }
 
             @Override

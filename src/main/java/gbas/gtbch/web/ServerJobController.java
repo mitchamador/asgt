@@ -1,7 +1,7 @@
 package gbas.gtbch.web;
 
-import gbas.gtbch.jobs.JobAliasMatcher;
-import gbas.gtbch.jobs.ServerJob;
+import gbas.gtbch.jobs.AbstractServerJob;
+import gbas.gtbch.jobs.ServerJobAliasHandler;
 import gbas.gtbch.model.ServerJobResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,16 +15,16 @@ public class ServerJobController {
 
     private final static Logger logger = LoggerFactory.getLogger(ServerJobController.class.getName());
 
-    private final JobAliasMatcher jobAliasMatcher;
+    private final ServerJobAliasHandler serverJobAliasHandler;
 
-    public ServerJobController(JobAliasMatcher jobAliasMatcher) {
-        this.jobAliasMatcher = jobAliasMatcher;
+    public ServerJobController(ServerJobAliasHandler serverJobAliasHandler) {
+        this.serverJobAliasHandler = serverJobAliasHandler;
     }
 
     @RequestMapping(value = "/start/{job}", method = RequestMethod.GET)
     public ServerJobResponse syncStart(@PathVariable("job") String job) {
 
-        ServerJob serverJob = jobAliasMatcher.getServerJob(job);
+        AbstractServerJob serverJob = serverJobAliasHandler.getServerJob(job);
 
         if (serverJob != null) {
             ServerJobResponse response = new ServerJobResponse();
@@ -54,7 +54,7 @@ public class ServerJobController {
 
         DeferredResult<ServerJobResponse> deferredResult = new DeferredResult<>(defferedTimeout * 1000L);
 
-        ServerJob serverJob = jobAliasMatcher.getServerJob(job);
+        AbstractServerJob serverJob = serverJobAliasHandler.getServerJob(job);
         if (serverJob == null) {
             deferredResult.setResult(ServerJobResponse.undefinedJob());
         } else {

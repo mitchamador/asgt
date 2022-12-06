@@ -1,7 +1,7 @@
 package gbas.gtbch.jobs.impl;
 
-import gbas.gtbch.jobs.ServerJob;
-import gbas.gtbch.jobs.annotations.JobAlias;
+import gbas.gtbch.jobs.AbstractServerJob;
+import gbas.gtbch.jobs.annotations.ServerJob;
 import gbas.gtbch.sapod.model.TpImportDate;
 import gbas.gtbch.sapod.service.TpImportDateService;
 import gbas.gtbch.util.UtilDate8;
@@ -25,8 +25,8 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 @Component
-@JobAlias("syncronizer")
-public class Syncronizer extends ServerJob {
+@ServerJob(alias = "syncronizer", name = "Syncronizer")
+public class Syncronizer extends AbstractServerJob {
 
     public static final String SYNCRONIZER_UPLOAD_PARAM = "syncronizer_data";
     private static final int SEMAPHORE_MAX = 64;
@@ -35,13 +35,13 @@ public class Syncronizer extends ServerJob {
 
     private String filename;
 
-    private TpImportDateService tpImportDateService;
+    private final TpImportDateService tpImportDateService;
 
-    private DataSource sapodDataSource;
-
-    private final Semaphore semaphore;
+    private final DataSource sapodDataSource;
 
     private final AppCacheManager cacheManager;
+
+    private final Semaphore semaphore;
 
     public Syncronizer(TpImportDateService tpImportDateService, @Qualifier("sapodDataSource") DataSource sapodDataSource, AppCacheManager cacheManager) {
         this.tpImportDateService = tpImportDateService;
@@ -49,7 +49,6 @@ public class Syncronizer extends ServerJob {
         this.cacheManager = cacheManager;
         semaphore = new Semaphore(SEMAPHORE_MAX, true);
     }
-
 
     @Value("${app.jobs.syncronizer.fullmerge:false}")
     private boolean fullInsertMerge;
@@ -66,22 +65,6 @@ public class Syncronizer extends ServerJob {
         } catch (IllegalArgumentException ignored) {
         }
         return InsertMode.NORMAL;
-    }
-
-//    @Bean
-//    public Syncronizer init() {
-//        return new Syncronizer(payTransportationQueryCache);
-//    }
-
-    @Override
-    public String getJobName() {
-        return "Syncronizer";
-    }
-
-    @Override
-    public void log(String s) {
-        super.log(s);
-        logger.info(s);
     }
 
     @Async
@@ -216,7 +199,7 @@ public class Syncronizer extends ServerJob {
 
     private void process(String[] logs) {
         if (!logs[0].isEmpty()) {
-            Arrays.stream(logs[0].split("\n")).forEach(s -> log(s.isEmpty() ? " " : s));
+            Arrays.stream(logs[0].split("\n")).forEach(s -> log(s.isEmpty() ? " " : s, LOG_LOGGER_INFO));
         }
         try {
             setProgress(Integer.parseInt(logs[3]));

@@ -1,5 +1,6 @@
 package gbas.gtbch.mq;
 
+import gbas.gtbch.jobs.AbstractServerJob;
 import gbas.gtbch.jobs.impl.MQJob;
 import gbas.gtbch.sapod.model.CalculationLog;
 import gbas.gtbch.util.calc.CalcHandler;
@@ -41,7 +42,7 @@ public class MQListener implements MessageListener {
 
     private void log(String s) {
         logger.info(s);
-        mqJob.log(s);
+        mqJob.log(s, AbstractServerJob.LOG_EVENT_DATE);
     }
 
     @Override

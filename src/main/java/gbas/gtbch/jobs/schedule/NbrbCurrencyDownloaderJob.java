@@ -1,39 +1,29 @@
 package gbas.gtbch.jobs.schedule;
 
-import gbas.gtbch.jobs.ServerJob;
-import gbas.gtbch.jobs.annotations.JobAlias;
+import gbas.gtbch.jobs.AbstractServerJob;
+import gbas.gtbch.jobs.annotations.ServerJob;
 import gbas.gtbch.mailer.MailService;
 import gbas.gtbch.sapod.model.Currency;
 import gbas.gtbch.sapod.model.ExchangeRate;
 import gbas.gtbch.sapod.service.CurrencyService;
 import gbas.gtbch.sapod.service.ExchangeRateService;
 import gbas.gtbch.util.SystemInfo;
-import gbas.gtbch.util.UtilDate8;
 import gbas.tvk.interaction.nbrb.CurrencyDownloader;
 import gbas.tvk.nsi.cash.Func;
 import gbas.tvk.nsi.currency.service.CurrencyRate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
-
 import static gbas.gtbch.mailer.MailerConstants.MAILER_CONFIG_EVENT_CURRENCY_RATES;
 import static gbas.gtbch.mailer.MailerConstants.MAILER_CONFIG_EVENT_ERRORS;
 
 @Component
-@JobAlias("nbrbdownloader")
-public class NbrbCurrencyDownloaderJob extends ServerJob {
+@ServerJob(alias = "nbrbdownloader", name = "NBRB currency rate downloader")
+public class NbrbCurrencyDownloaderJob extends AbstractServerJob {
 
     private final CurrencyDownloader cd;
     private final MailService mailService;
     private final String host;
-
-    private void log(String s, boolean addJobLog) {
-        if (addJobLog) {
-            super.log("" + UtilDate8.getStringFullDate(new Date()) + " - " + s);
-        }
-        logger.info(s);
-    }
 
     public NbrbCurrencyDownloaderJob(final CurrencyService currencyService, ExchangeRateService exchangeRateService, MailService mailService, SystemInfo systemInfo) {
         this.mailService = mailService;
@@ -64,14 +54,9 @@ public class NbrbCurrencyDownloaderJob extends ServerJob {
 
             @Override
             public void logger(String s) {
-                log(s, true);
+                log(s);
             }
         };
-    }
-
-    @Override
-    public String getJobName() {
-        return "NBRB currency rate downloader";
     }
 
     @Scheduled(cron = "${app.jobs.nbrb-downloader.cron:-}")

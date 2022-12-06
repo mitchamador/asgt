@@ -1,8 +1,8 @@
 package gbas.gtbch.jobs.schedule;
 
-import gbas.gtbch.jobs.ServerJob;
+import gbas.gtbch.jobs.AbstractServerJob;
 import gbas.gtbch.jobs.TimeLimitedTask;
-import gbas.gtbch.jobs.annotations.JobAlias;
+import gbas.gtbch.jobs.annotations.ServerJob;
 import gbas.gtbch.sapod.model.CalculationLogConfig;
 import gbas.gtbch.sapod.service.CalculationLogService;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -12,8 +12,8 @@ import java.time.LocalDate;
 import java.util.concurrent.TimeUnit;
 
 @Component
-@JobAlias("calclogremover")
-public class CalculationLogDeleteJob extends ServerJob {
+@ServerJob(alias = "calclogremover", name = "Calculation log remover")
+public class CalculationLogDeleteJob extends AbstractServerJob {
 
     private final CalculationLogService calculationLogService;
 
@@ -22,11 +22,6 @@ public class CalculationLogDeleteJob extends ServerJob {
     public CalculationLogDeleteJob(CalculationLogService calculationLogService, CalculationLogConfig calculationLogConfig) {
         this.calculationLogService = calculationLogService;
         this.calculationLogConfig = calculationLogConfig;
-    }
-
-    @Override
-    public String getJobName() {
-        return "Calculation log remover";
     }
 
     private LocalDate keepDateOther;
@@ -49,8 +44,8 @@ public class CalculationLogDeleteJob extends ServerJob {
 
             @Override
             public void finish(int total) {
-                /*if (total > 0) */{
-                    logger.info("{}: {} rows deleted from calculation log.", getJobName(), total);
+                if (total > 0) {
+                    log(String.format("%s: %s rows deleted from calculation log.", getJobName(), total));
                 }
             }
         }, TimeUnit.MINUTES.toMillis(calculationLogConfig.getJobDuration()));

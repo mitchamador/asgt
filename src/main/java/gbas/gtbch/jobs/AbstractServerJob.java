@@ -1,9 +1,9 @@
 package gbas.gtbch.jobs;
 
-import gbas.gtbch.jobs.annotations.JobAlias;
 import gbas.gtbch.jobs.annotations.RunAtStartup;
 import gbas.gtbch.model.ServerJobResponse;
 import gbas.gtbch.util.ServerLog;
+import gbas.gtbch.util.UtilDate8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +17,7 @@ import org.springframework.util.StringValueResolver;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import javax.annotation.PostConstruct;
+import java.util.Date;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -27,11 +28,11 @@ import java.util.concurrent.atomic.AtomicLong;
  * Класс, описывающий асинхронную задачу на стороне сервера
  *
  * @see RunAtStartup
- * @see JobAlias
+ * @see gbas.gtbch.jobs.annotations.ServerJob
  * @see SimpleTask
  * @see TimeLimitedTask
  */
-public abstract class ServerJob implements EmbeddedValueResolverAware {
+public abstract class AbstractServerJob implements EmbeddedValueResolverAware {
 
     private StringValueResolver embeddedValueResolver;
 
@@ -49,19 +50,30 @@ public abstract class ServerJob implements EmbeddedValueResolverAware {
         }
     }
 
-    private JobAliasMatcher jobAliasMatcher;
+    private ServerJobAliasHandler serverJobAliasHandler;
 
     @Autowired
-    private void setJobAliasMatcher(JobAliasMatcher jobAliasMatcher) {
-        this.jobAliasMatcher = jobAliasMatcher;
+    private void setJobAliasMatcher(ServerJobAliasHandler serverJobAliasHandler) {
+        this.serverJobAliasHandler = serverJobAliasHandler;
     }
 
     @PostConstruct
-    public void addJobAlias() {
-        JobAlias alias = AnnotationUtils.findAnnotation(this.getClass(), JobAlias.class);
-        if (alias != null && !alias.value().isEmpty()) {
-            jobAliasMatcher.addServerJob(alias.value(), this);
+    public void handleServerJobAnnotation() {
+        gbas.gtbch.jobs.annotations.ServerJob serverJob = AnnotationUtils.findAnnotation(this.getClass(), gbas.gtbch.jobs.annotations.ServerJob.class);
+        if (serverJob != null) {
+            if (!serverJob.alias().isEmpty()) {
+                serverJobAliasHandler.addServerJob(serverJob.alias(), this);
+            }
+            if (!serverJob.name().isEmpty()) {
+                jobName = serverJob.name();
+            }
         }
+    }
+
+    private String jobName;
+
+    public String getJobName() {
+        return jobName;
     }
 
     /**
@@ -115,16 +127,39 @@ public abstract class ServerJob implements EmbeddedValueResolverAware {
     private AtomicLong jobStep = new AtomicLong();
 
     /**
-     *
-     * @return
+     * no additional log
      */
-    public abstract String getJobName();
+    public final static int LOG_EVENT_NONE = 0;
+    /**
+     * add date to {@link AbstractServerJob}'s log
+     */
+    public final static int LOG_EVENT_DATE = 1 << 0;
+    /**
+     * print info level to system log
+     */
+    public final static int LOG_LOGGER_INFO = 1 << 1;
 
     /**
+     * default log
      * @param s
      */
     public void log(String s) {
+        log(s, LOG_EVENT_DATE | LOG_LOGGER_INFO);
+    }
+
+    /**
+     * log
+     * @param s
+     * @param logSettings
+     */
+    public void log(String s, int logSettings) {
         if (s != null && !s.isEmpty()) {
+            if ((logSettings & LOG_LOGGER_INFO) != 0) {
+                logger.info(s);
+            }
+            if ((logSettings & LOG_EVENT_DATE) != 0) {
+                s = UtilDate8.getStringFullDate(new Date()) + " " + s;
+            }
             synchronized (logs) {
                 logs.add(s);
             }
