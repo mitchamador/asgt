@@ -34,18 +34,29 @@
         }));
     </script>
 
-    <div th:if="${jobAlias} != null" class="display" style="height: calc(100vh - 165px)">
+    <div th:if="${jobAlias} != null">
 
-        <div class="page-header-name" th:text="${pageHeader}"></div>
+        <div th:if="${buttonText} == null" class="display" style="height: calc(100vh - 165px)">
+            <div class="page-header-name" th:text="${pageHeader}"></div>
+            <div class="row form-group" style="height: 100%; margin-top: -10px">
+                <label for="logText" th:text="${logTitle}"></label>
+                <textarea id="logText" wrap="off" class="form-control"
+                          style="height: 100%; font-size: 0.9em; font-family: monospace" readonly></textarea>
+            </div>
+        </div>
 
-        <div class="row form-group" style="height: 100%; margin-top: -10px">
-            <label for="logText" th:text="${logTitle}"></label>
-            <textarea id="logText" wrap="off" class="form-control"
-                      style="height: 100%; font-size: 0.9em; font-family: monospace" readonly></textarea>
-            <button th:if="${buttonText} != null" id="startButton" class="col-sm-offset-10 col-sm-2 btn btn-primary" type="button" th:text="${buttonText}"></button>
+        <div th:if="${buttonText} != null" class="display" style="height: calc(100vh - 190px)">
+            <div class="page-header-name" th:text="${pageHeader}"></div>
+            <div class="row form-group" style="height: 100%">
+                <label for="logText" th:text="${logTitle}"></label>
+                <textarea id="logText" wrap="off" class="form-control"
+                          style="height: calc(100% - 20px); margin-bottom: 10px; font-size: 0.9em; font-family: monospace" readonly></textarea>
+                <button id="startButton" class="col-sm-offset-10 col-sm-2 btn btn-primary" type="button" th:text="${buttonText}"></button>
+            </div>
         </div>
 
     </div>
+
 </div>
 
 </body>
