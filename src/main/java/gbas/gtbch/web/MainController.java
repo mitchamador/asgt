@@ -20,6 +20,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class MainController {
@@ -131,18 +132,17 @@ public class MainController {
         this.serverJobAliasHandler = serverJobAliasHandler;
     }
     /**
-     * server job log page
+     * unified server job page
      * @return
      */
-    @GetMapping("/admin/joblogger/{job}")
+    @GetMapping("/admin/job/{job}")
     public ModelAndView adminMq(@PathVariable(value = "job") String jobName) {
-        ModelAndView model = new ModelAndView("admin/job");
+        Map<String, Object> modelMap = null;
         AbstractServerJob serverJob = serverJobAliasHandler.getServerJob(jobName);
         if (serverJob != null) {
-            model.addObject("jobAlias", jobName);
-            model.addObject("jobName", serverJob.getJobName());
+            modelMap = serverJob.getWebPageData();
         }
-        return model;
+        return new ModelAndView("admin/job", modelMap);
     }
 
     /**

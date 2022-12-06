@@ -14,6 +14,8 @@ import gbas.tvk.nsi.currency.service.CurrencyRate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
+
 import static gbas.gtbch.mailer.MailerConstants.MAILER_CONFIG_EVENT_CURRENCY_RATES;
 import static gbas.gtbch.mailer.MailerConstants.MAILER_CONFIG_EVENT_ERRORS;
 
@@ -81,4 +83,12 @@ public class NbrbCurrencyDownloaderJob extends AbstractServerJob {
         });
     }
 
+    @Override
+    public Map<String, Object> getWebPageData() {
+        Map<String, Object> map =  super.getWebPageData();
+        map.put(SERVERJOB_MVC_PAGE_HEADER, "Прием курсов валют НБ РБ");
+        map.put(SERVERJOB_MVC_LOG_TITLE, "Обновление курсов валют");
+        map.put(SERVERJOB_MVC_START_BUTTON_TEXT, "Обновить курсы валют");
+        return map;
+    }
 }

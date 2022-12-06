@@ -18,6 +18,8 @@ import org.springframework.web.context.request.async.DeferredResult;
 
 import javax.annotation.PostConstruct;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -62,7 +64,8 @@ public abstract class AbstractServerJob implements EmbeddedValueResolverAware {
         gbas.gtbch.jobs.annotations.ServerJob serverJob = AnnotationUtils.findAnnotation(this.getClass(), gbas.gtbch.jobs.annotations.ServerJob.class);
         if (serverJob != null) {
             if (!serverJob.alias().isEmpty()) {
-                serverJobAliasHandler.addServerJob(serverJob.alias(), this);
+                jobAlias = serverJob.alias();
+                serverJobAliasHandler.addServerJob(jobAlias, this);
             }
             if (!serverJob.name().isEmpty()) {
                 jobName = serverJob.name();
@@ -74,6 +77,12 @@ public abstract class AbstractServerJob implements EmbeddedValueResolverAware {
 
     public String getJobName() {
         return jobName;
+    }
+
+    private String jobAlias;
+
+    public String getJobAlias() {
+        return jobAlias;
     }
 
     /**
@@ -384,5 +393,22 @@ public abstract class AbstractServerJob implements EmbeddedValueResolverAware {
             }
             deferredResult.setResult(getServerJobResponse(false));
         });
+    }
+
+    public final static String SERVERJOB_MVC_ALIAS = "jobAlias";
+    public final static String SERVERJOB_MVC_PAGE_HEADER = "pageHeader";
+    public final static String SERVERJOB_MVC_LOG_TITLE = "logTitle";
+    public final static String SERVERJOB_MVC_START_BUTTON_TEXT = "buttonText";
+
+    /**
+     * get default data for MVC
+     * @return
+     */
+    public Map<String, Object> getWebPageData() {
+        Map<String, Object> map = new HashMap<>();
+        map.put(SERVERJOB_MVC_ALIAS, getJobAlias());
+        map.put(SERVERJOB_MVC_PAGE_HEADER, getJobName());
+        map.put(SERVERJOB_MVC_LOG_TITLE, "Лог " + getJobName());
+        return map;
     }
 }

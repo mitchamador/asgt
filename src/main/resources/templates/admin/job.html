@@ -10,7 +10,7 @@
 
 <div layout:fragment="content" th:remove="tag">
 
-    <script type="application/javascript" th:if="${jobName} != null" th:inline="javascript">
+    <script type="application/javascript" th:if="${jobAlias} != null" th:inline="javascript">
         $(document).ready($(function () {
 
             /*<![CDATA[*/
@@ -21,21 +21,28 @@
                 // alias для серверной задачи
                 job: jobAlias,
                 // текстовый компонент для обновления лога
-                text: "#textLog"
+                text: "#logText",
+                // кнопка для закрытия
+                button: "#startButton"
             };
             poll(pollParams);
+
+            $("#startButton").click(function (e) {
+                start(pollParams);
+            });
 
         }));
     </script>
 
-    <div th:if="${jobName} != null" class="display" style="height: calc(100vh - 165px)">
+    <div th:if="${jobAlias} != null" class="display" style="height: calc(100vh - 165px)">
 
-        <div class="page-header-name" th:text="${jobName}"></div>
+        <div class="page-header-name" th:text="${pageHeader}"></div>
 
         <div class="row form-group" style="height: 100%; margin-top: -10px">
-            <label for="textLog" th:text="'Лог ' + ${jobName}"></label>
-            <textarea id="textLog" wrap="off" class="form-control"
+            <label for="logText" th:text="${logTitle}"></label>
+            <textarea id="logText" wrap="off" class="form-control"
                       style="height: 100%; font-size: 0.9em; font-family: monospace" readonly></textarea>
+            <button th:if="${buttonText} != null" id="startButton" class="col-sm-offset-10 col-sm-2 btn btn-primary" type="button" th:text="${buttonText}"></button>
         </div>
 
     </div>

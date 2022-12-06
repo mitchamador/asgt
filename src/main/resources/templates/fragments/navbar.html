@@ -21,9 +21,11 @@
             <ul class="dropdown-menu">
                 <li><a th:href="@{/admin/sync}">Импорт ТП и НСИ</a></li>
                 <li><a th:href="@{/admin/pensi}">ПЭ НСИ</a></li>
-                <li><a th:href="@{/admin/nbrb}">Импорт курсов валют</a></li>
-                <li><a th:href="@{/admin/joblogger/mqlogger}">MQ</a></li>
-                <li th:if="${#authentication.getPrincipal().getUsername().equals('su')}"><a th:href="@{/admin/joblogger/calclogremover}">CalcLog remover</a></li>
+                <li><a th:href="@{/admin/job/nbrbdownloader}">Импорт курсов валют</a></li>
+                <li><a th:href="@{/admin/job/mqlogger}">MQ</a></li>
+                <li th:if="${#authentication.getPrincipal().getUsername().equals('su')}">
+                    <a th:href="@{/admin/job/calclogremover}">CalcLog remover</a>
+                </li>
             </ul>
         </li>
 
