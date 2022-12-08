@@ -10,7 +10,7 @@ app:
       jndi-name: "jdbc/GTPENSI"
   mq:
     enable: true
-    caching: true
+    caching: false
     queue-manager:
       jndi-name: "jms/GT.QCF"
     inbound:
