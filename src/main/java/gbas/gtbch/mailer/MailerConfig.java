@@ -1,5 +1,8 @@
 package gbas.gtbch.mailer;
 
+import gbas.gtbch.util.jndi.JndiLookup;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -7,7 +10,6 @@ import org.springframework.boot.autoconfigure.mail.MailProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.jndi.JndiLocatorDelegate;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 import javax.mail.Session;
@@ -17,6 +19,8 @@ import java.util.Properties;
 
 @Configuration
 public class MailerConfig {
+
+    private static Logger logger = LoggerFactory.getLogger(MailerConfig.class);
 
     @Bean
     @ConfigurationProperties("app.mailer")
@@ -79,9 +83,9 @@ public class MailerConfig {
         if (mailProperties.isEnable()) {
             String jndiName = mailProperties.getJndiName();
             try {
-                return JndiLocatorDelegate.createDefaultResourceRefLocator().lookup(jndiName, Session.class);
+                return new JndiLookup<>(Session.class).getResource("mail/GT.MAIL");
             } catch (NamingException ex) {
-                ex.printStackTrace();
+                logger.info("cannot find resource {}", jndiName);
             }
         }
         return null;
