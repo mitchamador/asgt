@@ -40,7 +40,7 @@ public class EmbeddedConfig {
     public TomcatServletWebServerFactory containerFactory(
             final DataSourceProperties sapodDataSourceProperties,
             final DataSourceProperties pensiDataSourceProperties,
-            @Qualifier("propSettinsProperties") final SettingsProperties settingsProperties,
+            @Qualifier("propSettingsProperties") final SettingsProperties settingsProperties,
             @Autowired(required = false) final JndiMQConfigurationProperties jndiMqConfigurationProperties,
             @Autowired(required = false) @Qualifier("inboundQueueProperties") final QueueConfigurationProperties inboundQueueConfigurationProperties,
             @Autowired(required = false) @Qualifier("outboundQueueProperties") final QueueConfigurationProperties outboundQueueConfigurationProperties,

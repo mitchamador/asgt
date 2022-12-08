@@ -196,7 +196,7 @@ public class AppConfig {
             try {
                 return objectMapper.readValue(new JndiLookup<>(String.class).getResource(jndiName), SettingsProperties.class);
             } catch (NamingException e) {
-                logger.info("cannot found {}", jndiName);
+                logger.info("cannot find resource {}", jndiName);
             } catch (JsonProcessingException e) {
                 logger.info("failed json settings processing");
             } catch (Exception ignored) {
@@ -207,7 +207,7 @@ public class AppConfig {
 
     @Bean
     @ConfigurationProperties("app.settings")
-    @Qualifier("propSettinsProperties")
+    @Qualifier("propSettingsProperties")
     public SettingsProperties propSettingsProperties() {
         return new SettingsProperties();
     }
