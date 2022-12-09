@@ -1,7 +1,5 @@
 # production configuration
 app:
-  settings:
-    jndi-name: "config/GTSETTINGS"
   sapod:
     datasource:
       jndi-name: "jdbc/GTMAIN"

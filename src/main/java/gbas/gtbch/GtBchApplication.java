@@ -1,5 +1,6 @@
 package gbas.gtbch;
 
+import gbas.gtbch.config.AppProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
@@ -20,7 +21,9 @@ public class GtBchApplication extends SpringBootServletInitializer implements We
 
 	@Override
 	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-		return application.sources(GtBchApplication.class);
+		return application
+				.sources(GtBchApplication.class)
+				.listeners(new AppProperties());
 	}
 
     public static void main(String[] args) throws Exception {

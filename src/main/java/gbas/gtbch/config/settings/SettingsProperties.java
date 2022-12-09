@@ -1,28 +1,19 @@
 package gbas.gtbch.config.settings;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 
-@JsonIgnoreProperties(value = {"jndiName"})
+/**
+ * Settings from app.settings
+ */
+@Component
+@ConfigurationProperties("app.settings")
 public class SettingsProperties {
 
     /**
-     * jndi name for configuration
-     */
-    private String jndiName;
-
-    /**
      * use new services' codes
-     * set default to true
      */
-    private boolean newServiceCodes = true;
-
-    public String getJndiName() {
-        return jndiName;
-    }
-
-    public void setJndiName(String jndiName) {
-        this.jndiName = jndiName;
-    }
+    private boolean newServiceCodes;
 
     public boolean getNewServiceCodes() {
         return newServiceCodes;

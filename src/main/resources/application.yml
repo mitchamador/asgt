@@ -37,6 +37,9 @@ logging:
     org.springframework.boot.context.web.ErrorPageFilter: OFF
 
 app:
+  # GtSettings from sapod
+  settings:
+    newServiceCodes: true
   api:
     # use 'jwt' for token based authentication
     #     'cookies' for cookies based authentication
@@ -59,8 +62,8 @@ app:
       batch-size: "2500"
       duration: "15"
       keep-days:
-        nakl: "14"
-        other: "60"
+        nakl: 14
+        other: 60
     syncronizer:
       #use full insert merge
       fullmerge: false

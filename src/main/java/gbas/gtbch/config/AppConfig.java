@@ -1,11 +1,9 @@
 package gbas.gtbch.config;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gbas.eds.gtbch.settings.GtSettings;
 import gbas.gtbch.config.settings.SettingsProperties;
 import gbas.gtbch.config.settings.SettingsReaderImpl;
-import gbas.gtbch.util.jndi.JndiLookup;
 import gbas.tvk.interaction.pensi.ConnectionManager;
 import gbas.tvk.interaction.pensi.PensiManager;
 import gbas.tvk.interaction.pensi.sync.Sync;
@@ -18,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.*;
 import org.springframework.context.event.EventListener;
@@ -29,7 +26,6 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import javax.annotation.PreDestroy;
-import javax.naming.NamingException;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -140,8 +136,12 @@ public class AppConfig {
         endTime = Instant.now();
     }
 
+    private ApplicationContext context;
+
     @Autowired
-    ApplicationContext context;
+    public void setApplicationContext(ApplicationContext context) {
+        this.context = context;
+    }
 
     @Bean
     @Lazy
@@ -170,46 +170,13 @@ public class AppConfig {
 
     /**
      * init {@link GtSettings}
-     * @param objectMapper
      * @return
      */
     @Bean
-    public GtSettings gtSettings(ObjectMapper objectMapper) {
+    public GtSettings gtSettings(SettingsProperties settingsProperties) {
         GtSettings gtSettings = GtSettings.INSTANCE;
-        gtSettings.init(new SettingsReaderImpl(settingsProperties(objectMapper)));
+        gtSettings.init(new SettingsReaderImpl(settingsProperties));
         return gtSettings;
-    }
-
-    /**
-     * имя в JNDI
-     */
-    @Value("${app.settings.jndi-name:#{null}}")
-    private String jndiName;
-
-    /**
-     * SettingsProperties из JNDI (если заполнено в properties app.settings.jndi-name)
-     * @return
-     */
-    @Bean
-    public SettingsProperties settingsProperties(ObjectMapper objectMapper) {
-        if (jndiName != null) {
-            try {
-                return objectMapper.readValue(new JndiLookup<>(String.class).getResource(jndiName), SettingsProperties.class);
-            } catch (NamingException e) {
-                logger.info("cannot find resource {}", jndiName);
-            } catch (JsonProcessingException e) {
-                logger.info("failed json settings processing");
-            } catch (Exception ignored) {
-            }
-        }
-        return propSettingsProperties();
-    }
-
-    @Bean
-    @ConfigurationProperties("app.settings")
-    @Qualifier("propSettingsProperties")
-    public SettingsProperties propSettingsProperties() {
-        return new SettingsProperties();
     }
 
 }

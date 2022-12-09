@@ -1,4 +1,4 @@
-package gbas.gtbch.config.settings;
+package gbas.gtbch.config.jndi;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -13,9 +13,9 @@ import java.util.Hashtable;
 import java.util.Map;
 
 /**
- * WAS objectfactory for {@link SettingsProperties}
+ * Websphere Application Server's {@link ObjectFactory} for resource environment entries. Create json from key-value pairs.
  */
-public class SettingsObjectFactory implements ObjectFactory {
+public class WASJndiObjectFactory implements ObjectFactory {
 
     @Override
     public Object getObjectInstance(Object object, Name name, Context context, Hashtable<?,?> env) throws Exception {
