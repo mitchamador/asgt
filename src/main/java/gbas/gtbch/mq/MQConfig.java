@@ -4,6 +4,9 @@ import com.ibm.mq.jms.MQConnectionFactory;
 import com.ibm.mq.jms.MQQueue;
 import com.ibm.mq.spring.boot.MQConnectionFactoryFactory;
 import com.ibm.msg.client.wmq.WMQConstants;
+import gbas.gtbch.mq.messagesender.MQMessageSender;
+import gbas.gtbch.mq.messagesender.impl.MQMessageSenderConnectionFactory;
+import gbas.gtbch.mq.messagesender.impl.MQMessageSenderJmsTemplate;
 import gbas.gtbch.mq.properties.JndiMQConfigurationProperties;
 import gbas.gtbch.mq.properties.QueueConfigurationProperties;
 import gbas.gtbch.util.jndi.JndiLookup;
@@ -26,7 +29,9 @@ import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
+import javax.jms.Session;
 import javax.naming.NamingException;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 @Configuration
@@ -35,7 +40,6 @@ import java.util.concurrent.TimeUnit;
 public class MQConfig {
 
     private final static Logger logger = LoggerFactory.getLogger(MQConfig.class);
-
     @Bean
     @ConfigurationProperties("app.mq.queue-manager")
     public JndiMQConfigurationProperties jndiMqConfigurationProperties() {
@@ -43,18 +47,40 @@ public class MQConfig {
     }
 
     /**
-     * enable usage of {@link CachingConnectionFactory}
+     * enable usage of {@link CachingConnectionFactory} (not for was)
      */
     @Value("${app.mq.caching:false}")
     private boolean useCachingConnectionFactory;
-
     public boolean isUseCachingConnectionFactory() {
         return useCachingConnectionFactory;
     }
-
     public void setUseCachingConnectionFactory(boolean useCachingConnectionFactory) {
         this.useCachingConnectionFactory = useCachingConnectionFactory;
     }
+
+    /**
+     * @see DefaultMessageListenerContainer#setAutoStartup(boolean)
+     */
+    @Value("${app.mq.listener.autostart:true}")
+    private boolean listenerAutoStart;
+
+    /**
+     * @see DefaultMessageListenerContainer#setCacheLevelName(String)
+     */
+    @Value("${app.mq.listener.cachelevel:none}")
+    private String listenerCacheLevelName;
+
+    /**
+     * use {@link MQMessageSenderJmsTemplate} if true, {@link MQMessageSenderConnectionFactory} otherwise
+     */
+    @Value("${app.mq.sender.jmstemplate:true}")
+    private boolean useJmsTemplate;
+
+    /**
+     * @see DefaultMessageListenerContainer#setReceiveTimeout(long)
+     */
+    @Value("${app.mq.listener.receivetimeout:60}")
+    private long jmsReceiveTimeout;
 
     /**
      * create {@link CachingConnectionFactory} from {@link ConnectionFactory}
@@ -123,6 +149,21 @@ public class MQConfig {
         DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
         factory.setConnectionFactory(connectionFactory);
         factory.setConcurrency("4-8"); // core 4 threads and max 8 threads
+        factory.setSessionTransacted(true);
+        factory.setSessionAcknowledgeMode(Session.AUTO_ACKNOWLEDGE);
+        factory.setAutoStartup(listenerAutoStart);
+        factory.setErrorHandler(e -> {
+            logger.info("jmsListenerContainerFactory error: " + e.getMessage(), e);
+        });
+        if (listenerCacheLevelName != null) {
+            try {
+                factory.setCacheLevelName((listenerCacheLevelName.toLowerCase().startsWith("cache_") ? listenerCacheLevelName : ("cache_" + listenerCacheLevelName)).toUpperCase(Locale.ROOT));
+            } catch (Exception e) {
+                logger.info("jmsListenerContainerFactory setCacheLevelName error: " + e.getMessage());
+            }
+        }
+        // https://community.ibm.com/community/user/integration/viewdocument/top-tip-when-using-ibm-mq-and-the-s?CommunityKey=183ec850-4947-49c8-9a2e-8e7c7fc46c64&tab=librarydocuments
+        factory.setReceiveTimeout(TimeUnit.SECONDS.toMillis(jmsReceiveTimeout));
         return factory;
     }
 
@@ -205,11 +246,25 @@ public class MQConfig {
     @Bean
     public JmsTemplate jmsQueueTemplate(ConnectionFactory connectionFactory) {
         JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory);
-        jmsTemplate.setConnectionFactory(connectionFactory);
         jmsTemplate.setDefaultDestinationName(outboundQueueName());
         jmsTemplate.setExplicitQosEnabled(true);
         jmsTemplate.setTimeToLive(TimeUnit.MINUTES.toMillis(60));
         return jmsTemplate;
+    }
+
+    /**
+     * create message sender
+     * @param jmsTemplate
+     * @param connectionFactory
+     * @return
+     */
+    @Bean
+    public MQMessageSender mqMessageSender(JmsTemplate jmsTemplate, ConnectionFactory connectionFactory) {
+        if (useJmsTemplate) {
+            return new MQMessageSenderJmsTemplate(jmsTemplate);
+        } else {
+            return new MQMessageSenderConnectionFactory(connectionFactory);
+        }
     }
 
 }

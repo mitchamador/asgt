@@ -4,8 +4,10 @@ import gbas.gtbch.mailer.MailService;
 import gbas.gtbch.util.SystemInfo;
 import gbas.gtbch.util.SystemInfoProperties;
 import gbas.gtbch.web.request.KeyValue;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
+import org.springframework.jms.listener.MessageListenerContainer;
 import org.springframework.stereotype.Component;
 
 import static gbas.gtbch.mailer.MailerConstants.MAILER_CONFIG_EVENT_STARTUP;
@@ -16,15 +18,33 @@ public class AppStartup implements ApplicationListener<ApplicationReadyEvent> {
     private final MailService mailService;
     private final SystemInfoProperties systemInfoProperties;
     private final String host;
+    private final MessageListenerContainer inboundQueueListenerContainer;
 
-    public AppStartup(MailService mailService, SystemInfo systemInfo, SystemInfoProperties systemInfoProperties) {
+    public AppStartup(MailService mailService,
+                      SystemInfo systemInfo,
+                      SystemInfoProperties systemInfoProperties,
+                      @Autowired(required = false) MessageListenerContainer inboundQueueListenerContainer) {
         this.mailService = mailService;
         this.host = systemInfo.getHost();
         this.systemInfoProperties = systemInfoProperties;
+        this.inboundQueueListenerContainer = inboundQueueListenerContainer;
     }
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
+        // send mail message
+        sendMailStartupMessage();
+        // start jms listener
+        startInboundJmsListener();
+    }
+
+    private void startInboundJmsListener() {
+        if (inboundQueueListenerContainer != null && !inboundQueueListenerContainer.isAutoStartup()) {
+            inboundQueueListenerContainer.start();
+        }
+    }
+
+    private void sendMailStartupMessage() {
         if (mailService.getMailProperties().isEventEnabled(MAILER_CONFIG_EVENT_STARTUP)) {
             StringBuilder htmlMessage = new StringBuilder();
 

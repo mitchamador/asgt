@@ -2,19 +2,17 @@ package gbas.gtbch.mq;
 
 import gbas.gtbch.jobs.AbstractServerJob;
 import gbas.gtbch.jobs.impl.MQJob;
+import gbas.gtbch.mq.messagesender.MQMessageSender;
 import gbas.gtbch.sapod.model.CalculationLog;
 import gbas.gtbch.util.calc.CalcHandler;
 import gbas.gtbch.util.calc.GtCalcData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
-import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.JmsException;
 import org.springframework.stereotype.Component;
 
-import javax.jms.Message;
-import javax.jms.MessageListener;
-import javax.jms.Queue;
-import javax.jms.TextMessage;
+import javax.jms.*;
 
 import static gbas.gtbch.util.CropString.getCroppedString;
 
@@ -25,19 +23,27 @@ public class MQListener implements MessageListener {
     private final static Logger logger = LoggerFactory.getLogger(MQListener.class);
 
     /**
-     *
-     */
-    private final JmsTemplate jmsTemplate;
-
-    /**
-     *
+     * mq job
      */
     private final MQJob mqJob;
 
-    public MQListener(JmsTemplate jmsTemplate, MQJob mqJob, CalcHandler calcHandler) {
-        this.jmsTemplate = jmsTemplate;
+    /**
+     * {@link CalcHandler}
+     */
+    private final CalcHandler calcHandler;
+
+    /**
+     * default outbound queue name
+     */
+    private final String defaultOutboundQueueName;
+
+    private final MQMessageSender messageSender;
+
+    public MQListener(MQMessageSender messageSender, MQJob mqJob, CalcHandler calcHandler, String outboundQueueName) {
         this.mqJob = mqJob;
         this.calcHandler = calcHandler;
+        this.defaultOutboundQueueName = outboundQueueName;
+        this.messageSender = messageSender;
     }
 
     private void log(String s) {
@@ -58,8 +64,6 @@ public class MQListener implements MessageListener {
         }
     }
 
-    private final CalcHandler calcHandler;
-
     private void processMessage(final TextMessage message) throws Exception {
 
         log(String.format("message received: \"%s\", messageId: %s, correlationId: %s", getCroppedString(message.getText()), message.getJMSMessageID(), message.getJMSCorrelationID()));
@@ -77,30 +81,27 @@ public class MQListener implements MessageListener {
 
         if (message.getJMSCorrelationID() != null && !message.getJMSCorrelationID().isEmpty()) {
 
-            String outboundQueueName = message.getJMSReplyTo() instanceof Queue ? ((Queue) message.getJMSReplyTo()).getQueueName() : jmsTemplate.getDefaultDestinationName();
+            String outboundQueueName = message.getJMSReplyTo() instanceof Queue ? ((Queue) message.getJMSReplyTo()).getQueueName() : this.defaultOutboundQueueName;
 
             if (outboundQueueName != null) {
-                jmsTemplate.send(outboundQueueName, session -> {
+                try {
+                    messageSender.sendMessage(outboundQueueName, response, message.getJMSCorrelationID());
 
-                    TextMessage answer = session.createTextMessage();
-                    answer.setJMSCorrelationID(message.getJMSCorrelationID());
-                    answer.setText(response);
+                    long duration = System.currentTimeMillis() - startTime;
+                    String elapsedString = ("in " + (duration / 1000) + "." + ((duration % 1000) / 10) + " s");
 
-                    return answer;
-                });
+                    String replyTo = "";
+                    if (message.getJMSReplyTo() instanceof Queue) {
+                        replyTo = "to " + (outboundQueueName.lastIndexOf('/') != -1 ? outboundQueueName.substring(outboundQueueName.lastIndexOf('/') + 1) : outboundQueueName) + " ";
+                    }
 
-                startTime = System.currentTimeMillis() - startTime;
-
-                String replyTo = "";
-
-                if (message.getJMSReplyTo() instanceof Queue) {
-                    replyTo = "to " + (outboundQueueName.lastIndexOf('/') != -1 ? outboundQueueName.substring(outboundQueueName.lastIndexOf('/') + 1) : outboundQueueName) + " ";
+                    log(String.format("send reply %s%s: \"%s\" for correlationId: %s", replyTo, elapsedString, getCroppedString(response), message.getJMSCorrelationID()));
+                } catch (JmsException | JMSException e) {
+                    e.printStackTrace();
                 }
-
-                String elapsedString = ("in " + (startTime / 1000) + "." + ((startTime % 1000) / 10) + " s");
-
-                log(String.format("send reply %s%s: \"%s\" for correlationId: %s", replyTo, elapsedString, getCroppedString(response), message.getJMSCorrelationID()));
             }
+
         }
     }
+
 }

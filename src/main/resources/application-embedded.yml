@@ -33,6 +33,9 @@ app:
   mq:
     #enable: true
     caching: true
+    listener:
+      cachelevel: auto
+      receivetimeout: 1
     queue-manager:
       jndi-name: "jms/GT.QCF"
       queueManager: QM1
