@@ -13,6 +13,8 @@ import org.springframework.jms.JmsException;
 import org.springframework.stereotype.Component;
 
 import javax.jms.*;
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 import static gbas.gtbch.util.CropString.getCroppedString;
 
@@ -87,8 +89,7 @@ public class MQListener implements MessageListener {
                 try {
                     messageSender.sendMessage(outboundQueueName, response, message.getJMSCorrelationID());
 
-                    long duration = System.currentTimeMillis() - startTime;
-                    String elapsedString = ("in " + (duration / 1000) + "." + ((duration % 1000) / 10) + " s");
+                    String elapsedString = String.format(Locale.ROOT, "in %.2f s", (double) (System.currentTimeMillis() - startTime) / TimeUnit.SECONDS.toMillis(1));
 
                     String replyTo = "";
                     if (message.getJMSReplyTo() instanceof Queue) {

@@ -33,10 +33,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static gbas.gtbch.util.CropString.getCroppedString;
@@ -159,7 +156,7 @@ public class ApiController {
         if (calculationLogs != null) {
             for (CalculationLog log : calculationLogs) {
                 if (log.getInboundTime() != null && log.getOutboundTime() != null) {
-                    log.setDurationText(String.format("%.1f c", (double) (log.getOutboundTime().getTime() - log.getInboundTime().getTime()) / TimeUnit.SECONDS.toMillis(1)));
+                    log.setDurationText(String.format(Locale.ROOT, "%.2f c", (double) (log.getOutboundTime().getTime() - log.getInboundTime().getTime()) / TimeUnit.SECONDS.toMillis(1)));
                 }
                 if (Func.isEmpty(log.getJmsCorrelationId())) {
                     log.setJmsCorrelationId(String.valueOf(log.getId()));
