@@ -25,7 +25,6 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-import javax.annotation.PreDestroy;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -91,7 +90,6 @@ public class AppConfig {
      * Create {@link PensiManager}
      */
     @Bean
-//    @Lazy
     @Autowired
     @DependsOn("dbHelper")
     public PensiManager pensiManager(
@@ -117,16 +115,6 @@ public class AppConfig {
         pm.setFullMergeSapod(fullInsertMergeSapod);
 
         return pm;
-    }
-
-    /**
-     * Destroy {@link PensiManager}
-     */
-    @PreDestroy
-    public void destroyPensiManager() {
-        if (pm != null) {
-            pm.destroy();
-        }
     }
 
     private Instant startTime, endTime;
