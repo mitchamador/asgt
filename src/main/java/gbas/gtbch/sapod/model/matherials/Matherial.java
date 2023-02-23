@@ -11,7 +11,7 @@ import java.util.List;
  * Услуга
  * GTMAIN.matherial
  */
-@JsonIgnoreProperties(value = {"nDoc", "dateBegin", "dateEnd", "codeGroup", "osobName", "osobVal"})
+@JsonIgnoreProperties(value = {"dateBegin", "dateEnd", "codeGroup", "osobName", "osobVal"})
 public class Matherial {
 
     /**
@@ -40,8 +40,9 @@ public class Matherial {
 
     /**
      * todo
-     * Нормативный документ	Указываем документ на основании, которого работа (услуга) объявлена на Дороге	(C100)	matherial.n_doc
+     * Нормативный документ	Указываем документ на основании, которого работа (услуга) объявлена на Дороге	(C100)	matherial.ndoc
      */
+    @Column(length = 100, name = "ndoc")
     private String nDoc;
 
     /**
@@ -206,7 +207,6 @@ public class Matherial {
         this.ndsList = ndsList;
     }
 
-
     public String getOsobName() {
         return osobName;
     }
@@ -230,4 +230,5 @@ public class Matherial {
     public void setCodeGroup(String codeGroup) {
         this.codeGroup = codeGroup;
     }
+
 }

@@ -84,7 +84,8 @@ public class MatherialRepository {
                 " (" + dbHelper.selectTopRows("select cena_1 from price2 where price2.matherial = m.matherial order by dat_home desc ", 1) + ") as rate,\n" +
                 " (select short_name from currency where code = (" + dbHelper.selectTopRows("select code from price2 where price2.matherial = m.matherial order by dat_home desc", 1) + ")) as currency,\n" +
                 " (" + dbHelper.selectTopRows("select koef from tvk_kof_sbor where tvk_kof_sbor.id_object = m.matherial order by date_begin desc", 1) + ") as koef,\n" +
-                " (" + dbHelper.selectTopRows("select value from tvk_nds where tvk_nds.id_matherial = m.matherial order by date_begin desc", 1) + ") as nds\n" +
+                " (" + dbHelper.selectTopRows("select value from tvk_nds where tvk_nds.id_matherial = m.matherial order by date_begin desc", 1) + ") as nds,\n" +
+                " m.ndoc\n" +
                 "from matherial m\n" +
                 "left outer join measure mea1 on mea1.measure = m.measure\n" +
                 "left outer join measure mea2 on mea2.measure = m.measure_right\n";
@@ -125,6 +126,7 @@ public class MatherialRepository {
             matherial.setServiceCurrency(Func.iif(rs.getString("currency")));
             matherial.setServiceKoef(rs.getDouble("koef"));
             matherial.setServiceNds(rs.getInt("nds"));
+            matherial.setnDoc(Func.iif(rs.getString("ndoc")));
 
             return matherial;
         }, args.toArray(new Object[0]));
@@ -168,7 +170,8 @@ public class MatherialRepository {
                 " mea2.name as mea2_name,\n" +
                 " m.osob_name,\n" +
                 " m.osob_val,\n" +
-                " m.code_group\n" +
+                " m.code_group,\n" +
+                " m.ndoc\n" +
                 "from matherial m\n" +
                 "left outer join measure mea1 on mea1.measure = m.measure\n" +
                 "left outer join measure mea2 on mea2.measure = m.measure_right\n" +
@@ -186,6 +189,7 @@ public class MatherialRepository {
                 matherial.setOsobName(Func.iif(rs.getString("osob_name")));
                 matherial.setOsobVal(rs.getInt("osob_val"));
                 matherial.setCodeGroup(Func.iif(rs.getString("code_group")));
+                matherial.setnDoc(Func.iif(rs.getString("ndoc")));
 
                 Descriptor descriptor = new Descriptor();
                 descriptor.setCode(rs.getInt("descriptor"));
@@ -224,17 +228,17 @@ public class MatherialRepository {
                 preparedStatement = connection.prepareStatement("insert into matherial (\n" +
                                 " code, code_ekisufr, name, descriptor, measure,\n" +
                                 " measure_name_left, measure_right, measure_name_right, code_group, osob_name,\n" +
-                                " osob_val, is_delete)\n" +
+                                " osob_val, ndoc, is_delete)\n" +
                                 " values\n" +
                                 " (?, ?, ?, ?, ?,\n" +
                                 "  ?, ?, ?, ?, ?,\n" +
-                                "  ?, 0)",
+                                "  ?, ?, 0)",
                         Statement.RETURN_GENERATED_KEYS);
             } else {
                 preparedStatement = connection.prepareStatement("update matherial set\n" +
                         " code=?, code_ekisufr=?, name=?, descriptor=?, measure=?,\n" +
                         " measure_name_left=?, measure_right=?, measure_name_right=?, code_group=?, osob_name=?,\n" +
-                        " osob_val=?, is_delete=0\n" +
+                        " osob_val=?, ndoc=?, is_delete=0\n" +
                         " where matherial = ?");
             }
 
@@ -265,9 +269,10 @@ public class MatherialRepository {
             } else {
                 preparedStatement.setNull(11, Types.INTEGER);
             }
+            preparedStatement.setString(12, matherial.getnDoc());
 
             if (matherial.getId() != 0) {
-                preparedStatement.setInt(12, matherial.getId());
+                preparedStatement.setInt(13, matherial.getId());
             }
 
             return preparedStatement;

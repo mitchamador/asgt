@@ -60,6 +60,7 @@
                     { "data": "name" },
                     { "data": "descriptorName" },
                     { "data": "measureName" },
+                    { "data": "nDoc" },
                     { "data": "rate" },
                     { "data": "serviceKoef" },
                     { "data": "serviceNds" }
@@ -172,7 +173,7 @@
     <table id="matherialTable" class="table-condensed table-bordered" style="width:100%; font-size: 0.9em">
         <thead>
         <tr>
-            <th class="text-nowrap" style="width: 5%">
+            <th class="text-nowrap" style="width: 3%">
                 <!--                № п/п-->
                 <div style="display: flex; width: 100%; height: 100%">
                     <a id="matherialCreate" class="btn-success btn-sm" style="align-self: center; margin-right: 3px; padding: 1px 5px; cursor: pointer"><i class="fa fa-plus"></i></a>
@@ -180,14 +181,15 @@
                 </div>
             </th>
 
-            <th style="width: 7%">Код статьи</th>
-            <th style="width: 7%">Код услуги</th>
+            <th style="width: 3%">Код статьи</th>
+            <th style="width: 5%">Код услуги</th>
             <th style="width: 33%">Наименование</th>
-            <th style="width: 20%">Формула расчета</th>
+            <th style="width: 15%">Формула расчета</th>
             <th style="width: 12%">Единица измерения</th>
-            <th style="width: 9%">Ставка</th>
-            <th style="width: 6%">Коэф.</th>
-            <th style="width: 6%">НДС</th>
+            <th style="width: 15%">Нормативный документ</th>
+            <th style="width: 8%">Ставка</th>
+            <th style="width: 5%">Коэф.</th>
+            <th style="width: 5%">НДС</th>
 
         </tr>
         </thead>
@@ -264,9 +266,14 @@
                         return;
                     }
 
+                    matherial.nDoc = $("#nDoc").val();
+                    if (matherial.nDoc=== "") {
+                        showInfoModal("Не введён нормативный документ");
+                        return;
+                    }
+
                     // matherial.dateBegin = $("#dateBeginText").val() !== "" ? $("#datetimeBeginMatherial").datetimepicker('getDate') : null;
                     // matherial.dateEnd = $("#dateEndText").val() !== "" ? $("#datetimeEndMatherial").datetimepicker('getDate') : null;
-                    // matherial.nDoc = $("#nDoc").val();
 
                     if (matherial.descriptor === null || matherial.descriptor === undefined) {
                         matherial.descriptor = {};
@@ -463,7 +470,6 @@
                         </div>
 
                         <div class="col-sm-6" style="width: 50%;">
-
                             <div class="form-group" style="width: 100%;">
                                 <span class="has-float-label">
                                     <input class="form-control" id="codeEkisufr" type="text"
@@ -511,6 +517,7 @@
                                 </span>
                             </div>
                         </div>
+-->
 
 
                         <div class="col-sm-12">
@@ -518,12 +525,12 @@
                                 <span class="has-float-label">
                                     <input class="form-control" id="nDoc" type="text"
                                            placeholder=""
+                                           maxlength="100"
                                            th:value="${matherial.getnDoc()}"/>
                                     <label for="nDoc">Нормативный документ</label>
                                 </span>
                             </div>
                         </div>
--->
 
                         <div class="col-sm-6" style="width: 50%;">
                             <div class="form-group" style="width: 100%">

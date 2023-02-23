@@ -5,7 +5,7 @@ import gbas.tvk.nsi.cash.Func;
 
 import java.text.DecimalFormat;
 
-@JsonIgnoreProperties(value = {"priceList", "koefList", "ndsList", "measureLeft", "measureRight", "measureLeftName", "measureRightName", "serviceRate", "serviceCurrency", "descriptor", "codeGroup", "nDoc", "dateBegin", "dateEnd", "osobName", "osobVal"})
+@JsonIgnoreProperties(value = {"priceList", "koefList", "ndsList", "measureLeft", "measureRight", "measureLeftName", "measureRightName", "serviceRate", "serviceCurrency", "descriptor", "codeGroup", "dateBegin", "dateEnd", "osobName", "osobVal"})
 public class MatherialListItem extends Matherial {
 
     /**
