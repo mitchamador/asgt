@@ -6,6 +6,7 @@ import gbas.tvk.util.cache.CacheElement;
 import gbas.tvk.util.cache.CacheStatistics;
 
 import java.util.Optional;
+import java.util.concurrent.Callable;
 
 /**
  * Caffeine implementation of {@link Cache}
@@ -87,4 +88,16 @@ public class CaffeineImpl<K, V> implements Cache<K, V> {
 
         return cacheStatistics;
     }
+
+    @Override
+    public V cacheAndGet(K key, Callable<V> callable) throws Exception {
+        if (contains(key)) {
+            return get(key);
+        } else {
+            V value = callable.call();
+            put(key, value);
+            return value;
+        }
+    }
+
 }
