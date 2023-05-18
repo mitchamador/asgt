@@ -624,3 +624,33 @@ function verticalCenteredModal(modal) {
     });
 }
 
+/**
+ * parse float number with ',' converted to '.'
+ * @param number
+ * @return {*}
+ */
+function parseFloat2(number) {
+    return number.replace(',', '.');
+}
+
+/**
+ * validate double value (#.####) from event
+ * @param e
+ */
+function validateDouble(e) {
+    var value = $(e.target).val() + e.key;
+    if (!value.match("^([0-9]+([.|,][0-9]{0,4})?)$")) {
+        e.preventDefault();
+    }
+}
+
+/**
+ * validate int value from event
+ * @param e
+ */
+function validateInt(e) {
+    var value = $(this).val() + e.key;
+    if (!value.match("^[0-9]+$")) {
+        e.preventDefault();
+    }
+}
