@@ -3,10 +3,12 @@ package gbas.gtbch.config;
 import gbas.gtbch.mailer.MailService;
 import gbas.gtbch.util.SystemInfo;
 import gbas.gtbch.util.SystemInfoProperties;
+import gbas.gtbch.util.calc.handler.Handler;
 import gbas.gtbch.web.request.KeyValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jms.listener.MessageListenerContainer;
 import org.springframework.stereotype.Component;
 
@@ -19,15 +21,18 @@ public class AppStartup implements ApplicationListener<ApplicationReadyEvent> {
     private final SystemInfoProperties systemInfoProperties;
     private final String host;
     private final MessageListenerContainer inboundQueueListenerContainer;
+    private final Handler handler;
 
     public AppStartup(MailService mailService,
                       SystemInfo systemInfo,
                       SystemInfoProperties systemInfoProperties,
-                      @Autowired(required = false) MessageListenerContainer inboundQueueListenerContainer) {
+                      @Autowired(required = false) MessageListenerContainer inboundQueueListenerContainer,
+                      Handler handler) {
         this.mailService = mailService;
         this.host = systemInfo.getHost();
         this.systemInfoProperties = systemInfoProperties;
         this.inboundQueueListenerContainer = inboundQueueListenerContainer;
+        this.handler = handler;
     }
 
     @Override
@@ -36,6 +41,12 @@ public class AppStartup implements ApplicationListener<ApplicationReadyEvent> {
         sendMailStartupMessage();
         // start jms listener
         startInboundJmsListener();
+        // init calc handler
+        initCalcHandler(applicationReadyEvent.getApplicationContext());
+    }
+
+    private void initCalcHandler(ConfigurableApplicationContext applicationContext) {
+        handler.init(applicationContext);
     }
 
     private void startInboundJmsListener() {

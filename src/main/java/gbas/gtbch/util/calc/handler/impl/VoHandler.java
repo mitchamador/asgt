@@ -15,7 +15,7 @@ import static gbas.gtbch.util.calc.handler.Handler.checkTags;
 import static gbas.gtbch.util.calc.handler.impl.NaklHandler.fillResultData;
 
 /**
- * Xstream serialized {@link VagonOtprTransit} and {@link CalcPlataData} convertation and calculation
+ * Xstream serialized {@link VagonOtprTransit} and {@link CalcPlataData} convertion and calculation
  */
 @Component
 public class VoHandler implements ObjectHandler {

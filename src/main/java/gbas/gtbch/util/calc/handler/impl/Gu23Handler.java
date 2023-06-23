@@ -15,7 +15,7 @@ import java.sql.Connection;
 import static gbas.gtbch.util.calc.handler.Handler.checkTags;
 
 /**
- * Gu23 convertation and calculation
+ * Gu23 convertion and calculation
  */
 @Component
 public class Gu23Handler implements ObjectHandler {

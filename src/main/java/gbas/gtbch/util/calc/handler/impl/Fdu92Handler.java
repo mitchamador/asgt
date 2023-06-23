@@ -16,7 +16,7 @@ import java.sql.Connection;
 import static gbas.gtbch.util.calc.handler.Handler.checkTags;
 
 /**
- * Fdu92 convertation and calculation
+ * Fdu92 convertion and calculation
  */
 @Component
 public class Fdu92Handler implements ObjectHandler {

@@ -1,5 +1,6 @@
 package gbas.gtbch.util.calc.handler;
 
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -11,16 +12,17 @@ import java.util.List;
 @Component
 public class Handler {
 
-    private final List<ObjectHandler> handlerList;
+    private final List<ObjectHandler> handlerList = new ArrayList<>();
 
-    public Handler(ObjectHandler naklHandler, ObjectHandler voHandler, ObjectHandler fdu92Handler, ObjectHandler gu46Handler, ObjectHandler gu23Handler, ObjectHandler keu16Handler) {
-        handlerList = new ArrayList<>();
-        handlerList.add(naklHandler);
-        handlerList.add(voHandler);
-        handlerList.add(fdu92Handler);
-        handlerList.add(gu46Handler);
-        handlerList.add(gu23Handler);
-        handlerList.add(keu16Handler);
+    public Handler() {
+    }
+
+    /**
+     * initialization of {@link Handler#handlerList} with handlers (all classes implements {@link ObjectHandler})
+     * @param applicationContext
+     */
+    public void init(ConfigurableApplicationContext applicationContext) {
+        handlerList.addAll(applicationContext.getBeansOfType(ObjectHandler.class).values());
     }
 
     public ObjectHandler getObjectHandler(String xml) {

@@ -16,7 +16,7 @@ import java.sql.Connection;
 import static gbas.gtbch.util.calc.handler.Handler.checkTags;
 
 /**
- * Keu16 convertation and calculation
+ * Keu16 convertion and calculation
  */
 @Component
 public class Keu16Handler implements ObjectHandler {

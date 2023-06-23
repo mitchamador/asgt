@@ -17,7 +17,7 @@ import java.sql.Connection;
 import static gbas.gtbch.util.calc.handler.Handler.checkTags;
 
 /**
- * xml gt convertation and calculation
+ * Nakl convertion and calculation
  */
 @Component
 public class NaklHandler implements ObjectHandler {
