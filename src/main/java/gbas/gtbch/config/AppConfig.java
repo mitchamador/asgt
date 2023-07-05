@@ -3,7 +3,7 @@ package gbas.gtbch.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gbas.eds.gtbch.settings.GtSettings;
 import gbas.gtbch.config.settings.SettingsProperties;
-import gbas.gtbch.config.settings.SettingsReaderImpl;
+import gbas.gtbch.config.settings.SettingsReaderGtBch;
 import gbas.tvk.interaction.pensi.ConnectionManager;
 import gbas.tvk.interaction.pensi.PensiManager;
 import gbas.tvk.interaction.pensi.sync.Sync;
@@ -163,7 +163,7 @@ public class AppConfig {
     @Bean
     public GtSettings gtSettings(SettingsProperties settingsProperties) {
         GtSettings gtSettings = GtSettings.INSTANCE;
-        gtSettings.init(new SettingsReaderImpl(settingsProperties));
+        gtSettings.init(new SettingsReaderGtBch(settingsProperties));
         return gtSettings;
     }
 

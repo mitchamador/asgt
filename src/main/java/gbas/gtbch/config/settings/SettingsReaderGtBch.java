@@ -1,12 +1,12 @@
 package gbas.gtbch.config.settings;
 
-import gbas.eds.gtbch.settings.reader.SettingsReader;
+import gbas.eds.gtbch.settings.reader.SettingsReaderDefault;
 
-public class SettingsReaderImpl implements SettingsReader {
+public class SettingsReaderGtBch extends SettingsReaderDefault {
 
     private final SettingsProperties settingsProperties;
 
-    public SettingsReaderImpl(SettingsProperties settingsProperties) {
+    public SettingsReaderGtBch(SettingsProperties settingsProperties) {
         this.settingsProperties = settingsProperties;
     }
 
