@@ -10,6 +10,10 @@ server:
   port: 8080
 
 app:
+# GtSettings from sapod
+#  settings:
+#    developmentMode: true
+# security mode
 #  api:
 #    security: "none"
   sapod:

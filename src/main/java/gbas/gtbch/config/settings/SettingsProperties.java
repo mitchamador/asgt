@@ -15,11 +15,24 @@ public class SettingsProperties {
      */
     private boolean newServiceCodes;
 
+    /**
+     * development mode
+     */
+    private boolean developmentMode;
+
     public boolean getNewServiceCodes() {
         return newServiceCodes;
     }
 
     public void setNewServiceCodes(boolean newServiceCodes) {
         this.newServiceCodes = newServiceCodes;
+    }
+
+    public boolean getDevelopmentMode() {
+        return developmentMode;
+    }
+
+    public void setDevelopmentMode(boolean developmentMode) {
+        this.developmentMode = developmentMode;
     }
 }

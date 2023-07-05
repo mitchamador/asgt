@@ -14,4 +14,9 @@ public class SettingsReaderGtBch extends SettingsReaderDefault {
     public boolean isNewServiceCodes() {
         return settingsProperties.getNewServiceCodes();
     }
+
+    @Override
+    public boolean isDevelopmentMode() {
+        return settingsProperties.getDevelopmentMode();
+    }
 }
