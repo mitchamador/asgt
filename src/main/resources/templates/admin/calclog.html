@@ -228,7 +228,7 @@
 
             // load selected document type
             var calcLogSelectedDocumentType = localStorage.getItem('calcLogDocumentType');
-            if (calcLogSelectedDocumentType !== null && calcLogSelectedDocumentType !== "") {
+            if (calcLogSelectedDocumentType !== null && calcLogSelectedDocumentType !== 'undefined') {
                 $("#typeDocument").val(calcLogSelectedDocumentType);
             }
 

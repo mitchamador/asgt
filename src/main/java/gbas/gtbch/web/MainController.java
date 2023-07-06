@@ -13,6 +13,7 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -150,7 +151,7 @@ public class MainController {
      * @return
      */
     @GetMapping("/admin/calclog")
-    public ModelAndView adminCalcLog() {
+    public ModelAndView adminCalcLog(Authentication authentication) {
         ModelAndView model = new ModelAndView("admin/calclog");
 
         List<KeyValue> sources = new ArrayList<>();
@@ -161,8 +162,12 @@ public class MainController {
         model.addObject("sources", sources);
 
         List<KeyValue> types = new ArrayList<>();
-        // todo temporary remove until working indexes for GTMAIN.calculation_log
-        //types.add(new KeyValue(null, "Все"));
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
+            // add all document types for 'su'
+            if ("su".equals(((UserDetails) authentication.getPrincipal()).getUsername())) {
+                types.add(new KeyValue(null, "Все"));
+            }
+        }
         for (CalculationLog.Type type : CalculationLog.Type.values()) {
             types.add(new KeyValue(type.name(), type.getName()));
         }
