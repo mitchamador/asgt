@@ -90,8 +90,8 @@
                                     <groupId>${project.groupId}</groupId>
                                     <artifactId>${project.artifactId}-war</artifactId>
                                     <version>${project.version}</version>
-                                    <url>${nexus.url}/repository/maven-snapshots/</url>
-                                    <repositoryId>nexus-snapshots</repositoryId>
+                                    <url>${maven-snapshots.url}</url>
+                                    <repositoryId>${maven-snapshots.id}</repositoryId>
                                 </configuration>
                             </execution>
                         </executions>
